@@ -1,0 +1,18 @@
+{
+  "name": "singlepage",
+  "homepage": "https://github.com/davidyack/Xrm.Tools.CRMWebAPI",
+  "authors": [
+    "David Yack <dyack@coloradotc.com>"
+  ],
+  "description": "",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

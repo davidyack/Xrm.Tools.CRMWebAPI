@@ -1,0 +1,30 @@
+<div>
+    <p class="view-loading">Loading...</p>
+    <div class="panel">
+        <div class="input-group">
+            <input class="form-control" id="view-todoDescription" />
+            <span class="input-group-btn">
+                <button class="btn btn-default view-addTodo">Add</button>
+            </span>
+        </div>
+        <table class="table table-striped">
+            <tbody class="data-container">
+                <tr class="data-template">
+                    <td>
+                        <p class="view-data-description"></p>
+                        <input type="text" class="form-control view-data-edit-input" style="display:none" />
+                    </td>
+                    <td>
+                        <p class="view-data-mode-delete">
+                            <a href="javascript:;" class="view-data-edit">Edit</a> |
+                            <a href="javascript:;" class="view-data-delete">Delete</a>
+                        </p>
+                        <p class="view-data-mode-edit" style="display:none">
+                            <a href="javascript:;" class="view-data-save">Save</a> |
+                            <a href="javascript:;" class="view-data-cancel-edit">Cancel</a>
+                        </p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
