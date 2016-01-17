@@ -64,10 +64,11 @@ namespace Xrm.Tools.WebAPI.Test
                 }
                 var batchResults = await api.Create("accounts", batchList.ToArray());
 
-                var gettimeResults  = await api.ExecuteFunction("GetTimeZoneCodeByLocalizedName",
-                    new KeyValuePair<string, object>[]
-                       { new KeyValuePair<string, object>("LocalizedStandardName","Pacific Standard Time"),
-                           new KeyValuePair<string, object>("LocaleId",1033) });
+                dynamic gettimeoptions = new ExpandoObject();
+                gettimeoptions.LocalizedStandardName = "";
+                gettimeoptions.LocalId = 1033;
+
+                var gettimeResults  = await api.ExecuteFunction("GetTimeZoneCodeByLocalizedName",gettimeoptions);
 
                 var whoamiResults = await api.ExecuteFunction("WhoAmI");
 

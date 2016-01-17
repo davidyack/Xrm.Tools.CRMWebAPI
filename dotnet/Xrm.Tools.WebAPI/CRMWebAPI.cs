@@ -81,7 +81,7 @@ namespace Xrm.Tools.WebAPI
         /// <param name="uri">e.g. accounts</param>
         /// <param name="QueryOptions">Filter, OrderBy,Select, and other options</param>
         /// <returns></returns>
-        public async Task<CRMGetListResult<JToken>> GetList(string uri, CRMGetListOptions QueryOptions = null)
+        public async Task<CRMGetListResult<ExpandoObject>> GetList(string uri, CRMGetListOptions QueryOptions = null)
         {
             CheckAuthToken();
 
@@ -89,12 +89,13 @@ namespace Xrm.Tools.WebAPI
             var results = await _httpClient.GetAsync(fullUrl);
             results.EnsureSuccessStatusCode();
             var data = await results.Content.ReadAsStringAsync();
-            CRMGetListResult<JToken> resultList = new CRMGetListResult<JToken>();
-            resultList.List = new List<JToken>();
+            CRMGetListResult<ExpandoObject> resultList = new CRMGetListResult<ExpandoObject>();
+            resultList.List = new List<ExpandoObject>();
             
             var values = JObject.Parse(data);
             var valueList = values["value"].ToList();
-            resultList.List.AddRange(valueList);
+            foreach (var value in valueList)
+                resultList.List.Add(value.ToObject<ExpandoObject>());            
             var nextLink = values["@odata.nextLink"];
             var recordCount = values["@odata.count"];
             if (recordCount != null)
@@ -107,7 +108,8 @@ namespace Xrm.Tools.WebAPI
 
                 var nextValues = JObject.Parse(nextData);
                 var nextValueList = nextValues["value"].ToList();
-                resultList.List.AddRange(nextValueList);
+                foreach (var nextvalue in nextValueList)
+                    resultList.List.Add(nextvalue.ToObject<ExpandoObject>());                
                 nextLink = nextValues["@odata.nextLink"];
             }
 
@@ -409,7 +411,7 @@ namespace Xrm.Tools.WebAPI
         /// <param name="function"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        public async Task<ExpandoObject> ExecuteFunction(string function, KeyValuePair<string, object>[] parameters = null)
+        private async Task<ExpandoObject> ExecuteFunction(string function, KeyValuePair<string, object>[] parameters = null)
         {
             CheckAuthToken();
             var fullUrl = string.Empty;
@@ -421,18 +423,7 @@ namespace Xrm.Tools.WebAPI
             return values;
         }
         
-        /// <summary>
-        /// Execute a bound function
-        /// </summary>
-        /// <param name="function"></param>
-        /// <param name="entityCollection"></param>
-        /// <param name="entityID"></param>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
-        public async Task<ExpandoObject> ExecuteFunction(string function, string entityCollection,Guid entityID,  KeyValuePair<string, object>[] parameters = null)
-        {
-            return await ExecuteFunction(string.Format("{0}({1})/{2}", entityCollection, entityID.ToString(), function),parameters);
-        }
+        
 
         /// <summary>
         /// Execute a bound function using object parameters
@@ -454,14 +445,19 @@ namespace Xrm.Tools.WebAPI
         /// <param name="function"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public async Task<ExpandoObject> ExecuteFunction(string function, object data)
+        public async Task<ExpandoObject> ExecuteFunction(string function, object data=null)
         {
             List<KeyValuePair<string, object>> list = ConvertObjectToKeyValuePair(data);
 
             return await ExecuteFunction(function, list.ToArray());
         }
 
-
+        /// <summary>
+        /// Execute an Action
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public async Task<ExpandoObject> ExecuteAction(string action, object data)
         {
             CheckAuthToken();
@@ -476,14 +472,18 @@ namespace Xrm.Tools.WebAPI
             var values = JsonConvert.DeserializeObject<ExpandoObject>(resultData);
             return values;
         }
+        /// <summary>
+        /// Execute a bound action
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="entityCollection"></param>
+        /// <param name="entityID"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public async Task<ExpandoObject> ExecuteAction(string action, string entityCollection,Guid entityID,object data)
         {
             return await ExecuteAction(string.Format("{0}({1})/{2}", entityCollection, entityID.ToString(), action), data);            
-        }
-        public async Task<ExpandoObject> ExecuteAction(string action, string entityCollection, Guid entityID, KeyValuePair<string, object>[] parameters = null)
-        {
-            return await ExecuteAction(string.Format("{0}({1})/{2}", entityCollection, entityID.ToString(), action), parameters);
-        }
+        }        
 
         /// <summary>
         /// Helper function to convert object to KVP

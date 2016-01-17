@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Xrm.Tools.CRMWebAPI</id>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <title>Xrm.Tools.CRMWebAPI</title>
     <authors>DavidYack</authors>
     <owners></owners>
@@ -12,6 +12,9 @@
       API signatures ae likley to break between versions - you have been warned!
     </description>
     <releaseNotes>
+      1.0.0 Initial release
+      1.0.1 Cleanup of the API, more comments
+      1.0.2 removed JToken from public APIs 
     </releaseNotes>
     <summary>
       This is a prototype of an API helper for working with CRM 2016 Web API
