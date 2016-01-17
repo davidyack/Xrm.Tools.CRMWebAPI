@@ -44,7 +44,7 @@ namespace Xrm.Tools.WebAPI
         private HttpClient _httpClient = null;
         private string _apiUrl = string.Empty;
         private string _AccessToken = string.Empty;
-        private Func<string, string> _getAccessToken = null;
+        private Func<string, Task<string>> _getAccessToken = null;
 
         /// <summary>
         /// 
@@ -53,7 +53,7 @@ namespace Xrm.Tools.WebAPI
         /// <param name="accessToken">allows for hard coded access token for testing</param>
         /// <param name="callerID">user id to impersonate on calls</param>
         /// <param name="getAccessToken">method to call to refresh access token, called before each use of token</param>
-        public CRMWebAPI(string apiUrl, string accessToken, Guid callerID = default(Guid), Func<string, string> getAccessToken = null)
+        public CRMWebAPI(string apiUrl, string accessToken, Guid callerID = default(Guid), Func<string, Task<string>> getAccessToken = null)
         {
             _apiUrl = apiUrl;
             _httpClient = new HttpClient();
@@ -83,7 +83,7 @@ namespace Xrm.Tools.WebAPI
         /// <returns></returns>
         public async Task<CRMGetListResult<ExpandoObject>> GetList(string uri, CRMGetListOptions QueryOptions = null)
         {
-            CheckAuthToken();
+            await CheckAuthToken();
 
             string fullUrl = BuildGetUrl(uri, QueryOptions);
             var results = await _httpClient.GetAsync(fullUrl);
@@ -124,7 +124,8 @@ namespace Xrm.Tools.WebAPI
         /// <returns></returns>
         public async Task<CRMGetListResult<ResultType>> GetList<ResultType>(string uri, CRMGetListOptions QueryOptions = null)
         {
-            CheckAuthToken();
+            await CheckAuthToken();
+
             string fullUrl = BuildGetUrl(uri, QueryOptions);
             var results = await _httpClient.GetAsync(fullUrl);
             results.EnsureSuccessStatusCode();
@@ -169,7 +170,7 @@ namespace Xrm.Tools.WebAPI
         /// <returns></returns>
         public async Task<int> GetCount(string uri, CRMGetListOptions QueryOptions = null)
         {
-            CheckAuthToken();
+            await CheckAuthToken();
             if (QueryOptions != null)
                 QueryOptions.IncludeCount = false;
             string fullUrl = BuildGetUrl(uri+"/$count", QueryOptions);
@@ -199,7 +200,7 @@ namespace Xrm.Tools.WebAPI
         /// <returns></returns>
         public async Task<ResultType> Get<ResultType>(string entityCollection,Guid entityID, CRMGetListOptions QueryOptions = null)
         {
-            CheckAuthToken();
+            await CheckAuthToken();
             string fullUrl = BuildGetUrl( entityCollection + "(" + entityID.ToString() + ")", QueryOptions);
             var results = await _httpClient.GetAsync(fullUrl);
             results.EnsureSuccessStatusCode();
@@ -214,11 +215,15 @@ namespace Xrm.Tools.WebAPI
         /// <returns></returns>
         public async Task<Guid> Create(string entityCollection, object data)
         {
-            CheckAuthToken();
+            await CheckAuthToken();
 
             var fullUrl = _apiUrl + entityCollection;
 
-            var response = await _httpClient.PostAsJsonAsync(fullUrl, data);
+            HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("Post"), fullUrl);
+
+            request.Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");            
+
+            var response = await _httpClient.SendAsync(request);            
 
             response.EnsureSuccessStatusCode();
 
@@ -235,7 +240,12 @@ namespace Xrm.Tools.WebAPI
         /// <returns></returns>
         public async Task<CRMBatchResult> Create(string entityCollection, object[] datalist)
         {
-            CheckAuthToken();
+            await CheckAuthToken();
+
+#if WINDOWS_APP
+     throw new NotImplementedException();
+#else
+
             var httpClient = new HttpClient();
 
             httpClient.DefaultRequestHeaders.Authorization =
@@ -295,6 +305,7 @@ namespace Xrm.Tools.WebAPI
             }
 
             return finalResult;
+#endif
         }
         /// <summary>
         /// currently the content type for individual responses is missing msgtype=response that the API needs to parse it
@@ -361,7 +372,7 @@ namespace Xrm.Tools.WebAPI
         /// <returns></returns>
         public async Task<CRMUpdateResult> Update(string entityCollection, string key, object data, bool Upsert = true)
         {
-            CheckAuthToken();
+            await CheckAuthToken();
             CRMUpdateResult result = new CRMUpdateResult();
             var fullUrl = _apiUrl + entityCollection;
 
@@ -398,7 +409,7 @@ namespace Xrm.Tools.WebAPI
         /// <returns></returns>
         public async Task Delete(string entityCollection, Guid entityID)
         {
-            CheckAuthToken();
+            await CheckAuthToken();
 
             var response = await _httpClient.DeleteAsync(_apiUrl + entityCollection + "(" + entityID.ToString() + ")");
 
@@ -413,7 +424,7 @@ namespace Xrm.Tools.WebAPI
         /// <returns></returns>
         private async Task<ExpandoObject> ExecuteFunction(string function, KeyValuePair<string, object>[] parameters = null)
         {
-            CheckAuthToken();
+            await CheckAuthToken();
             var fullUrl = string.Empty;
             fullUrl = BuildFunctionActionURI(function, parameters);
             var results = await _httpClient.GetAsync(fullUrl);
@@ -460,12 +471,16 @@ namespace Xrm.Tools.WebAPI
         /// <returns></returns>
         public async Task<ExpandoObject> ExecuteAction(string action, object data)
         {
-            CheckAuthToken();
+            await CheckAuthToken();
 
             var fullUrl = string.Format("{0}{1}", _apiUrl, action);
-            
-            var results = await _httpClient.PostAsJsonAsync(fullUrl,data);
-            
+                        
+            HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("Post"), fullUrl);
+
+            request.Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+
+            var results = await _httpClient.SendAsync(request);
+
             results.EnsureSuccessStatusCode();
 
             var resultData = await results.Content.ReadAsStringAsync();
@@ -645,11 +660,11 @@ namespace Xrm.Tools.WebAPI
         /// <summary>
         /// helper function to make sure token refresh happens as needed if refresh method provided
         /// </summary>
-        private void CheckAuthToken()
+        private async Task<string> CheckAuthToken()
         {
             if (_getAccessToken == null)
-                return;
-            var newToken = _getAccessToken(_apiUrl);
+                return _AccessToken;
+            var newToken = await _getAccessToken(_apiUrl);
             if (newToken != _AccessToken)
             {
                 _httpClient.DefaultRequestHeaders.Remove("Authorization");
@@ -657,6 +672,7 @@ namespace Xrm.Tools.WebAPI
                     new AuthenticationHeaderValue("Bearer", newToken);
                 _AccessToken = newToken;
             }
+            return _AccessToken;
         }
         /// <summary>
         /// helper method to setup the httpclient defaults

@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Xrm.Tools.CRMWebAPI</id>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <title>Xrm.Tools.CRMWebAPI</title>
     <authors>DavidYack</authors>
     <owners></owners>
@@ -15,6 +15,7 @@
       1.0.0 Initial release
       1.0.1 Cleanup of the API, more comments
       1.0.2 removed JToken from public APIs 
+      1.0.3 added uwp binary
     </releaseNotes>
     <summary>
       This is a prototype of an API helper for working with CRM 2016 Web API
@@ -31,11 +32,15 @@
         <group targetFramework="net40">
           <dependency id="Newtonsoft.Json" version="8.0.2" />          
         </group>
+      <group targetFramework="uap10.0">
+        <dependency id="Newtonsoft.Json" version="8.0.2" />
+      </group>
     </dependencies>
     <references></references>
     <tags></tags>
   </metadata>
   <files>
-    <file src="..\Xrm.Tools.WebAPI\bin\debug\Xrm.Tools.WebAPI.dll" target="lib" />  
+    <file src="..\Xrm.Tools.WebAPI\bin\debug\Xrm.Tools.WebAPI.dll" target="lib\net46" />
+    <file src="..\Xrm.Tools.WebAPI.Portable\bin\debug\Xrm.Tools.WebAPI.Portable.dll" target="lib\uap10.0" />
   </files>
 </package>

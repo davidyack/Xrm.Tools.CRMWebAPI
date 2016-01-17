@@ -5,7 +5,9 @@ dotnet/Xrm.Tools.WebAPI/obj
 dotnet/Xrm.Tools.WebAPI/bin
 dotnet/Xrm.Tools.WebAPI.Test/bin
 dotnet/Xrm.Tools.WebAPI.Test/obj
-
+dotnet/Xrm.Tools.WebAPI.Portable/bin
+dotnet/Xrm.Tools.WebAPI.Portable/obj
+dotnet/Xrm.Tools.WebAPI.Portable/packages
 dotnet/Xrm.Tools.SeverCommonTest/obj
 .vs
 .nuget
