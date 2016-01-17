@@ -1,0 +1,14 @@
+dotnet/.vs
+dotnet/packages
+dotnet/Xrm.Tools.WebAPI/packages
+dotnet/Xrm.Tools.WebAPI/obj
+dotnet/Xrm.Tools.WebAPI/bin
+dotnet/Xrm.Tools.WebAPI.Test/bin
+dotnet/Xrm.Tools.WebAPI.Test/obj
+
+dotnet/Xrm.Tools.SeverCommonTest/obj
+.vs
+.nuget
+node_modules
+*.dll
+*.pdb

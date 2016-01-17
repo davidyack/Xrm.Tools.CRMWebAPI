@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Xrm.Tools.CRMWebAPI</id>
+    <version>1.0.1</version>
+    <title>Xrm.Tools.CRMWebAPI</title>
+    <authors>DavidYack</authors>
+    <owners></owners>
+    <description>
+      This is a prototype of an API helper for working with CRM 2016 Web API
+      At this point in time this should only be used to provide feedback and demo, not for production
+      API signatures ae likley to break between versions - you have been warned!
+    </description>
+    <releaseNotes>
+    </releaseNotes>
+    <summary>
+      This is a prototype of an API helper for working with CRM 2016 Web API
+      At this point in time this should only be used to provide feedback and demo, not for production
+      API signatures ae likley to break between versions - you have been warned!
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://github.com/davidyack/Xrm.Tools.CRMWebAPI</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/davidyack/Xrm.Tools.CRMWebAPI/blob/master/LICENSE</licenseUrl>
+    <copyright>Copyright  2016</copyright>
+    <dependencies>
+        <group targetFramework="net40">
+          <dependency id="Newtonsoft.Json" version="8.0.2" />          
+        </group>
+    </dependencies>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="..\Xrm.Tools.WebAPI\bin\debug\Xrm.Tools.WebAPI.dll" target="lib" />  
+  </files>
+</package>

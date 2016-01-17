@@ -1,0 +1,6 @@
+D:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\bin\Debug\Xrm.Tools.WebAPI.NuGet.dll
+D:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\bin\Debug\Xrm.Tools.WebAPI.NuGet.pdb
+D:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\bin\Debug\Newtonsoft.Json.dll
+D:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\bin\Debug\Newtonsoft.Json.xml
+D:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\obj\Debug\Xrm.Tools.WebAPI.NuGet.dll
+D:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\obj\Debug\Xrm.Tools.WebAPI.NuGet.pdb
