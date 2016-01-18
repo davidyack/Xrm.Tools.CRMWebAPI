@@ -27,6 +27,11 @@
               
             var crmAPI = new CRMWebAPI(apiconfig);
             
+            //crmAPI.ExecuteFunction("WhoAmI").then(function(response){ alert(response.userid)});
+            
+           //var timeZone = { LocalizedStandardName: 'Pacfic Standard Time', LocaleId:1033 };
+            //crmAPI.ExecuteFunction("GetTimeZoneCodeByLocalizedName",timeZone).then(function(response){ alert(response.timezone)});
+            
             var queryOptions = { Top:10 };
             
             crmAPI.GetList("accounts",queryOptions).then (
