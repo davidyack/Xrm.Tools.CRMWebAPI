@@ -44,6 +44,30 @@ CRMWebAPI = function (config) {
 				req.onreadystatechange = null;
 				if (this.status == 200) 				
 				{
+					var data = parseInt(this.response);					
+					resolve(data);
+				}
+				else 
+					reject(this);				
+			}
+		};
+		req.send();
+		
+	   });
+    };
+	CRMWebAPI.prototype.GetCount = function (uri,QueryOptions) {
+   	
+	   return new Promise(function(resolve, reject) {
+
+		var url = CRMWebAPI.prototype._BuildQueryURL(uri +"/$count",QueryOptions,config);
+	
+		var req = CRMWebAPI.prototype._GetHttpRequest(config,"GET",url);
+		
+		req.onreadystatechange = function () {
+			if (this.readyState == 4 /* complete */) {
+				req.onreadystatechange = null;
+				if (this.status == 200) 				
+				{
 					var data = JSON.parse(this.response, CRMWebAPI.prototype._DateReviver)					
 					resolve(data);
 				}
@@ -301,13 +325,15 @@ CRMWebAPI = function (config) {
 	CRMWebAPI.prototype._GetHttpRequest = function (config,method,url) {
 		var req = new XMLHttpRequest();
 		req.open(method, encodeURI(url), true);
-		req.setRequestHeader("Authorization", "Bearer "+ config.AccessToken);
-		req.setRequestHeader("Accept", "application/json");
-		if (config.callerId) {
-		req.setRequestHeader("MSCRMCallerID", config.callerId);
-		}
+		if (config.AccessToken != null)
+			req.setRequestHeader("Authorization", "Bearer "+ config.AccessToken);
+		
+		req.setRequestHeader("Accept", "application/json");	
 		req.setRequestHeader("OData-MaxVersion", "4.0");
 		req.setRequestHeader("OData-Version", "4.0");
+		if (config.callerId) 
+			req.setRequestHeader("MSCRMCallerID", config.callerId);
+		
 		
 		return req;
 	};

@@ -325,13 +325,15 @@ CRMWebAPI = function (config) {
 	CRMWebAPI.prototype._GetHttpRequest = function (config,method,url) {
 		var req = new XMLHttpRequest();
 		req.open(method, encodeURI(url), true);
-		req.setRequestHeader("Authorization", "Bearer "+ config.AccessToken);
-		req.setRequestHeader("Accept", "application/json");
-		if (config.callerId) {
-		req.setRequestHeader("MSCRMCallerID", config.callerId);
-		}
+		if (config.AccessToken != null)
+			req.setRequestHeader("Authorization", "Bearer "+ config.AccessToken);
+		
+		req.setRequestHeader("Accept", "application/json");	
 		req.setRequestHeader("OData-MaxVersion", "4.0");
 		req.setRequestHeader("OData-Version", "4.0");
+		if (config.callerId) 
+			req.setRequestHeader("MSCRMCallerID", config.callerId);
+		
 		
 		return req;
 	};
