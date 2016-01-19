@@ -6,7 +6,7 @@
     // Enter Global Config Values & Instantiate ADAL AuthenticationContext
     window.config = {
         instance: 'https://login.microsoftonline.com/',
-        tenant: 'tenantname.onmicrosoft.com',
+        tenant: 'orgname.onmicrosoft.com',
         clientId: '<clientid>',
         postLogoutRedirectUri: window.location.origin,
         endpoints: { orgUri:  "https://orgname.api.crm.dynamics.com" },

@@ -35,7 +35,7 @@ CRMWebAPI = function (config) {
    	
 	   return new Promise(function(resolve, reject) {
 
-		var url = CRMWebAPI.prototype._BuildQueryURL(entityCollection + "(" + entityID.ToString() + ")",QueryOptions,config);
+		var url = CRMWebAPI.prototype._BuildQueryURL(entityCollection + "(" + entityID.toString() + ")",QueryOptions,config);
 	
 		var req = CRMWebAPI.prototype._GetHttpRequest(config,"GET",url);
 		
@@ -44,7 +44,8 @@ CRMWebAPI = function (config) {
 				req.onreadystatechange = null;
 				if (this.status == 200) 				
 				{
-					var data = parseInt(this.response);					
+					
+					var data = JSON.parse(this.response, CRMWebAPI.prototype._DateReviver)					
 					resolve(data);
 				}
 				else 
@@ -68,7 +69,7 @@ CRMWebAPI = function (config) {
 				req.onreadystatechange = null;
 				if (this.status == 200) 				
 				{
-					var data = JSON.parse(this.response, CRMWebAPI.prototype._DateReviver)					
+					var data = parseInt(this.response);					
 					resolve(data);
 				}
 				else 
@@ -188,13 +189,13 @@ CRMWebAPI = function (config) {
 		{
 			url = config.APIUrl + functionName +"("+ parmvars.join(",")+")?" +parmvalues.join("&") ;
 			if (entityCollection != null)
-				url = config.APIUrl + entityCollection +"(" + entityID.ToString() +functionName +"("+ parmvars.join(",") +")?" + parmvalues.join("&");
+				url = config.APIUrl + entityCollection +"(" + entityID.toString() +functionName +"("+ parmvars.join(",") +")?" + parmvalues.join("&");
 	    }
 		else
 		{
 			url = config.APIUrl + functionName +"()";
 			if (entityCollection != null)
-				url = config.APIUrl + entityCollection +"(" + entityID.ToString() +functionName +"()";
+				url = config.APIUrl + entityCollection +"(" + entityID.toString() +functionName +"()";
 		}
 	
 		var req = CRMWebAPI.prototype._GetHttpRequest(config,"GET",url);
@@ -221,7 +222,7 @@ CRMWebAPI = function (config) {
 
 		var url = config.APIUrl + actionName;
         if (entityCollection != null)
-            url = config.APIUrl + entityCollection +"(" + entityID.ToString() + ")"+actionName;
+            url = config.APIUrl + entityCollection +"(" + entityID.toString() + ")"+actionName;
                     
 	
 		var req = CRMWebAPI.prototype._GetHttpRequest(config,"POST",url);

@@ -38,6 +38,11 @@
             {
                 createdID = result;
                 console.log('id created is ' + createdID);
+                 crmAPI.Get("accounts", createdID).then(function(result){
+                    
+                    console.log('account get: ' + JSON.stringify(result));
+                     
+                 },function(error){console.log('error on get' + JSON.stringify(error))})
                 data.name = "new Account name";
                 crmAPI.Update("accounts",createdID, data).then(function(result)
                 {
