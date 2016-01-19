@@ -38,7 +38,14 @@
             {
                 createdID = result;
                 console.log('id created is ' + createdID);
+                data.name = "new Account name";
+                crmAPI.Update("accounts",createdID, data).then(function(result)
+                {
+                    
+                    console.log('update results' + JSON.stringify(result));
+                },function(error) {console.log('error updating record' + JSON.stringify(error))});
             },function(error) {console.log('error creating record' + JSON.stringify(error))});
+            
                         
             var queryOptions = { Top:10 };
             

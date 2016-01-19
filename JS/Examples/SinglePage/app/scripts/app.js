@@ -4,15 +4,14 @@
 (function () {
 
     // Enter Global Config Values & Instantiate ADAL AuthenticationContext
-   window.config = {
+    window.config = {
         instance: 'https://login.microsoftonline.com/',
-        tenant: '<tenantname>.onmicrosoft.com',
+        tenant: 'tenantname.onmicrosoft.com',
         clientId: '<clientid>',
         postLogoutRedirectUri: window.location.origin,
         endpoints: { orgUri:  "https://orgname.api.crm.dynamics.com" },
         cacheLocation: 'localStorage', // enable this for IE, as sessionStorage does not work for localhost.
     };
-
     
     window.apiconfig = { APIUrl: config.endpoints.orgUri + '/api/data/v8.0/' };
     
