@@ -48,9 +48,22 @@
                 {
                     
                     console.log('update results' + JSON.stringify(result));
+                    
+                    crmAPI.Delete("accounts", createdID).then(function(result){
+                    
+                    console.log('account delete:');
+                     
+                 },function(error){console.log('error on delete' + JSON.stringify(error))})
+                    
                 },function(error) {console.log('error updating record' + JSON.stringify(error))});
             },function(error) {console.log('error creating record' + JSON.stringify(error))});
             
+             
+             crmAPI.GetCount("accounts").then(function(result){
+                    
+                    console.log('account getcount: ' + result);
+                     
+                 },function(error){console.log('error on get count' + JSON.stringify(error))})
                         
             var queryOptions = { Top:10 };
             

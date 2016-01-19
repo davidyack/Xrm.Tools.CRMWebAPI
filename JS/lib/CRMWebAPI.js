@@ -144,14 +144,14 @@ CRMWebAPI = function (config) {
    	
 	   return new Promise(function(resolve, reject) {
 
-		var url = config.APIUrl +entityCollection;
+		var url = config.APIUrl +entityCollection+'('+entityID+')';
 	
 		var req = CRMWebAPI.prototype._GetHttpRequest(config,"DELETE",url);
             
 		req.onreadystatechange = function () {
 			if (this.readyState == 4 /* complete */) {
 				req.onreadystatechange = null;
-				if (this.status == 200) 				
+				if (this.status == 204) 				
 				{		                    					
 					resolve();
 				}
@@ -159,7 +159,7 @@ CRMWebAPI = function (config) {
 					reject(this);				
 			}
 		};
-		req.send(JSON.stringify(data));
+		req.send();
 		
 	   });
     };
