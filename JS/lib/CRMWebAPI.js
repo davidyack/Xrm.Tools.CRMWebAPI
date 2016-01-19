@@ -86,19 +86,22 @@ CRMWebAPI = function (config) {
 		var url = config.APIUrl +entityCollection;
 	
 		var req = CRMWebAPI.prototype._GetHttpRequest(config,"POST",url);
+		req.setRequestHeader("Content-Type", "application/json");
+		var postData = JSON.stringify(data);
+		req.setRequestHeader("Content-Length", postData.length );
 		
 		req.onreadystatechange = function () {
 			if (this.readyState == 4 /* complete */) {
 				req.onreadystatechange = null;
-				if (this.status == 200) 				
+				if (this.status == 204) 				
 				{									
-					resolve(this.getResponseHeader("OData-EntityId"));
+					resolve(this.getResponseHeader("OData-EntityId").toString().replace(url,"").replace("(", "").replace(")", ""));
 				}
 				else 
 					reject(this);				
 			}
 		};
-		req.send(JSON.stringify(data));
+		req.send(postData);
 		
 	   });
     };

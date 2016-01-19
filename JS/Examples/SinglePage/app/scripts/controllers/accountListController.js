@@ -31,7 +31,15 @@
             
            //var timeZone = { LocalizedStandardName: 'Pacfic Standard Time', LocaleId:1033 };
             //crmAPI.ExecuteFunction("GetTimeZoneCodeByLocalizedName",timeZone).then(function(response){ alert(response.timezone)});
-            
+            var data = new Object()
+            data.name = "test " + new Date().toString();            
+            var createdID = null;
+            crmAPI.Create("accounts", data).then(function(result)
+            {
+                createdID = result;
+                console.log('id created is ' + createdID);
+            },function(error) {console.log('error creating record' + JSON.stringify(error))});
+                        
             var queryOptions = { Top:10 };
             
             crmAPI.GetList("accounts",queryOptions).then (
