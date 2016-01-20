@@ -110,7 +110,7 @@ CRMWebAPI = function (config) {
    	
 	   return new Promise(function(resolve, reject) {
 
-		var url = config.APIUrl +entityCollection;
+		var url = config.APIUrl +entityCollection + '(' + key +')';
 	
 		var req = CRMWebAPI.prototype._GetHttpRequest(config,"POST",url);
 		
@@ -189,13 +189,13 @@ CRMWebAPI = function (config) {
 		{
 			url = config.APIUrl + functionName +"("+ parmvars.join(",")+")?" +parmvalues.join("&") ;
 			if (entityCollection != null)
-				url = config.APIUrl + entityCollection +"(" + entityID.toString() +functionName +"("+ parmvars.join(",") +")?" + parmvalues.join("&");
+				url = config.APIUrl + entityCollection +"(" + entityID.toString() + ")" +functionName +"("+ parmvars.join(",") +")?" + parmvalues.join("&");
 	    }
 		else
 		{
 			url = config.APIUrl + functionName +"()";
 			if (entityCollection != null)
-				url = config.APIUrl + entityCollection +"(" + entityID.toString() +functionName +"()";
+				url = config.APIUrl + entityCollection +"(" + entityID.toString() + ")" + functionName +"()";
 		}
 	
 		var req = CRMWebAPI.prototype._GetHttpRequest(config,"GET",url);
