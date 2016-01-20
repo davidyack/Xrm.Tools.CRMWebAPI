@@ -1,0 +1,24 @@
+{
+  "name": "davidyack/Xrm.Tools.CRMWebAPI",
+  "description": "CRM Web API for PHP",
+  "license": "MIT",
+  "keywords": [
+    "crmwebapi",
+    "api"
+  ],
+  "authors": [
+    {
+      "name": "Xrm.Tools",
+      "email": "info@coloradotc.com"
+    }
+  ],
+  "require": {
+    "guzzlehttp/guzzle": "~6"
+  },
+  "require-dev": {},
+  "autoload": {
+    "psr-4": {
+      "CRMWebAPI\\": "lib"
+    }
+  }
+}
