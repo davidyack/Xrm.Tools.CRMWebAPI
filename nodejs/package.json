@@ -1,0 +1,16 @@
+{
+  "author": "Xrm.Tools",
+  "name": "CRMWebAPI",
+  "description": "CRMWebAPI Node.js Wrapper",
+  "version": "1.0.0",
+  "repository": {
+    "url": "http://github.com/DavidYack/Xrm.Tools.CRMWebAPI"
+  },
+  "main": "./lib/CRMWebAPI",
+  "dependencies": {},
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": ">=0.12"
+  }
+}
