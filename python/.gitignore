@@ -1,0 +1,41 @@
+*.py[co]
+crm-python.iml
+
+#small test code that contains my keys
+t.py
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+include
+lib
+local
+var
+sdist
+develop-eggs
+.installed.cfg
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+
+# PyCharm data
+.idea
+
+#Translations
+*.mo
+
+#Mr Developer
+.mr.developer.cfg
+
+#Environment
+env
+
