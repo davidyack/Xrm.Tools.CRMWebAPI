@@ -86,7 +86,13 @@ namespace Xrm.Tools.WebAPI
             await CheckAuthToken();
 
             string fullUrl = BuildGetUrl(uri, QueryOptions);
-            var results = await _httpClient.GetAsync(fullUrl);
+            HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("GET"), fullUrl);
+
+            if ((QueryOptions != null) && (QueryOptions.FormattedValues))
+                request.Headers.Add("Prefer", "odata.include-annotations=\"OData.Community.Display.V1.FormattedValue\"");
+
+            var results = await _httpClient.SendAsync(request);
+                        
             results.EnsureSuccessStatusCode();
             var data = await results.Content.ReadAsStringAsync();
             CRMGetListResult<ExpandoObject> resultList = new CRMGetListResult<ExpandoObject>();
@@ -201,8 +207,15 @@ namespace Xrm.Tools.WebAPI
         public async Task<ResultType> Get<ResultType>(string entityCollection,Guid entityID, CRMGetListOptions QueryOptions = null)
         {
             await CheckAuthToken();
+
             string fullUrl = BuildGetUrl( entityCollection + "(" + entityID.ToString() + ")", QueryOptions);
-            var results = await _httpClient.GetAsync(fullUrl);
+            HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("GET"), fullUrl);
+
+            if ((QueryOptions != null) && (QueryOptions.FormattedValues))
+                request.Headers.Add("Prefer", "odata.include-annotations=\"OData.Community.Display.V1.FormattedValue\"");
+
+            var results = await _httpClient.SendAsync(request);
+            
             results.EnsureSuccessStatusCode();
             var data = await results.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<ResultType>(data);
@@ -507,18 +520,23 @@ namespace Xrm.Tools.WebAPI
         /// <returns></returns>
         private static List<KeyValuePair<string, object>> ConvertObjectToKeyValuePair(object data)
         {
-            Type type = data.GetType();
-            IList<PropertyInfo> props = new List<PropertyInfo>(type.GetProperties());
-            List<KeyValuePair<string, object>> list = new List<KeyValuePair<string, object>>();
-
-            foreach (PropertyInfo prop in props)
+            if (data != null)
             {
-                object propValue = prop.GetValue(data, null);
+                Type type = data.GetType();
+                IList<PropertyInfo> props = new List<PropertyInfo>(type.GetProperties());
+                List<KeyValuePair<string, object>> list = new List<KeyValuePair<string, object>>();
 
-                list.Add(new KeyValuePair<string, object>(prop.Name, propValue));
+                foreach (PropertyInfo prop in props)
+                {
+                    object propValue = prop.GetValue(data, null);
+
+                    list.Add(new KeyValuePair<string, object>(prop.Name, propValue));
+                }
+
+                return list;
             }
 
-            return list;
+            else return new List<KeyValuePair<string, object>>();
         }
         /// <summary>
         /// Helper function to build the url for functions and actions

@@ -15,8 +15,8 @@ namespace Xrm.Tools.WebAPI.Test
         public CRMWebAPI GetAPI()
         {
 
-            CRMWebAPI api = new CRMWebAPI("https://tr22a.api.crm.dynamics.com/api/data/v8.0/",
-                    "<token goes here>");
+            CRMWebAPI api = new CRMWebAPI("https://orgname.api.crm.dynamics.com/api/data/v8.0/",
+                    "<token>");
             return api;
 
         }
@@ -34,7 +34,7 @@ namespace Xrm.Tools.WebAPI.Test
 
                 Guid createdID = await api.Create("accounts", data);                
 
-                var retrievedObject = await api.Get("accounts", createdID);
+                var retrievedObject = await api.Get("accounts", createdID, new CRMGetListOptions() { FormattedValues = true });
 
                 var retrievedObjectEx = await api.Get<ExpandoObject>("accounts", createdID);
 
@@ -47,7 +47,7 @@ namespace Xrm.Tools.WebAPI.Test
 
                 await api.Delete("accounts", upsertResult.EntityID);
 
-                var results = await api.GetList("accounts", new Requests.CRMGetListOptions() { Top = 10 });
+                var results = await api.GetList("accounts", new Requests.CRMGetListOptions() { Top = 5, FormattedValues=true });
 
                 string fetchXml = "<fetch mapping='logical'><entity name='account'><attribute name='accountid'/><attribute name='name'/></entity></fetch>";
 
