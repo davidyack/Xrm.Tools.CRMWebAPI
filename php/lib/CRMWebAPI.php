@@ -60,15 +60,37 @@ class CRMWebAPI {
         return $fullurl;
     }
 
+    private function BuildQueryHeaders($queryOptions=null){
+        $headers = [];
+        if($queryOptions != null) {
+            if(isset($queryOptions['FormattedValues'])) $headers['odata.include-annotations'] = 'OData.Community.Display.V1.FormattedValue';
+        }
+        return $headers;
+    }
+
     public function GetList($uri, $queryOptions=null) {
         $url = $this->BuildQueryURL($uri, $queryOptions);
-        $res = $this->GetHttpRequest('GET', $url);
+        $res = $this->GetHttpRequest('GET', $url, null, $this->BuildQueryHeaders($queryOptions));
 
         if (($res->getStatusCode() >= 200) && ($res->getStatusCode() < 300)) {
             $data = json_decode($res->getBody());
             $result = new \stdClass();
             $result->List = $data->value;
             $result->Count = 0;
+
+            $nl = '@odata.nextLink';
+            $nextLink = $data->$nl;
+            while($nextLink != null) {
+                $res = $this->GetHttpRequest('GET', $nextLink, null, $this->BuildQueryHeaders($queryOptions));
+                if (($res->getStatusCode() >= 200) && ($res->getStatusCode() < 300)) {
+                    $data = json_decode($res->getBody());
+                    $result->List = array_merge($result->List, $data->value);
+                    $nextLink = $data->$nl;
+                } else {
+                    $nextLink = null;
+                }
+            }
+
             return $result;
         } else {
             throw new \Exception($res->getBody(), $res->getStatusCode());
@@ -77,7 +99,7 @@ class CRMWebAPI {
 
     public function Get($entityCollection, $entityId, $queryOptions=null) {
         $url = $this->BuildQueryURL(sprintf("%s(%s)", $entityCollection, $entityId), $queryOptions);
-        $res = $this->GetHttpRequest('GET', $url);
+        $res = $this->GetHttpRequest('GET', $url, null, $this->BuildQueryHeaders($queryOptions));
 
         if (($res->getStatusCode() >= 200) && ($res->getStatusCode() < 300)) {
             $result = json_decode($res->getBody());
@@ -88,8 +110,8 @@ class CRMWebAPI {
     }
 
     public function GetCount($uri, $queryOptions=null){
-        $url = $this->BuildQueryURL(sprintf("%s/$count", $uri), $queryOptions);
-        $res = $this->GetHttpRequest('GET', $url);
+        $url = $this->BuildQueryURL(sprintf('%s/$count', $uri), $queryOptions);
+        $res = $this->GetHttpRequest('GET', $url, null, $this->BuildQueryHeaders($queryOptions));
         if (($res->getStatusCode() >= 200) && ($res->getStatusCode() < 300)) {
             $result = json_decode($res->getBody());
             return $result;
@@ -131,6 +153,29 @@ class CRMWebAPI {
 
     public function Delete($entityCollection, $entityId) {
         $url = sprintf('%s%s(%s)', $this->config['APIUrl'], $entityCollection, $entityId);
+        $res = $this->GetHttpRequest('DELETE', $url);
+        if (($res->getStatusCode() >= 200) && ($res->getStatusCode() < 300)) {
+            $result = True;
+            return $result;
+        } else {
+            throw new \Exception($res->getBody(), $res->getStatusCode());
+        }
+    }
+
+    public function Associate($fromEntityCollection, $fromEntityId, $navProperty, $toEntityCollection, $toEntityId) {
+        $url = sprintf('%s%s(%s)/%s/$ref', $this->config['APIUrl'], $fromEntityCollection, $fromEntityId, $navProperty);
+        $data = ['@odata.id' => sprintf('%s%s(%s)', $this->config['APIUrl'], $toEntityCollection, $toEntityId)];
+        $res = $this->GetHttpRequest('POST', $url, $data);
+        if (($res->getStatusCode() >= 200) && ($res->getStatusCode() < 300)) {
+            $result = True;
+            return $result;
+        } else {
+            throw new \Exception($res->getBody(), $res->getStatusCode());
+        }
+    }
+
+    public function DeleteAssociation($fromEntityCollection, $fromEntityId, $navProperty, $toEntityCollection, $toEntityId) {
+        $url = sprintf('%s%s(%s)/%s/$ref?$id=%s%s(%s)', $this->config['APIUrl'], $fromEntityCollection, $fromEntityId, $navProperty, $this->config['APIUrl'], $toEntityCollection, $toEntityId);
         $res = $this->GetHttpRequest('DELETE', $url);
         if (($res->getStatusCode() >= 200) && ($res->getStatusCode() < 300)) {
             $result = True;
