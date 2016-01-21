@@ -3,10 +3,12 @@ var CRMWebAPI = (function () {
   function CRMWebAPI(config) {
     this.config = config;
     if (typeof module !== 'undefined' && module.exports) {
+      this.node = true;
       this.https = require('https');
       this.urllib = require('url');
       this._GetHttpRequest = this._GetHttpRequestHTTPS;
     } else {
+      this.node = false;
       this._GetHttpRequest = this._GetHttpRequestXMLHTTPRequest;
     }
     return this;
@@ -55,6 +57,24 @@ var CRMWebAPI = (function () {
         } else {
           var data = JSON.parse(res.response, CRMWebAPI.prototype._DateReviver);
           var nextLink = data['@odata.nextLink'];
+          /*
+          WRONG
+           https://tr22a.crm.dynamics.com/api/data/v8.0/accounts?$skiptoken=%253Ccookie%2520pagenumber=%25222%2522%2520pagingcookie=%2522%25253ccookie%252520page%25253d%2525221%252522%25253e%25253caccountid%252520last%25253d%252522%25257b67795DD5-BEBB-E511-80DE-C4346BAC339C%25257d%252522%252520first%25253d%252522%25257bB4C2ADC7-93C3-4331-9725-7DD503592A88%25257d%252522%252520%25252f%25253e%25253c%25252fcookie%25253e%2522%2520istracking=%2522False%2522%2520/%253E
+
+          RIGHT urldecode
+           https://tr22a.crm.dynamics.com/api/data/v8.0/accounts?$skiptoken=%3Ccookie%20pagenumber=%222%22%20pagingcookie=%22%253ccookie%2520page%253d%25221%2522%253e%253caccountid%2520last%253d%2522%257b67795DD5-BEBB-E511-80DE-C4346BAC339C%257d%2522%2520first%253d%2522%257bB4C2ADC7-93C3-4331-9725-7DD503592A88%257d%2522%2520%252f%253e%253c%252fcookie%253e%22%20istracking=%22False%22%20/%3E
+          decodeuri
+           https://tr22a.crm.dynamics.com/api/data/v8.0/accounts?$skiptoken=%3Ccookie%20pagenumber=%222%22%20pagingcookie=%22%253ccookie%2520page%253d%25221%2522%253e%253caccountid%2520last%253d%2522%257b67795DD5-BEBB-E511-80DE-C4346BAC339C%257d%2522%2520first%253d%2522%257bB4C2ADC7-93C3-4331-9725-7DD503592A88%257d%2522%2520%252f%253e%253c%252fcookie%253e%22%20istracking=%22False%22%20/%3E
+          decodeurl2
+           https://tr22a.crm.dynamics.com/api/data/v8.0/accounts?$skiptoken=<cookie pagenumber="2" pagingcookie="%3ccookie%20page%3d%221%22%3e%3caccountid%20last%3d%22%7b67795DD5-BEBB-E511-80DE-C4346BAC339C%7d%22%20first%3d%22%7bB4C2ADC7-93C3-4331-9725-7DD503592A88%7d%22%20%2f%3e%3c%2fcookie%3e" istracking="False" />
+
+          if (!self.node) {
+            console.log('NextURLRAW', nextLink);
+            //nextLink = nextLink.replace(/\%25/g, '%');
+            nextLink = decodeURI(nextLink);
+            nextLink = decodeURI(nextLink);
+            nextLink = decodeURI(nextLink);
+          }*/
           var recordCount = data['@odata.count'];
           var response = {
             List: data.value,
@@ -141,8 +161,8 @@ var CRMWebAPI = (function () {
         "data": JSON.stringify(data),
         "headers": {}
       };
-      if (Upsert != null && Upsert == true) payload["headers"]["If-Match"] = "*";
-      self._GetHttpRequest(self.config, "POST", url, payload, function (err, res) {
+      if (Upsert == true) payload["headers"]["If-None-Match"] = "*";
+      self._GetHttpRequest(self.config, "PATCH", url, payload, function (err, res) {
         if (err != false) {
           reject(res);
         } else {
@@ -252,14 +272,14 @@ var CRMWebAPI = (function () {
     var fullurl = config.APIUrl + uri;
     var qs = [];
     if (queryOptions != null) {
-      if (queryOptions.Select != null) qs.push("$select=" + queryOptions.Select.join(","));
-      if (queryOptions.OrderBy != null) qs.push("$orderby=" + queryOptions.OrderBy.join(","));
-      if (queryOptions.Filter != null) qs.push("$filter=" + queryOptions.Filter);
+      if (queryOptions.Select != null) qs.push("$select=" + encodeURI(queryOptions.Select.join(",")));
+      if (queryOptions.OrderBy != null) qs.push("$orderby=" + encodeURI(queryOptions.OrderBy.join(",")));
+      if (queryOptions.Filter != null) qs.push("$filter=" + encodeURI(queryOptions.Filter));
       if (queryOptions.IncludeCount) qs.push("$count=true");
-      if (queryOptions.Skip > 0) qs.push("skip=" + queryOptions.Skip);
-      if (queryOptions.Top > 0) qs.push("$top=" + queryOptions.Top);
-      if (queryOptions.SystemQuery != null) qs.push("savedQuery=" + queryOptions.SystemQuery);
-      if (queryOptions.UserQuery != null) qs.push("userQuery=" + queryOptions.UserQuery);
+      if (queryOptions.Skip > 0) qs.push("skip=" + encodeURI(queryOptions.Skip));
+      if (queryOptions.Top > 0) qs.push("$top=" + encodeURI(queryOptions.Top));
+      if (queryOptions.SystemQuery != null) qs.push("savedQuery=" + encodeURI(queryOptions.SystemQuery));
+      if (queryOptions.UserQuery != null) qs.push("userQuery=" + encodeURI(queryOptions.UserQuery));
       if (queryOptions.FetchXml != null) qs.push("fetchXml=" + encodeURI(queryOptions.FetchXml));
     }
     if (qs.length > 0) fullurl += "?" + qs.join("&")
@@ -294,7 +314,8 @@ var CRMWebAPI = (function () {
   CRMWebAPI.prototype._GetHttpRequestXMLHTTPRequest = function (config, method, url, payload, callback) {
     var self = this;
     var req = new XMLHttpRequest();
-    req.open(method, encodeURI(url), true);
+    //req.open(method, encodeURI(url), true);
+    req.open(method, url, true);
     if (config.AccessToken != null) req.setRequestHeader("Authorization", "Bearer " + config.AccessToken);
     req.setRequestHeader("Accept", "application/json");
     req.setRequestHeader("OData-MaxVersion", "4.0");
