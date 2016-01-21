@@ -10,6 +10,6 @@ At this point in time this should only be used to provide feedback and demo, not
 
 API signatures might break slightly between releases - you have been warned!
 
-There are versions of the API for .NET, JavaScript, Node, Python and PHP is coming soon
+There are versions of the API for .NET, JavaScript, Node, Python and PHP with Java coming soon
 
 Feedback and contributions welcome...if you are going to propose major changes open an issue first to discuss the change.
