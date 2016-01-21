@@ -39,6 +39,13 @@ class CRMWebAPI(object):
     def __init__(self, config):
         self._config = config
 
+    def _build_query_headers(self, query_options=None):
+        headers = {}
+        if query_options is not None:
+            if 'FormattedValues' in query_options:
+                headers['odata.include-annotations'] = 'OData.Community.Display.V1.FormattedValue'
+        return headers
+
     def _build_query_url(self, uri, query_options=None):
         fullurl = self._config['APIUrl'] + uri
 
@@ -98,19 +105,28 @@ class CRMWebAPI(object):
 
     def get_list(self, uri, query_options=None):
         url = self._build_query_url(uri, query_options)
-        res = self._get_http_request("GET", url)
+        res = self._get_http_request("GET", url, headers=self._build_query_headers(query_options))
         data = json.loads(res.content.decode('utf-8'), object_hook=_date_reviver)
         if 200 <= res.status_code < 300:
-            return {
+            result =  {
                 'List': data['value'],
                 'Count': 0
             }
+
+            if '@odata.nextLink' in data:
+                while('@odata.nextLink' in data):
+                    res = self._get_http_request("GET", data['@odata.nextLink'], headers=self._build_query_headers(query_options))
+                    data = json.loads(res.content.decode('utf-8'), object_hook=_date_reviver)
+                    if 200 <= res.status_code < 300:
+                        result['List'] = result['List'] + data['value']
+
+            return result
         else:
             raise CRMWebAPIException(data)
 
     def get(self, entity_collection, entity_id, query_options=None):
         url = self._build_query_url("%s(%s)" % (entity_collection, entity_id), query_options)
-        res = self._get_http_request("GET", url)
+        res = self._get_http_request("GET", url, headers=self._build_query_headers(query_options))
         data = json.loads(res.content.decode('utf-8'), object_hook=_date_reviver)
         if 200 <= res.status_code < 300:
             return _date_reviver(data)
@@ -119,7 +135,7 @@ class CRMWebAPI(object):
 
     def get_count(self, uri, query_options=None):
         url = self._build_query_url("%s/$count" % uri, query_options)
-        res = self._get_http_request("GET", url)
+        res = self._get_http_request("GET", url, headers=self._build_query_headers(query_options))
         data = json.loads(res.content.decode('utf-8'))
         if 200 <= res.status_code < 300:
             return _date_reviver(data)
@@ -158,6 +174,31 @@ class CRMWebAPI(object):
     def delete(self, entity_collection, entity_id):
         url = '%s%s(%s)' % (self._config['APIUrl'], entity_collection, entity_id)
         res = self._get_http_request("DELETE", url)
+        if 200 <= res.status_code < 300:
+            return True
+        else:
+            try:
+                data = json.loads(res.content.decode('utf-8'))
+                raise CRMWebAPIException(data)
+            except:
+                raise CRMWebAPIException(res.content.decode('utf-8'))
+
+    def associate(self, from_entity_collection, from_entity_id, nav_property, to_entity_collection, to_entity_id):
+        url = '%s%s(%s)/%s/$ref' % (self._config['APIUrl'], from_entity_collection, from_entity_id, nav_property)
+        data = {'@odata.id': '%s%s(%s)' % (self._config['APIUrl'], to_entity_collection, to_entity_id)}
+        res = self._get_http_request('POST', url, data)
+        if 200 <= res.status_code < 300:
+            return True
+        else:
+            try:
+                data = json.loads(res.content.decode('utf-8'))
+                raise CRMWebAPIException(data)
+            except:
+                raise CRMWebAPIException(res.content.decode('utf-8'))
+
+    def delete_association(self, from_entity_collection, from_entity_id, nav_property, to_entity_collection, to_entity_id):
+        url = '%s%s(%s)/%s/$ref?$id=%s%s(%s)' % (self._config['APIUrl'], from_entity_collection, from_entity_id, nav_property, self._config['APIUrl'], to_entity_collection, to_entity_id)
+        res = self._get_http_request('DELETE', url)
         if 200 <= res.status_code < 300:
             return True
         else:
@@ -210,4 +251,3 @@ class CRMWebAPI(object):
             return _date_reviver(data)
         else:
             raise CRMWebAPIException(data)
-
