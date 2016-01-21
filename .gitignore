@@ -19,3 +19,4 @@ node_modules
 .idea
 *.iml
 nodejs/test.js
+nodejs/node_modules
