@@ -14,3 +14,6 @@ dotnet/Xrm.Tools.SeverCommonTest/obj
 node_modules
 *.dll
 *.pdb
+.idea
+*.iml
+nodejs/test.js
