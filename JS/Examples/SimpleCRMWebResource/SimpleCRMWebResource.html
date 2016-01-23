@@ -1,0 +1,72 @@
+
+<!DOCTYPE html> 
+ <html xmlns="http://www.w3.org/1999/xhtml"> 
+ <head> 
+     <title>Simple Single Page</title> 
+     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">       
+ </head> 
+ <body role="document">
+ <div class="container" role="main">
+       <div class="row">
+           <table class="table table-striped table-bordered table-condensed table-hover">
+                <thead>
+                    <tr>
+                        <th>Label</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody class="data-container">
+                    <tr>
+                        <td class="view-data-label"></td>
+                        <td class="view-data-value"></td>
+                    </tr>
+                </tbody>
+            </table>
+       </div>   
+  </div> 
+ 
+    <script src="ClientGlobalContext.js.aspx" type="text/javascript" ></script>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="https://secure.aadcdn.microsoftonline-p.com/lib/1.0.0/js/adal.min.js"></script>
+    <script src="https://www.promisejs.org/polyfills/promise-7.0.4.min.js"></script>
+    <script src="https://xrmtoolscode.azureedge.net/CRMWebAPI.js"></script>
+    <script>
+        function PopulateOutputData(result)
+        {
+            var $template = $(".data-container");
+                var output = '';
+        
+                for (var property in result) {
+                    if (result.hasOwnProperty(property)) {
+                        var $entry = $template;
+                        $entry.find(".view-data-label").html(property);
+                        $entry.find(".view-data-value").html(result[property]);
+                        output += $entry.html();
+                    }
+                }
+                var $dataContainer = $(".data-container");
+                $dataContainer.empty();
+                $dataContainer.html(output);
+        }
+        
+        // For Outside CRM Testing var apiconfig = { APIUrl: 'https://orgnamehere.crm.dynamics.com' + '/api/data/v8.0/',  AccessToken:'<token here'};
+        
+        var apiconfig = { APIUrl: Xrm.Page.context.getClientUrl() + '/api/data/v8.0/'};
+        
+        var crmAPI = new CRMWebAPI(apiconfig);
+                        
+        crmAPI.ExecuteFunction("WhoAmI").then(function(result)        
+        {
+            crmAPI.Get("systemusers",result.UserId,{FormatedValues:true}).then(function (result)
+            {
+                PopulateOutputData(result);    
+            });
+            
+        });
+            
+    </script>
+    </body>
+ </html>
