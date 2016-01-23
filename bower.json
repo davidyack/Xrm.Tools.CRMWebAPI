@@ -16,6 +16,7 @@
   "ignore": [
     "**/.*",
     "dotnet",
+    "python",
     "php",
     "nodejs",    
     "node_modules",
