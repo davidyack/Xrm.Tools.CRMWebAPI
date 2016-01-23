@@ -5,7 +5,10 @@
     "XRM.Tools"
   ],
   "description": "Helper wrapper to interact with Dynamics CRM API",
-  "main": "lib\\CRMWebAPI.js",
+   "main": [
+    "lib/CRMWebAPI.js",
+    "lib/CRMWebAPIMetadata.js"
+  ],
   "moduleType": [
     "es6"
   ],
