@@ -6,8 +6,8 @@
   ],
   "description": "Helper wrapper to interact with Dynamics CRM API",
    "main": [
-    "lib/CRMWebAPI.js",
-    "lib/CRMWebAPIMetadata.js"
+    "js/lib/CRMWebAPI.js",
+    "js/lib/CRMWebAPIMetadata.js"
   ],
   "moduleType": [
     "es6"
