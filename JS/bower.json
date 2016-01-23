@@ -1,16 +1,14 @@
 {
-  "name": "singlepage",
+  "name": "Xrm.Tools.CRMWebAPI",
   "homepage": "https://github.com/davidyack/Xrm.Tools.CRMWebAPI",
   "authors": [
-    "David Yack <dyack@coloradotc.com>"
+    "XRM.Tools"
   ],
-  "description": "",
-   "main": [
-    "lib/CRMWebAPI.js",
-    "lib/CRMWebAPIMetadata.js"
+  "description": "Helper wrapper to interact with Dynamics CRM API",
+  "main": "lib\\CRMWebAPI.js",
+  "moduleType": [
+    "es6"
   ],
-
-  "moduleType": [],
   "license": "MIT",
   "ignore": [
     "**/.*",

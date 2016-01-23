@@ -1,5 +1,7 @@
-# Usage example
 
+Current Version CDN - https://xrmtoolscode.azureedge.net/CRMWebAPI.js
+
+# Usage example
 
 ```javascript
 
@@ -34,6 +36,9 @@ crmAPI
 		})
 ```
 Working with Metadata - include CRMWebAPIMetadata.js
+
+   Current Version CDN - https://xrmtoolscode.azureedge.net/CRMWebAPIMetadata.js
+   
  Methods
   - GetOptionSetByName 
   - GetOptionSetUserLabels - returns Label/Value array
