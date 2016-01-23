@@ -69,10 +69,15 @@ namespace Xrm.Tools.WebAPI
         /// </summary>
         /// <param name="apiUrl"></param>
         /// <param name="networkCredential"></param>
-        public CRMWebAPI(string apiUrl, NetworkCredential networkCredential, Guid callerID = default(Guid))
+        public CRMWebAPI(string apiUrl, NetworkCredential networkCredential = null, Guid callerID = default(Guid))
         {
             _apiUrl = apiUrl;
-            _httpClient = new HttpClient(new HttpClientHandler() { Credentials = networkCredential });
+
+            if (networkCredential != null)
+                _httpClient = new HttpClient(new HttpClientHandler() { Credentials = networkCredential });
+            else
+                _httpClient = new HttpClient();
+
             SetHttpClientDefaults(callerID);
         }
         /// <summary>

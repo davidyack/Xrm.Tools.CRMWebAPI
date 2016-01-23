@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Xrm.Tools.CRMWebAPI</id>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <title>Xrm.Tools.CRMWebAPI</title>
     <authors>DavidYack</authors>
     <owners></owners>
@@ -17,6 +17,7 @@
       1.0.2 removed JToken from public APIs 
       1.0.3 added uwp binary
       1.0.4 fixed bug in ExecuteFunction, added support for Formatted Values
+      1.0.5 allow network credentials to be optional for on-prem
     </releaseNotes>
     <summary>
       This is a prototype of an API helper for working with CRM 2016 Web API
