@@ -15,6 +15,9 @@
   "license": "MIT",
   "ignore": [
     "**/.*",
+    "dotnet",
+    "php",
+    "nodejs",    
     "node_modules",
     "bower_components",
     "test",
