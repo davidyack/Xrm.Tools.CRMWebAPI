@@ -1,3 +1,5 @@
+Currently the nodejs library only supports oAuth authentication 
+
 # Usage example
 
 ```javascript
