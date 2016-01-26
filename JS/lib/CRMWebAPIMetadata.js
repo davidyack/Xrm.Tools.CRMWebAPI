@@ -2,7 +2,7 @@ CRMWebAPI.prototype.GetOptionSetByName = function (optionSetName) {
 		var self = this;
 		return new Promise(function (resolve, reject) {
 			
-           crmAPI.GetList('GlobalOptionSetDefinitions', 
+           self.GetList('GlobalOptionSetDefinitions', 
                     {Select:['Name']}).then(
             function (r)
             {
@@ -30,7 +30,7 @@ CRMWebAPI.prototype.GetOptionSetUserLabels = function (optionSetName) {
 		var self = this;
 		return new Promise(function (resolve, reject) {
 		
-		crmAPI.GetOptionSetByName(optionSetName).then(
+		self.GetOptionSetByName(optionSetName).then(
             function (result) 
             {
                 var displayList = new Array();
