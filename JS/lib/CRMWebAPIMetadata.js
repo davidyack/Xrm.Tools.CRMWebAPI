@@ -10,7 +10,7 @@ CRMWebAPI.prototype.GetOptionSetByName = function (optionSetName) {
                 { 
                     if (set.Name == optionSetName)
                     {
-                        crmAPI.Get('GlobalOptionSetDefinitions',set.MetadataId).then(
+                        self.Get('GlobalOptionSetDefinitions',set.MetadataId).then(
                             function(res){
                                 resolve(res);
                             },function(err){console.log(err)}
