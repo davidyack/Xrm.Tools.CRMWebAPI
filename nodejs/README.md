@@ -1,6 +1,8 @@
 Currently the nodejs library only supports oAuth authentication 
 
+
 # Usage example
+You can find other query example information [here](https://github.com/davidyack/Xrm.Tools.CRMWebAPI/wiki/Query-Examples )
 
 ```javascript
 var CRMWebAPI = require('CRMWebAPI');
