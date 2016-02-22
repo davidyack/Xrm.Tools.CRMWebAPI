@@ -12,7 +12,7 @@
         endpoints: { orgUri:  "https://orgname.api.crm.dynamics.com" },
         cacheLocation: 'localStorage', // enable this for IE, as sessionStorage does not work for localhost.
     };
-    
+
     window.apiconfig = { APIUrl: config.endpoints.orgUri + '/api/data/v8.0/' };
     
     var authContext = new AuthenticationContext(config);

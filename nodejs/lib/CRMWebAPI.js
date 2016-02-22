@@ -269,8 +269,8 @@ var CRMWebAPI = (function () {
   };
   CRMWebAPI.prototype._BuildQueryHeaders = function (queryOptions, config) {
     var headers = {};
-    if (queryOptions != null) {
-      if (queryOptions.FormattedValues == true) headers['odata.include-annotations'] = 'OData.Community.Display.V1.FormattedValue';
+    if (queryOptions != null) {           
+      if (queryOptions.FormattedValues == true) headers['Prefer'] = 'odata.include-annotations="OData.Community.Display.V1.FormattedValue"';
     }
     return headers;
   };

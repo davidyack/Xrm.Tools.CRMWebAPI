@@ -65,7 +65,7 @@
                      
                  },function(error){console.log('error on get count' + JSON.stringify(error))})
                         
-            var queryOptions = { Top:10 };
+            var queryOptions = { Top:10 , FormattedValues:true};
             
             crmAPI.GetList("accounts",queryOptions).then (
                 function (response){
