@@ -1,6 +1,8 @@
 
 Current Version CDN - https://xrmtoolscode.azureedge.net/CRMWebAPI.js
 
+You can find more query example information [here]( https://github.com/davidyack/Xrm.Tools.CRMWebAPI/wiki/Query-Examples )
+
 # Usage example
 
 ```javascript
