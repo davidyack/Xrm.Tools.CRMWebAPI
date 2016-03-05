@@ -1,4 +1,4 @@
-This is a prototype of an API helper for working with CRM 2016 Web API
+This is  an API helper for working with CRM 2016 Web API
 
 Design goals include
  - Lightweight 
