@@ -62,18 +62,6 @@ var CRMWebAPI = (function () {
 						List: data.value,
 						Count: recordCount
 					};
-					if ((QueryOptions != null) && (QueryOptions.RecordAction != null))
-					{
-						response.List.forEach(function(record){
-							QueryOptions.RecordAction(record);
-						});
-						response.List = [];
-					}
-					if ((QueryOptions != null) && (QueryOptions.PageAction != null))
-					{						
-					 	QueryOptions.PageAction(response.List);
-						 response.List = [];						
-					}						
 					if (nextLink === 'undefined') {
 						resolve(response);
 					} else {
@@ -85,20 +73,8 @@ var CRMWebAPI = (function () {
 							}, function (err, res) {
 								if (err == false) {
 									data = JSON.parse(res.response, CRMWebAPI.prototype._DateReviver);
-									nextLink = data['@odata.nextLink'];									
+									nextLink = data['@odata.nextLink'];
 									response.List = response.List.concat(data.value);
-									if ((QueryOptions != null) && (QueryOptions.RecordAction != null))
-									{
-										response.List.forEach(function(record){
-											QueryOptions.RecordAction(record);
-										});
-										response.List = [];
-									}
-									if ((QueryOptions != null) && (QueryOptions.PageAction != null))
-									{						
-										QueryOptions.PageAction(response.List);
-										response.List = [];						
-									}						
 									callback(null, response.List.length);
 								} else {
 									callback('err', 0);
