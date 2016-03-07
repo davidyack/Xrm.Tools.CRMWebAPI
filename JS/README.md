@@ -44,6 +44,7 @@ Working with Metadata - include CRMWebAPIMetadata.js
  Methods
   - GetOptionSetByName 
   - GetOptionSetUserLabels - returns Label/Value array
+  - GetEntityDisplayNameList(LCID) - returns object with DisplayName,DisplayCollectionName,LogicalName,LogicalCollectionName for LCID - or pass null for default LCID
   
   #Metadata Usage example
   ```javascript
@@ -58,5 +59,12 @@ crmAPI
 			function(e){
 				console.log(e);
 			})
+		
+		
+crmAPI.GetEntityDisplayNameList(1033).then(function(result)        
+        {
+           //do stuff here...
+            
+        });
 		
 ```

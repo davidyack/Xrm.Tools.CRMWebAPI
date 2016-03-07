@@ -1,0 +1,87 @@
+
+<!DOCTYPE html> 
+ <html xmlns="http://www.w3.org/1999/xhtml"> 
+ <head> 
+     <title>Simple Single Page</title> 
+     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">       
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/allmighty-autocomplete/1.0.140706/autocomplete.min.css">
+ </head> 
+ <body role="document" ng-app='appMetaData'>
+ <div class="container" role="main">
+       <div class="row">
+           <div ng-controller="MetaDataController">
+               <div>
+              <autocomplete ng-model="currentEntity" data="displayNames" on-select='selectedEntity' ></autocomplete>
+              </div>
+              <div ng-show='currentEDM != null' class='ng-hide'>
+                  <table>
+                      <tr>
+                          <td>Display Name:</td>
+                           <td>{{currentEDM.DisplayName}}</td>
+                      </tr>
+                      <tr>
+                          <td>Display Collection Name:</td>
+                           <td>{{currentEDM.DisplayCollectionName}}</td>
+                      </tr>
+                       <tr>
+                          <td>Logical Collection Name:</td>
+                           <td>{{currentEDM.LogicalCollectionName}}</td>
+                      </tr>
+                       <tr>
+                          <td>Logical  Name:</td>
+                           <td>{{currentEDM.LogicalName}}</td>
+                      </tr>
+                  </table>
+              </div>
+           </div>
+       </div>   
+  </div> 
+ 
+    <script src="ClientGlobalContext.js.aspx" type="text/javascript" ></script>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="https://secure.aadcdn.microsoftonline-p.com/lib/1.0.0/js/adal.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.12/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/allmighty-autocomplete/1.0.140706/autocomplete.min.js"></script>
+    <script src="https://www.promisejs.org/polyfills/promise-7.0.4.min.js"></script>
+    <script src="https://xrmtoolscode.azureedge.net/CRMWebAPI.js"></script>  
+      <script src="https://xrmtoolscode.azureedge.net/CRMWebAPIMetadata-1.1.0.js"></script>    
+     
+    
+    <script>
+        
+        var app = angular.module('appMetaData', ['autocomplete']);
+        
+        app.controller('MetaDataController', function($scope){
+        crmAPI.GetEntityDisplayNameList().then(function(result)        
+        {
+            $scope.displayNames = new Array();
+            result.forEach(function(entity) {$scope.displayNames.push(entity.DisplayCollectionName)});
+            $scope.entityNameList = result;
+            
+        });
+
+        // gives another movie array on change
+        $scope.selectedEntity = function(entity){
+           var edmInfo= null;
+           $scope.entityNameList.forEach(function(edm){if (edm.DisplayCollectionName == entity) edmInfo = edm;});
+           $scope.currentEDM = edmInfo;
+           $scope.$apply();
+        }
+    });
+
+        
+        // For Outside CRM Testing 
+       // var apiconfig = { APIUrl: 'https://x.crm.dynamics.com' + '/api/data/v8.0/',  AccessToken:''};
+        
+        var apiconfig = { APIUrl: Xrm.Page.context.getClientUrl() + '/api/data/v8.0/'};
+        
+        var crmAPI = new CRMWebAPI(apiconfig);
+                        
+        
+            
+    </script>
+    </body>
+ </html>
