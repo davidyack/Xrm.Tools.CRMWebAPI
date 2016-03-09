@@ -3,6 +3,8 @@ CRMWebAPI.js Releases
     - intial version
 1.1.0 
     - Added PageAction and RecordAction options to query options
+1.2.0
+	- all functions that take entityID remove {} that is added by Xrm.Page getEntityID so you don't have to pre-process it before passing to API
 	
 CRMWebAPIMetadata
 1.0.0 

@@ -3,7 +3,7 @@ var should = chai.should();
 
 describe('CRMWebAPI', function() {
     var api = new CRMWebAPI({
-        'APIUrl': 'https://tr22a.crm.dynamics.com/api/data/v8.0/',
+        'APIUrl': 'https://orgname.crm.dynamics.com/api/data/v8.0/',
         'AccessToken': $('#accesstoken').val()
     });
     console.log($('#accesstoken').val());
@@ -15,11 +15,31 @@ describe('CRMWebAPI', function() {
 
     describe('Create', function(){
         it('should return GUID', function () {
-            return api.Create('accounts', {'name': 'test'})
+            return api.Create('accounts', {'name': 'test1'})
                 .then(function(r){
                     expect(r).to.have.length(36);
                     expect(r).to.be.a('string');
                     temp_user_id = r;
+                }, function(e){
+                    should.not.exist(e);
+                })
+        });
+         it('should return GUID', function () {
+            return api.Create('accounts', {'name': 'test2'})
+                .then(function(r){
+                    expect(r).to.have.length(36);
+                    expect(r).to.be.a('string');
+                    uid1 = r;
+                }, function(e){
+                    should.not.exist(e);
+                })
+        });
+         it('should return GUID', function () {
+            return api.Create('accounts', {'name': 'test3'})
+                .then(function(r){
+                    expect(r).to.have.length(36);
+                    expect(r).to.be.a('string');
+                    uid2 = r;
                 }, function(e){
                     should.not.exist(e);
                 })
@@ -70,6 +90,13 @@ describe('CRMWebAPI', function() {
                 should.not.exist(e);
             });
         });
+          it('should return object', function(){
+            return api.Get('accounts','{'+ temp_user_id+'}').then(function(r){
+                expect(r).to.be.a('object');
+            }, function(e){
+                should.not.exist(e);
+            });
+        });
         it('should return error', function(){
             return api.Get('accounts', temp_user_id.replace('1', '0')).then(function(r){
                 should.not.exist(r);
@@ -115,9 +142,9 @@ describe('CRMWebAPI', function() {
     });
     describe('GetList', function(){
         it('should return more than 5001 entries', function(){
-            return api.GetList('accounts').then(function(r){
+            return api.GetList('accounts',{Top:25}).then(function(r){
                 expect(r).to.be.a('object');
-                expect(r.List.length).to.be.at.least(5001);
+                expect(r.List.length).to.be.at.least(25);
             }, function(e){
                 should.not.exist(e);
             });
