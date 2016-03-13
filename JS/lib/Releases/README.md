@@ -11,3 +11,5 @@ CRMWebAPIMetadata
 	- initial version
 1.1.3
     - added support for GetEntityDisplayNameList
+1.2.0
+	- added support for GetAttributeDisplayNameList
