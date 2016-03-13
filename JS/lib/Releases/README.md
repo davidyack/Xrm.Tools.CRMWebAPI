@@ -13,3 +13,5 @@ CRMWebAPIMetadata
     - added support for GetEntityDisplayNameList
 1.2.0
 	- added support for GetAttributeDisplayNameList
+1.2.1
+ 	- added filter to GetAttributeDisplayNamelist for attributeof and no read, added ODataLogicalName to handle Owner,Customer and Lookup
