@@ -60,7 +60,7 @@
                         
         crmAPI.ExecuteFunction("WhoAmI").then(function(result)        
         {
-            crmAPI.Get("systemusers",result.UserId,{FormatedValues:true}).then(function (result)
+            crmAPI.Get("systemusers",result.UserId,{FormattedValues:true}).then(function (result)
             {
                 PopulateOutputData(result);    
             });
