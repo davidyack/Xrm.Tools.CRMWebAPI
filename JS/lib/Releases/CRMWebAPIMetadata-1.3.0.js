@@ -162,7 +162,6 @@ CRMWebAPI.prototype.GetEntityDisplayNameList = function (LCID) {
             function (r)
             {
                 delete r.MetadataId;
-                //note Boolean and Picklist types have a CRM bug and won't create even removing the following - research in progress
                 if (attributeType == "Boolean" || attributeType == "Picklist")
                 {
                     delete r.DefaultValue;
