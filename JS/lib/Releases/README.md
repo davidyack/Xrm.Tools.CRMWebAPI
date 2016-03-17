@@ -19,3 +19,5 @@
  	- added filter to GetAttributeDisplayNamelist for attributeof and no read, added ODataLogicalName to handle Owner,Customer and Lookup
 #### 1.3.0
  	- Added CopyEntityAttribute function (note Boolean and Picklist types have a CRM bug)
+#### 1.3.1
+ 	- Got CopyEntityAttribute to create Boolean and Picklists - as long as picklist isn't global - that is still outstanding 
