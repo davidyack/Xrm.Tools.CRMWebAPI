@@ -154,21 +154,43 @@ CRMWebAPI.prototype.GetEntityDisplayNameList = function (LCID) {
 
             var ec ='EntityDefinitions('+ fromEntityID.toString() + ')/Attributes('+fromAttributeID+')';
             if (attributeType == "Boolean")
-                ec += '/Microsoft.Dynamics.CRM.BooleanAttributeMetadata'; 
+                ec += '/Microsoft.Dynamics.CRM.BooleanAttributeMetadata?$expand=OptionSet'; 
                 if (attributeType == "Picklist")
-                ec += '/Microsoft.Dynamics.CRM.PicklistAttributeMetadata'; 		
+                ec += '/Microsoft.Dynamics.CRM.PicklistAttributeMetadata?$expand=OptionSet'; 		
                 	
            self.Get(ec,null,{}).then(
             function (r)
             {
-                delete r.MetadataId;
-                //note Boolean and Picklist types have a CRM bug and won't create even removing the following - research in progress
-                if (attributeType == "Boolean" || attributeType == "Picklist")
+                    console.log(JSON.stringify(r));
+                delete r.MetadataId;                
+                if (attributeType == "Boolean" )
                 {
-                    delete r.DefaultValue;
-                    delete r.FormulaDefinition;
-                    delete r.SourceTypeMask;
-                    delete r.DefaultFormValue;
+                    r['@odata.type'] = 'Microsoft.Dynamics.CRM.BooleanAttributeMetadata';
+                    delete r['OptionSet@odata.context'];
+                    if (r.OptionSet != null)
+                    {
+                       delete r.OptionSet.Name;
+                       delete r.OptionSet.MetadataId;
+                       r.OptionSet.IsCustomOptionSet=true;
+                    }                   
+                }
+                if (attributeType == "Picklist" )
+                {
+                    r['@odata.type'] = 'Microsoft.Dynamics.CRM.PicklistAttributeMetadata';
+                    
+                    if (r.OptionSet != null)
+                    {
+                       delete r['OptionSet@odata.context'];
+                       delete r.OptionSet.Name;
+                       delete r.OptionSet.MetadataId;
+                       r.OptionSet.IsCustomOptionSet=true;
+                    } 
+                    else
+                     {                             
+                        delete r.OptionSet;
+                        r['OptionSet@odata.bind'] = r['OptionSet@odata.context'];
+                        delete r['OptionSet@odata.context'];                            
+                    }                  
                 }
                 r.LogicalName = toNames.LogicalName;
                 r.SchemaName  = toNames.SchemaName;
