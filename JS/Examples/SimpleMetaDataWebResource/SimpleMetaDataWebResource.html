@@ -1,4 +1,3 @@
-
 <!DOCTYPE html> 
  <html xmlns="http://www.w3.org/1999/xhtml"> 
  <head> 
@@ -36,6 +35,18 @@
               </div>
                <div  ng-show='displayAttributes != null' class='ng-hide'> 
                     <autocomplete ng-model="currentAttribute" data="displayAttributes" on-select='selectedAttribute' ></autocomplete>
+              </div>
+              <div ng-show='currentAttr != null' class='ng-hide'>
+                  <table>
+                      <tr>
+                          <td>Display Name:</td>
+                           <td>{{currentAttr.DisplayName}}</td>
+                      </tr>
+                      <tr>
+                          <td>Display Collection Name:</td>
+                           <td>{{currentAttr.AttributeType}}</td>
+                      </tr>                       
+                  </table>
               </div>
            </div>
        </div>   
@@ -86,10 +97,12 @@
            var attrInfo= null;
            $scope.attributeNameList.forEach(function(attr){if (attr.LogicalDisplayName == attribute) attrInfo = attr;});
            
-       // crmAPI.CopyEntityAttribute($scope.currentEDM.MetadataId,$scope.currentEDM.MetadataId,attrInfo.MetadataId,attrInfo.AttributeType,
-        //                   {LogicalName:'copy_'+attrInfo.LogicalName +'copied',SchemaName:'copy_'+attrInfo.SchemaName +'copied'}).then(function(results) {
-        //        console.log(results);    
-        //   },function(error){});
+           
+           $scope.currentAttr = attrInfo;
+       crmAPI.CopyEntityAttribute($scope.currentEDM.MetadataId,$scope.currentEDM.MetadataId,attrInfo.MetadataId,attrInfo.AttributeType,
+                           {LogicalName:'c1py_'+attrInfo.LogicalName +'copied',SchemaName:'c1py_'+attrInfo.SchemaName +'copied'}).then(function(results) {
+                console.log(results);    
+           },function(error){});
                    
         }
 

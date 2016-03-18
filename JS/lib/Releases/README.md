@@ -21,3 +21,5 @@
  	- Added CopyEntityAttribute function (note Boolean and Picklist types have a CRM bug)
 #### 1.3.1
  	- Got CopyEntityAttribute to create Boolean and Picklists - as long as picklist isn't global - that is still outstanding 
+#### 1.3.2
+ 	- Got CopyEntityAttribute to create OptionSets pointing to global optionset values 
