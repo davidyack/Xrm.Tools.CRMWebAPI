@@ -162,7 +162,8 @@ CRMWebAPI.prototype.GetEntityDisplayNameList = function (LCID) {
             function (r)
             {
                     console.log(JSON.stringify(r));
-                delete r.MetadataId;                
+                delete r.MetadataId;  
+                delete r.EntityLogicalName;              
                 if (attributeType == "Boolean" )
                 {
                     r['@odata.type'] = 'Microsoft.Dynamics.CRM.BooleanAttributeMetadata';
@@ -176,6 +177,7 @@ CRMWebAPI.prototype.GetEntityDisplayNameList = function (LCID) {
                 }
                 if (attributeType == "Picklist" )
                 {
+                    delete r.EntityLogicalName;                        
                     r['@odata.type'] = 'Microsoft.Dynamics.CRM.PicklistAttributeMetadata';
                     
                     if (r.OptionSet != null)
@@ -198,7 +200,7 @@ CRMWebAPI.prototype.GetEntityDisplayNameList = function (LCID) {
                 r.SchemaName  = toNames.SchemaName;
                 console.log(JSON.stringify(r));
                 
-                self.Create('EntityDefinitions('+ fromEntityID.toString() + ')/Attributes',r).then(
+                self.Create('EntityDefinitions('+ toEntityID.toString() + ')/Attributes',r).then(
                   function (createR)
                   {
                       resolve(createR); 
