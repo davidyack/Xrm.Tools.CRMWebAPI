@@ -2,7 +2,7 @@
 Install via NuGet
 
 Install-Package Xrm.Tools.CRMWebAPI 
-Here is how to get an instance of CRMWebAPI
+Here is how to get an instance of CRMWebAPI passing an AccessToken
 ````
         public CRMWebAPI GetAPI()
         {
@@ -13,7 +13,22 @@ Here is how to get an instance of CRMWebAPI
 
         }
 ````
+Here is how to get an instance of CRMWebAPI passing an ADAL with a user and password
+````
+  public CRMWebAPI GetAPI()
+  {
+      string authority = "https://login.microsoftonline.com/common";
+      string clientId = "<clientid>";
+      string crmBaseUrl = "https://xx.crm.dynamics.com";
 
+      var authContext = new AuthenticationContext(authority);
+      UserCredential userCreds = new UserCredential("userEmail", "userPassword");
+      var result = authContext.AcquireToken(crmBaseUrl, clientId, userCreds);
+      CRMWebAPI api = new CRMWebAPI(crmBaseUrl + "/api/data/v8.0/", result.AccessToken);
+      
+      return api;
+  }
+````
 
 Here are a few simple examples 
 ````
