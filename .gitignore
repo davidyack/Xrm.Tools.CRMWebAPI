@@ -17,6 +17,7 @@ node_modules
 *.dll
 *.pdb
 .idea
+*.bak
 *.iml
 nodejs/test.js
 nodejs/node_modules

@@ -213,7 +213,11 @@ namespace Xrm.Tools.WebAPI
         {
             await CheckAuthToken();
 
-            string fullUrl = BuildGetUrl( entityCollection + "(" + entityID.ToString() + ")", QueryOptions);
+            string fullUrl = string.Empty;
+            if (entityID == Guid.Empty)
+               fullUrl =  BuildGetUrl( entityCollection , QueryOptions);
+            else
+                fullUrl = BuildGetUrl(entityCollection + "(" + entityID.ToString() + ")", QueryOptions);
             HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("GET"), fullUrl);
 
             if ((QueryOptions != null) && (QueryOptions.FormattedValues))
@@ -284,9 +288,9 @@ namespace Xrm.Tools.WebAPI
                 req.Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
                 HttpMessageContent content = new HttpMessageContent(req);
                 content.Headers.Remove("Content-Type");
-                content.Headers.TryAddWithoutValidation("Content-Type", "application/http");
-                content.Headers.TryAddWithoutValidation("Content-Transfer-Encoding", "binary");
-                content.Headers.TryAddWithoutValidation("Content-ID", contentID.ToString());
+                content.Headers.AddWithoutValidation("Content-Type", "application/http");
+                content.Headers.AddWithoutValidation("Content-Transfer-Encoding", "binary");
+                content.Headers.AddWithoutValidation("Content-ID", contentID.ToString());
                 contentID++;
                 changeSetContent.Add(content);
             }
