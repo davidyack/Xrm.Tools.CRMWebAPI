@@ -23,5 +23,7 @@ namespace Xrm.Tools.WebAPI.Requests
         public Guid UserQuery { get; set; }
         public string FetchXml { get; set; }
 
+        public CRMExpandOptions[] Expand { get; set; }
+
     }
 }

@@ -43,6 +43,9 @@
     <Compile Include="..\Xrm.Tools.WebAPI\CRMWebAPI.cs">
       <Link>CRMWebAPI.cs</Link>
     </Compile>
+    <Compile Include="..\Xrm.Tools.WebAPI\Requests\CRMExpandOptions.cs">
+      <Link>CRMExpandOptions.cs</Link>
+    </Compile>
     <Compile Include="..\Xrm.Tools.WebAPI\Requests\CRMGetListOptions.cs">
       <Link>CRMGetListOptions.cs</Link>
     </Compile>

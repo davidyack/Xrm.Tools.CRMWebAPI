@@ -100,5 +100,50 @@ namespace Xrm.Tools.WebAPI.Test
 
             }).Wait();
         }
+
+        [TestMethod]
+        public void TestExpandQuery()
+        {
+
+            Task.Run(async () =>
+            {
+                var api = GetAPI();
+
+                dynamic whoamiResults = await api.ExecuteFunction("WhoAmI");
+                CRMGetListOptions userOptions = new CRMGetListOptions()
+                {
+                     Expand = new CRMExpandOptions[]
+                        { new CRMExpandOptions()
+                            { Property="businessunitid",
+                              Select = new string[] { "businessunitid","name","websiteurl" }
+                            }
+                        }
+                };
+                
+                var userResults = await api.Get("systemusers",Guid.Parse(whoamiResults.UserId),QueryOptions:userOptions);
+
+                CRMGetListOptions buOptions = new CRMGetListOptions()
+                {
+                    Expand = new CRMExpandOptions[]
+                       { new CRMExpandOptions()
+                            { Property="business_unit_system_users",
+                              Select = new string[] { "systemuserid","fullname" },
+                              Filter = "systemuserid ne " + whoamiResults.UserId,
+                              OrderBy = new string[] {"createdon asc"},
+                              Top=5
+
+                            }
+                       }
+                };
+                var buResult = await api.Get("businessunits",
+                     Guid.Parse(userResults.businessunitid.businessunitid),
+                      QueryOptions: buOptions);
+                dynamic userCount = buResult.business_unit_system_users.Count;
+
+                System.Diagnostics.Trace.WriteLine("finished");
+
+
+            }).Wait();
+        }
     }
 }

@@ -11,8 +11,7 @@ namespace Xrm.Tools.WebAPI.Test
         public CRMWebAPI GetAPI()
         {
 
-            CRMWebAPI api = new CRMWebAPI("https://orgname.api.crm.dynamics.com/api/data/v8.0/",
-                    "");
+            CRMWebAPI api = new CRMWebAPI("https://orgname.api.crm.dynamics.com/api/data/v8.0/", "");
             return api;
 
         }

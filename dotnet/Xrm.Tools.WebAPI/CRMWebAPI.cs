@@ -611,7 +611,7 @@ namespace Xrm.Tools.WebAPI
                 {
 
                     if (firstParam)
-                        fullurl = String.Format("{0}?orderby={1}", fullurl, String.Join(",", queryOptions.OrderBy));
+                        fullurl = String.Format("{0}?$orderby={1}", fullurl, String.Join(",", queryOptions.OrderBy));
                     else
                         fullurl = String.Format("{1}&$orderby={0}", fullurl, String.Join(",", queryOptions.OrderBy));
                     firstParam = false;
@@ -650,10 +650,50 @@ namespace Xrm.Tools.WebAPI
                         fullurl = fullurl + string.Format("&$top={0}", queryOptions.Top);
                     firstParam = false;
                 }
+                if (queryOptions.Expand != null)
+                    BuildExpandQueryURLOptions(queryOptions, ref fullurl, ref firstParam);
+
                 BuildAdvancedQueryURLOptions(queryOptions, ref fullurl, ref firstParam);
             }
 
             return fullurl;
+        }
+
+        private void BuildExpandQueryURLOptions(CRMGetListOptions queryOptions, ref string fullurl, ref bool firstParam)
+        {
+            List<string> expands = new List<string>();
+
+            foreach (var expand in queryOptions.Expand)
+            {
+                List<string> expandOptions = new List<string>();
+
+                if (expand.Select != null)
+                    expandOptions.Add(String.Format("$select={0}", String.Join(",", expand.Select)));
+
+                if (expand.OrderBy != null)
+                    expandOptions.Add(String.Format("$orderby={0}", String.Join(",", expand.OrderBy)));
+
+                if (expand.Filter != null)
+                    expandOptions.Add("$filter=" + expand.Filter);
+
+                if (expand.Top > 0)
+                    expandOptions.Add(string.Format("$top={0}", expand.Top));
+
+                if (expandOptions.Count > 0)
+                    expands.Add(string.Format("{0}({1})", expand.Property, string.Join(";", expandOptions)));
+                else
+                    expands.Add(string.Format("{0}", expand.Property));
+                
+            }
+            if (expands.Count > 0)
+            {
+                if (firstParam)
+                    fullurl = fullurl + string.Format("?$expand={0}", String.Join(",",expands));
+                else
+                    fullurl = fullurl + string.Format("&$expand={0}", String.Join(",", expands));
+                firstParam = false;
+            }
+                
         }
 
         private static void BuildAdvancedQueryURLOptions(CRMGetListOptions queryOptions, ref string fullurl, ref bool firstParam)
