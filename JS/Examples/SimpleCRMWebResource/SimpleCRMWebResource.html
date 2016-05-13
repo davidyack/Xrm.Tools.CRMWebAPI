@@ -32,7 +32,8 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
     <script src="https://secure.aadcdn.microsoftonline-p.com/lib/1.0.0/js/adal.min.js"></script>
     <script src="https://www.promisejs.org/polyfills/promise-7.0.4.min.js"></script>
-    <script src="https://xrmtoolscode.azureedge.net/CRMWebAPI.js"></script>    
+<!--    <script src="https://xrmtoolscode.azureedge.net/CRMWebAPI.js"></script> -->
+    <script src="..\..\lib\CRMWebAPI.js"></script>     
     <script>
         function PopulateOutputData(result)
         {
@@ -52,17 +53,39 @@
                 $dataContainer.html(output);
         }
         
-        // For Outside CRM Testing var apiconfig = { APIUrl: 'https://tr22a.crm.dynamics.com' + '/api/data/v8.0/',  AccessToken:'<access token>'};
+        // For Outside CRM Testing 
+        //var apiconfig = { APIUrl: 'https://orgname.crm.dynamics.com' + '/api/data/v8.0/',  AccessToken:''};
         
         var apiconfig = { APIUrl: Xrm.Page.context.getClientUrl() + '/api/data/v8.0/'};
         
         var crmAPI = new CRMWebAPI(apiconfig);
+        var userid = null;
                         
         crmAPI.ExecuteFunction("WhoAmI").then(function(result)        
         {
-            crmAPI.Get("systemusers",result.UserId,{FormattedValues:true}).then(function (result)
+            var queryOptionsUser = {
+                FormattedValues:true,
+                Expand:[{Property:'businessunitid', Select:['businessunitid','name','websiteurl']}]
+            };
+            
+            crmAPI.Get("systemusers",result.UserId,queryOptionsUser).then(function (buresult)
             {
-                PopulateOutputData(result);    
+                PopulateOutputData(result);
+                
+                var queryOptionsBU = {
+                  FormattedValues:true,
+                    Expand:[
+                        {Property:'business_unit_system_users', 
+                         Select:['systemuserid','fullname'], 
+                         Filter:'systemuserid ne ' + result.UserId, 
+                         OrderBy:['createdon asc'],
+                         Top:5
+                        }]
+                };    
+                crmAPI.Get("businessunits",buresult.businessunitid.businessunitid,queryOptionsBU).then(function (busersresult)
+                {
+                    console.log("retrieved business unit");
+                });
             });
             
         });

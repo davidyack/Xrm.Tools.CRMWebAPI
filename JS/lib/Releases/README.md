@@ -7,6 +7,8 @@
 	- all functions that take entityID remove {} that is added by Xrm.Page getEntityID so you don't have to pre-process it before passing to API
 #### 1.2.1
 	- allow entity ID to be null when passed to .Get and just use collection name as passed
+#### 1.3.0
+	- Added support for Expand query option
 	
 # CRMWebAPIMetadata.js Releases
 #### 1.0.0 
