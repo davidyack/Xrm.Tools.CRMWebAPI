@@ -1,5 +1,10 @@
-Currently the nodejs library only supports oAuth authentication 
+Currently the nodejs library only supports oAuth authentication use Adal.js for Node to get an access token for real applications or https://xrm.tools/AccessToken for testing
 
+#Getting Started
+
+````
+npm install CRMWebAPI
+````
 
 # Usage example
 You can find other query example information [here](https://github.com/davidyack/Xrm.Tools.CRMWebAPI/wiki/Query-Examples )
