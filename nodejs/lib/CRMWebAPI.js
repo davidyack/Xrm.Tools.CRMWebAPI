@@ -115,7 +115,11 @@ var CRMWebAPI = (function () {
 	CRMWebAPI.prototype.Get = function (entityCollection, entityID, QueryOptions) {
 		var self = this;
 		return new Promise(function (resolve, reject) {
-			var url = CRMWebAPI.prototype._BuildQueryURL(entityCollection + "(" + entityID.toString() + ")", QueryOptions, self.config);
+			var url = null;
+			if (entityID == null)
+				url = CRMWebAPI.prototype._BuildQueryURL(entityCollection , QueryOptions, self.config);
+			else
+			 	url  = CRMWebAPI.prototype._BuildQueryURL(entityCollection + "(" + entityID.toString().replace(/[{}]/g, "") + ")", QueryOptions, self.config);
 			self._GetHttpRequest(self.config, "GET", url, {
 				'headers': self._BuildQueryHeaders(QueryOptions, self.config)
 			}, function (err, res) {
@@ -162,7 +166,7 @@ var CRMWebAPI = (function () {
 	CRMWebAPI.prototype.Update = function (entityCollection, key, data, Upsert) {
 		var self = this;
 		return new Promise(function (resolve, reject) {
-			var url = self.config.APIUrl + entityCollection + '(' + key + ')';
+			var url = self.config.APIUrl + entityCollection + '(' + key.replace(/[{}]/g, "") + ')';
 			var payload = {
 				"data": JSON.stringify(data),
 				"headers": {}
@@ -183,7 +187,7 @@ var CRMWebAPI = (function () {
 	CRMWebAPI.prototype.Delete = function (entityCollection, entityID) {
 		var self = this;
 		return new Promise(function (resolve, reject) {
-			var url = self.config.APIUrl + entityCollection + '(' + entityID + ')';
+			var url = self.config.APIUrl + entityCollection + '(' + entityID.replace(/[{}]/g, "") + ')';
 			self._GetHttpRequest(self.config, "DELETE", url, {}, function (err, res) {
 				if (err != false) {
 					reject(res);
@@ -196,10 +200,10 @@ var CRMWebAPI = (function () {
 	CRMWebAPI.prototype.Associate = function (fromEntitycollection, fromEntityID, navProperty, toEntityCollection, toEntityID) {
 		var self = this;
 		return new Promise(function (resolve, reject) {
-			var url = self.config.APIUrl + fromEntitycollection + '(' + fromEntityID + ')/' + navProperty + '/$ref';
+			var url = self.config.APIUrl + fromEntitycollection + '(' + fromEntityID.replace(/[{}]/g, "") + ')/' + navProperty + '/$ref';
 			var payload = {
 				'data': JSON.stringify({
-					'@odata.id': self.config.APIUrl + toEntityCollection + '(' + toEntityID + ')'
+					'@odata.id': self.config.APIUrl + toEntityCollection + '(' + toEntityID.replace(/[{}]/g, "") + ')'
 				})
 			};
 			self._GetHttpRequest(self.config, 'POST', url, payload, function (err, res) {
@@ -214,7 +218,8 @@ var CRMWebAPI = (function () {
 	CRMWebAPI.prototype.DeleteAssociation = function (fromEntitycollection, fromEntityID, navProperty, toEntityCollection, toEntityID) {
 		var self = this;
 		return new Promise(function (resolve, reject) {
-			var url = self.config.APIUrl + fromEntitycollection + '(' + fromEntityID + ')/' + navProperty + '/$ref?$id=' + self.config.APIUrl + toEntityCollection + '(' + toEntityID + ')';
+			var url = self.config.APIUrl + fromEntitycollection + '(' + fromEntityID.replace(/[{}]/g, "") +
+			   ')/' + navProperty + '/$ref?$id=' + self.config.APIUrl + toEntityCollection + '(' + toEntityID.replace(/[{}]/g, "") + ')';
 			self._GetHttpRequest(self.config, 'DELETE', url, {}, function (err, res) {
 				if (err != false) {
 					reject(res);
@@ -242,10 +247,10 @@ var CRMWebAPI = (function () {
 			var url = "";
 			if (parameters != null) {
 				url = self.config.APIUrl + functionName + "(" + parmvars.join(",") + ")?" + parmvalues.join("&");
-				if (entityCollection != null) url = self.config.APIUrl + entityCollection + "(" + entityID.toString() + ")" + functionName + "(" + parmvars.join(",") + ")?" + parmvalues.join("&");
+				if (entityCollection != null) url = self.config.APIUrl + entityCollection + "(" + entityID.toString().replace(/[{}]/g, "") + ")" + functionName + "(" + parmvars.join(",") + ")?" + parmvalues.join("&");
 			} else {
 				url = self.config.APIUrl + functionName + "()";
-				if (entityCollection != null) url = self.config.APIUrl + entityCollection + "(" + entityID.toString() + ")" + functionName + "()";
+				if (entityCollection != null) url = self.config.APIUrl + entityCollection + "(" + entityID.toString().replace(/[{}]/g, "") + ")" + functionName + "()";
 			}
 			self._GetHttpRequest(self.config, "GET", url, {}, function (err, res) {
 				if (err != false) {
@@ -261,7 +266,7 @@ var CRMWebAPI = (function () {
 		var self = this;
 		return new Promise(function (resolve, reject) {
 			var url = self.config.APIUrl + actionName;
-			if (entityCollection != null) url = self.config.APIUrl + entityCollection + "(" + entityID.toString() + ")" + actionName;
+			if (entityCollection != null) url = self.config.APIUrl + entityCollection + "(" + entityID.toString().replace(/[{}]/g, "") + ")" + actionName;
 			self._GetHttpRequest(self.config, "POST", url, {
 				"data": JSON.stringify(data)
 			}, function (err, res) {
@@ -281,6 +286,24 @@ var CRMWebAPI = (function () {
 			if (queryOptions.Select != null) qs.push("$select=" + encodeURI(queryOptions.Select.join(",")));
 			if (queryOptions.OrderBy != null) qs.push("$orderby=" + encodeURI(queryOptions.OrderBy.join(",")));
 			if (queryOptions.Filter != null) qs.push("$filter=" + encodeURI(queryOptions.Filter));
+			if (queryOptions.Expand != null) 
+			{
+				var expands = [];
+				queryOptions.Expand.forEach(function (ex){
+					if ((ex.Select != null) || (ex.Filter != null) || (ex.OrderBy != null) || (ex.Top != null))
+					{ 	
+						var qsExpand = [];				 
+						if (ex.Select != null) qsExpand.push("$select=" + ex.Select.join(","));
+						if (ex.OrderBy != null) qsExpand.push("$orderby=" + ex.OrderBy.join(","));
+						if (ex.Filter != null) qsExpand.push("$filter=" + ex.Filter);
+						if (ex.Top > 0) qsExpand.push("$top=" + ex.Top);
+						expands.push(ex.Property + "(" +qsExpand.join(";") + ")");
+					}
+					else
+						expands.push(ex.Property);
+				});
+				qs.push("$expand="+ encodeURI(expands.join(",")));
+			}
 			if (queryOptions.IncludeCount) qs.push("$count=true");
 			if (queryOptions.Skip > 0) qs.push("skip=" + encodeURI(queryOptions.Skip));
 			if (queryOptions.Top > 0) qs.push("$top=" + encodeURI(queryOptions.Top));
