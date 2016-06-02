@@ -287,10 +287,10 @@ namespace Xrm.Tools.WebAPI
 
                 req.Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
                 HttpMessageContent content = new HttpMessageContent(req);
-                content.Headers.Remove("Content-Type");
-                content.Headers.AddWithoutValidation("Content-Type", "application/http");
-                content.Headers.AddWithoutValidation("Content-Transfer-Encoding", "binary");
-                content.Headers.AddWithoutValidation("Content-ID", contentID.ToString());
+                content.Headers.Remove("Content-Type");                
+                content.Headers.TryAddWithoutValidation("Content-Type", "application/http");
+                content.Headers.TryAddWithoutValidation("Content-Transfer-Encoding", "binary");
+                content.Headers.TryAddWithoutValidation("Content-ID", contentID.ToString());
                 contentID++;
                 changeSetContent.Add(content);
             }
@@ -531,18 +531,26 @@ namespace Xrm.Tools.WebAPI
         {
             if (data != null)
             {
-                Type type = data.GetType();
-                IList<PropertyInfo> props = new List<PropertyInfo>(type.GetProperties());
-                List<KeyValuePair<string, object>> list = new List<KeyValuePair<string, object>>();
-
-                foreach (PropertyInfo prop in props)
+                if (data.GetType() == typeof(ExpandoObject))
                 {
-                    object propValue = prop.GetValue(data, null);
-
-                    list.Add(new KeyValuePair<string, object>(prop.Name, propValue));
+                    var dataExpand = data as ExpandoObject;
+                    return dataExpand.ToList();
                 }
+                else
+                {
+                    Type type = data.GetType();
+                    IList<PropertyInfo> props = new List<PropertyInfo>(type.GetProperties());
+                    List<KeyValuePair<string, object>> list = new List<KeyValuePair<string, object>>();
 
-                return list;
+                    foreach (PropertyInfo prop in props)
+                    {
+                        object propValue = prop.GetValue(data, null);
+
+                        list.Add(new KeyValuePair<string, object>(prop.Name, propValue));
+                    }
+
+                    return list;
+                }
             }
 
             else return new List<KeyValuePair<string, object>>();

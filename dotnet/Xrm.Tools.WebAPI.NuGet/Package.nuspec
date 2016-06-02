@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Xrm.Tools.CRMWebAPI</id>
-    <version>1.0.7</version>
+    <version>1.0.8</version>
     <title>Xrm.Tools.CRMWebAPI</title>
     <authors>DavidYack</authors>
     <owners></owners>
@@ -19,6 +19,7 @@
       1.0.5 allow network credentials to be optional for on-prem
       1.0.6 added Metadata Extension methods
       1.0.7 added Expand support to Query Options
+      1.0.8 fixed references to System.Net.Http
     </releaseNotes>
     <summary>
       This is an API helper for working with Dynamics CRM 2016 Web API

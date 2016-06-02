@@ -58,8 +58,8 @@ namespace Xrm.Tools.WebAPI.Test
                 var batchResults = await api.Create("accounts", batchList.ToArray());
 
                 dynamic gettimeoptions = new ExpandoObject();
-                gettimeoptions.LocalizedStandardName = "";
-                gettimeoptions.LocalId = 1033;
+                gettimeoptions.LocalizedStandardName = "Pacific Standard Time";
+                gettimeoptions.LocaleId = 1033;
 
                 var gettimeResults  = await api.ExecuteFunction("GetTimeZoneCodeByLocalizedName",gettimeoptions);
 
