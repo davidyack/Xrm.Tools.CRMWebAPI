@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Xrm.Tools.CRMWebAPI</id>
-    <version>1.0.8</version>
+    <version>1.0.9</version>
     <title>Xrm.Tools.CRMWebAPI</title>
     <authors>DavidYack</authors>
     <owners></owners>
@@ -13,13 +13,14 @@
     <releaseNotes>
       1.0.0 Initial release
       1.0.1 Cleanup of the API, more comments
-      1.0.2 removed JToken from public APIs 
+      1.0.2 removed JToken from public APIs
       1.0.3 added uwp binary
       1.0.4 fixed bug in ExecuteFunction, added support for Formatted Values
       1.0.5 allow network credentials to be optional for on-prem
       1.0.6 added Metadata Extension methods
       1.0.7 added Expand support to Query Options
       1.0.8 fixed references to System.Net.Http
+      1.0.9 added dependency for System.Net.Http.Formatting
     </releaseNotes>
     <summary>
       This is an API helper for working with Dynamics CRM 2016 Web API
@@ -32,7 +33,8 @@
     <copyright>Copyright  2016</copyright>
     <dependencies>
         <group targetFramework="net40">
-          <dependency id="Newtonsoft.Json" version="8.0.2" />          
+          <dependency id="Newtonsoft.Json" version="8.0.2" />
+          <dependency id="Microsoft.AspNet.WebApi.Client" version="5.2.3" />
         </group>
       <group targetFramework="uap10.0">
         <dependency id="Newtonsoft.Json" version="8.0.2" />
