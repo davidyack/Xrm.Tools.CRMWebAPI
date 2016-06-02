@@ -4,7 +4,7 @@ Install via NuGet
 Install-Package Xrm.Tools.CRMWebAPI 
 Here is how to get an instance of CRMWebAPI passing an AccessToken
 ````
-        public CRMWebAPI GetAPI()
+        public static CRMWebAPI GetAPI()
         {
 
             CRMWebAPI api = new CRMWebAPI("https://orgname.api.crm.dynamics.com/api/data/v8.0/",
@@ -15,7 +15,7 @@ Here is how to get an instance of CRMWebAPI passing an AccessToken
 ````
 Here is how to get an instance of CRMWebAPI passing an ADAL with a user and password
 ````
-  public CRMWebAPI GetAPI()
+  public static CRMWebAPI GetAPI()
   {
       string authority = "https://login.microsoftonline.com/common";
       string clientId = "<clientid>";
@@ -32,6 +32,8 @@ Here is how to get an instance of CRMWebAPI passing an ADAL with a user and pass
 
 Here are a few simple examples 
 ````
+        Task.Run(async () =>
+            {
                 var api = GetAPI();
 
                 dynamic data = new ExpandoObject();
@@ -52,10 +54,11 @@ Here are a few simple examples
 
                 await api.Delete("accounts", upsertResult.EntityID);
 
-                var results = await api.GetList("accounts", new Requests.CRMGetListOptions() { Top = 5, FormattedValues=true });
+                var results = await api.GetList("accounts", new CRMGetListOptions() { Top = 5, FormattedValues=true });
 
                 string fetchXml = "<fetch mapping='logical'><entity name='account'><attribute name='accountid'/><attribute name='name'/></entity></fetch>";
 
                 var fetchResults = await api.GetList("accounts", QueryOptions: new CRMGetListOptions() { FetchXml = fetchXml });
 
                 var count = await api.GetCount("accounts");
+        }).Wait();
