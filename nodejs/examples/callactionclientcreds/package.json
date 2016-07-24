@@ -1,0 +1,15 @@
+{
+  "name": "callaction",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "CRMWebAPI": "^1.0.0",
+    "adal-node": "^0.1.21"
+  }
+}
