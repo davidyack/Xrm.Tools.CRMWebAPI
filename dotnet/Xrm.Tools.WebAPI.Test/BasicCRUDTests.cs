@@ -100,6 +100,22 @@ namespace Xrm.Tools.WebAPI.Test
 
             }).Wait();
         }
+        [TestMethod]
+        public void TestOrderBy()
+        {
+
+            Task.Run(async () =>
+            {
+                var api = GetAPI();
+
+                var accounts = await api.GetList("accounts", new CRMGetListOptions() { Top = 10, FormattedValues = true, Select = new string[] { "name" }, OrderBy = new string[] { "name" } });
+
+
+                System.Diagnostics.Trace.WriteLine("finished");
+
+
+            }).Wait();
+        }
 
         [TestMethod]
         public void TestExpandQuery()

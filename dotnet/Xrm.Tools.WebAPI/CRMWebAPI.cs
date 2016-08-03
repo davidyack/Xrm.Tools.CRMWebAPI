@@ -3,10 +3,6 @@
 //  Summary:	Helper library for working with CRM Web API
 // =====================================================================
 // 
-//
-//  Copyright(C) 2016 Colorado Technology Consultants Inc.  All rights reserved.
-//
-//
 //  THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
 //  KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
 //  IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
@@ -611,7 +607,7 @@ namespace Xrm.Tools.WebAPI
                     if (firstParam)
                         fullurl = String.Format("{0}?$select={1}", fullurl, String.Join(",", queryOptions.Select));
                     else
-                        fullurl = String.Format("{1}&$select={0}", fullurl, String.Join(",", queryOptions.Select));
+                        fullurl = String.Format("{0}&$select={1}", fullurl, String.Join(",", queryOptions.Select));
                     firstParam = false;
 
                 }
@@ -621,7 +617,7 @@ namespace Xrm.Tools.WebAPI
                     if (firstParam)
                         fullurl = String.Format("{0}?$orderby={1}", fullurl, String.Join(",", queryOptions.OrderBy));
                     else
-                        fullurl = String.Format("{1}&$orderby={0}", fullurl, String.Join(",", queryOptions.OrderBy));
+                        fullurl = String.Format("{0}&$orderby={1}", fullurl, String.Join(",", queryOptions.OrderBy));
                     firstParam = false;
 
                 }
@@ -662,7 +658,7 @@ namespace Xrm.Tools.WebAPI
                     BuildExpandQueryURLOptions(queryOptions, ref fullurl, ref firstParam);
 
                 BuildAdvancedQueryURLOptions(queryOptions, ref fullurl, ref firstParam);
-            }
+            }            
 
             return fullurl;
         }
