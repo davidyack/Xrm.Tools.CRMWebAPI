@@ -13,3 +13,5 @@ $uid = $api->Update('accounts', $id, ['name' => 'test-php-updated']);
 $api->Delete('accounts', $uid->EntityId);
 $whoami = $api->ExecuteFunction("WhoAmI");
 ```
+
+As for acquring the token, I would look at one of the Office 365 samples here https://github.com/jasonjoh/php-calendar 
