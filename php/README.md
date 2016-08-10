@@ -14,4 +14,4 @@ $api->Delete('accounts', $uid->EntityId);
 $whoami = $api->ExecuteFunction("WhoAmI");
 ```
 
-As for acquring the token, I would look at one of the Office 365 samples here https://github.com/jasonjoh/php-calendar 
+As for acquring the token, I would look at https://github.com/jamesmcq/oidc-aad-php-library or one of the Office 365 samples here https://github.com/jasonjoh/php-calendar - for CRM you would need to specify the org URL as the resource
