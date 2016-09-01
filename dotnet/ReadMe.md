@@ -13,7 +13,7 @@ Here is how to get an instance of CRMWebAPI passing an AccessToken
 
         }
 ````
-Here is how to get an instance of CRMWebAPI passing an ADAL with a user and password
+Here is how to get an instance of CRMWebAPI passing an ADAL with a user and password - to understand how to get a client ID visit the walk through here https://msdn.microsoft.com/en-us/library/mt622431.aspx 
 ````
   public static CRMWebAPI GetAPI()
   {
