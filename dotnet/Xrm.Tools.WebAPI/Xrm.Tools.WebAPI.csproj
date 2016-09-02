@@ -61,6 +61,7 @@
     <Compile Include="Results\CRMMultipleOperationResultItem.cs" />
     <Compile Include="Results\CRMOptionDisplayValue.cs" />
     <Compile Include="Results\CRMUpdateResult.cs" />
+    <Compile Include="Results\CRMWebAPIException.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

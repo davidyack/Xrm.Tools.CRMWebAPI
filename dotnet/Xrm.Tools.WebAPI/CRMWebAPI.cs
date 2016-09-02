@@ -94,7 +94,7 @@ namespace Xrm.Tools.WebAPI
 
             var results = await _httpClient.SendAsync(request);
                         
-            results.EnsureSuccessStatusCode();
+            EnsureSuccessStatusCode(results);
             var data = await results.Content.ReadAsStringAsync();
             CRMGetListResult<ExpandoObject> resultList = new CRMGetListResult<ExpandoObject>();
             resultList.List = new List<ExpandoObject>();
@@ -110,7 +110,7 @@ namespace Xrm.Tools.WebAPI
             while (nextLink != null)
             {
                 var nextResults = await _httpClient.GetAsync(nextLink.ToString());
-                nextResults.EnsureSuccessStatusCode();
+                EnsureSuccessStatusCode(nextResults);
                 var nextData = await nextResults.Content.ReadAsStringAsync();
 
                 var nextValues = JObject.Parse(nextData);
@@ -135,7 +135,7 @@ namespace Xrm.Tools.WebAPI
 
             string fullUrl = BuildGetUrl(uri, QueryOptions);
             var results = await _httpClient.GetAsync(fullUrl);
-            results.EnsureSuccessStatusCode();
+            EnsureSuccessStatusCode(results);
             var data = await results.Content.ReadAsStringAsync();
             var values = JObject.Parse(data);
             CRMGetListResult<ResultType> resultList = new CRMGetListResult<ResultType>();
@@ -153,7 +153,7 @@ namespace Xrm.Tools.WebAPI
             while (nextLink != null)
             {
                 var nextResults = await _httpClient.GetAsync(nextLink.ToString());
-                nextResults.EnsureSuccessStatusCode();
+                EnsureSuccessStatusCode(nextResults);
                 var nextData = await nextResults.Content.ReadAsStringAsync();
 
                 var nextValues = JObject.Parse(nextData);            
@@ -182,7 +182,7 @@ namespace Xrm.Tools.WebAPI
                 QueryOptions.IncludeCount = false;
             string fullUrl = BuildGetUrl(uri+"/$count", QueryOptions);
             var results = await _httpClient.GetAsync(fullUrl);
-            results.EnsureSuccessStatusCode();
+            EnsureSuccessStatusCode(results);
             var data = await results.Content.ReadAsStringAsync();
             
             return int.Parse(data);
@@ -221,7 +221,7 @@ namespace Xrm.Tools.WebAPI
 
             var results = await _httpClient.SendAsync(request);
             
-            results.EnsureSuccessStatusCode();
+            EnsureSuccessStatusCode(results);
             var data = await results.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<ResultType>(data);
         }
@@ -239,12 +239,14 @@ namespace Xrm.Tools.WebAPI
 
             HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("Post"), fullUrl);
 
-            request.Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");            
+            var jsonData = JsonConvert.SerializeObject(data);
 
-            var response = await _httpClient.SendAsync(request);            
+            request.Content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
-            response.EnsureSuccessStatusCode();
+            var response = await _httpClient.SendAsync(request);
 
+            EnsureSuccessStatusCode(response,jsonData:jsonData);
+            
             Guid idGuid = GetEntityIDFromResponse(fullUrl, response);
 
             return idGuid;
@@ -396,7 +398,9 @@ namespace Xrm.Tools.WebAPI
 
             HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("PATCH"), fullUrl + "(" + key + ")");
 
-            request.Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+            var jsonData = JsonConvert.SerializeObject(data);
+
+            request.Content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
             if (!Upsert)
                 request.Headers.Add("If-Match", "*");          
@@ -413,7 +417,7 @@ namespace Xrm.Tools.WebAPI
                 {
                     return result;
                 }
-                response.EnsureSuccessStatusCode();
+                EnsureSuccessStatusCode(response,jsonData:jsonData);
             }
 
             return result;
@@ -431,7 +435,7 @@ namespace Xrm.Tools.WebAPI
 
             var response = await _httpClient.DeleteAsync(_apiUrl + entityCollection + "(" + entityID.ToString() + ")");
 
-            response.EnsureSuccessStatusCode();
+            EnsureSuccessStatusCode(response);
 
         }
         /// <summary>
@@ -446,7 +450,7 @@ namespace Xrm.Tools.WebAPI
             var fullUrl = string.Empty;
             fullUrl = BuildFunctionActionURI(function, parameters);
             var results = await _httpClient.GetAsync(fullUrl);
-            results.EnsureSuccessStatusCode();
+            EnsureSuccessStatusCode(results);
             var data = await results.Content.ReadAsStringAsync();
             var values = JsonConvert.DeserializeObject<ExpandoObject>(data);
             return values;
@@ -495,11 +499,13 @@ namespace Xrm.Tools.WebAPI
                         
             HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("Post"), fullUrl);
 
-            request.Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+            var jsonData = JsonConvert.SerializeObject(data);
+
+            request.Content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
             var results = await _httpClient.SendAsync(request);
 
-            results.EnsureSuccessStatusCode();
+            EnsureSuccessStatusCode(results,jsonData:jsonData);
 
             var resultData = await results.Content.ReadAsStringAsync();
             var values = JsonConvert.DeserializeObject<ExpandoObject>(resultData);
@@ -784,6 +790,57 @@ namespace Xrm.Tools.WebAPI
             var idGuid = Guid.Parse(idString);
 
             return idGuid;
+        }
+        /// <summary>
+        /// Helper method to check the response status and generate a well formatted error
+        /// </summary>
+        /// <param name="response"></param>
+        private static void EnsureSuccessStatusCode(HttpResponseMessage response,string jsonData = null)
+        {
+            if (response.IsSuccessStatusCode)
+                return;
+
+            string message = String.Empty;            
+
+            string errorData = response.Content.ReadAsStringAsync().Result;
+
+            if (response.Content.Headers.ContentType.MediaType.Equals("text/plain"))
+            {
+                message = errorData;
+            }
+            else if (response.Content.Headers.ContentType.MediaType.Equals("application/json"))
+            {
+                JObject jcontent = (JObject)JsonConvert.DeserializeObject(errorData);
+                IDictionary<string, JToken> d = jcontent;
+                
+                if (d.ContainsKey("error"))
+                {
+                    JObject error = (JObject)jcontent.Property("error").Value;
+                    message = (String)error.Property("message").Value;
+                }
+                else if (d.ContainsKey("Message"))
+                    message = (String)jcontent.Property("Message").Value;
+
+
+            }
+            else if (response.Content.Headers.ContentType.MediaType.Equals("text/html"))
+            {
+                message = "HTML Error Content:";
+                message += "\n\n" + errorData;
+            }
+            else
+            {
+                message = String.Format("Error occurred and no handler is available for content in the {0} format.",
+                    response.Content.Headers.ContentType.MediaType.ToString());
+            }
+
+            var exception = new Xrm.Tools.WebAPI.Results.CRMWebAPIException(message);
+
+            if (jsonData != null)
+                exception.JSON = jsonData;
+            
+            throw exception;
+
         }
 
     }

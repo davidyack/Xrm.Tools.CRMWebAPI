@@ -58,6 +58,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="ActionTests.cs" />
     <Compile Include="BasicCRUDTests.cs" />
     <Compile Include="BasicMetadataTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

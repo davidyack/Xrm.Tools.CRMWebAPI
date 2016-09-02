@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Xrm.Tools.CRMWebAPI</id>
-    <version>1.0.10</version>
+    <version>1.0.11</version>
     <title>Xrm.Tools.CRMWebAPI</title>
     <authors>DavidYack</authors>
     <owners></owners>
@@ -22,6 +22,7 @@
       1.0.8 fixed references to System.Net.Http
       1.0.9 added dependency for System.Net.Http.Formatting
       1.0.10 Fixed issue if Select and Orderby were both used
+      1.0.11 Improved contents of exception messages
     </releaseNotes>
     <summary>
       This is an API helper for working with Dynamics CRM 2016 Web API

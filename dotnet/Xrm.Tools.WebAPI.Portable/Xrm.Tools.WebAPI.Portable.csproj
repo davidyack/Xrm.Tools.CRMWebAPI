@@ -61,6 +61,10 @@
     <Compile Include="..\Xrm.Tools.WebAPI\Results\CRMUpdateResult.cs">
       <Link>CRMUpdateResult.cs</Link>
     </Compile>
+    <Compile Include="..\Xrm.Tools.WebAPI\Results\CRMWebAPIException.cs">
+      <Link>CRMWebAPIException.cs</Link>
+    </Compile>
+    <Compile Include="CRMOptionDisplayValue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
