@@ -172,7 +172,7 @@ export class CRMWebAPI {
     }
 
     public Create(entityCollection: string, data: any): Promise<any> {
-        return new Promise((resolve, reject) =>  {
+        return new Promise((resolve, reject) => {
             const url = this.config.APIUrl + entityCollection;
             this._GetHttpRequest(
                 "POST",
@@ -227,7 +227,7 @@ export class CRMWebAPI {
                 url,
                 {},
                 (err, res) => {
-                if (err !== false) {
+                    if (err !== false) {
                         reject(res);
                     } else {
                         resolve(true);
@@ -565,5 +565,128 @@ export class CRMWebAPI {
             }
         }
         return value;
+    }
+
+    public GetOptionSetByName(optionSetName: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            this.GetList("GlobalOptionSetDefinitions", { Select: ["Name"] })
+                .then(
+                r => {
+                    r.List.forEach(
+                        set => {
+                            if (set.Name === optionSetName) {
+                                self.Get("GlobalOptionSetDefinitions", set.MetadataId)
+                                    .then(
+                                    res => {
+                                        resolve(res);
+                                    },
+                                    err => {
+                                        console.log(err);
+                                    }
+                                    );
+                            }
+                        }
+                    );
+                },
+                e => {
+                    console.log(e);
+                    reject(e);
+                }
+                );
+        }
+        );
+    }
+
+    public GetOptionSetUserLabels(optionSetName: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            this.GetOptionSetByName(optionSetName)
+                .then(
+                result => {
+                    let displayList = [];
+                    result.Options.forEach(
+                        option => {
+                            let displayOption: any = {};
+                            displayOption.Value = option.Value;
+                            displayOption.Label = option.Label.UserLocalizedLabel.Label;
+                            displayList.push(displayOption);
+                        }
+                    );
+                    resolve(displayList);
+                },
+                err => {
+                    console.log(err);
+                    reject(err);
+                }
+                );
+        }
+        );
+    }
+
+    public GetEntityDisplayNameList(LCID: number): Promise<any> {
+        return new Promise(function (resolve, reject) {
+            this.GetList(
+                "EntityDefinitions",
+                {
+                    "Filter": "IsPrivate eq false",
+                    "Select": [
+                        "MetadataId",
+                        "EntitySetName",
+                        "DisplayName",
+                        "DisplayCollectionName",
+                        "LogicalName",
+                        "LogicalCollectionName",
+                        "PrimaryIdAttribute"
+                    ]
+                })
+                .then(
+                r => {
+                    let list = [];
+                    r.List.forEach(entity => {
+                        let edm: any = {
+                            MetadataId: entity.MetadataId,
+                            EntitySetName: entity.EntitySetName,
+                            LogicalName: entity.LogicalName,
+                            LogicalCollectionName: entity.LogicalCollectionName,
+                            PrimaryIdAttribute: entity.PrimaryIdAttribute
+                        };
+
+                        if ((entity.DisplayName.LocalizedLabels != null) &&
+                            (entity.DisplayName.LocalizedLabels.length > 0)) {
+                            edm.DisplayName = entity.DisplayName.LocalizedLabels[0].Label;
+                            if (LCID != null) {
+                                entity.DisplayName.LocalizedLabels.forEach(label => {
+                                    if (label.LanguageCode === LCID) {
+                                        edm.DisplayName = label.Label;
+                                    }
+                                });
+                            }
+                        } else {
+                            edm.DisplayName = edm.LogicalName;
+                        }
+
+                        if ((entity.DisplayCollectionName.LocalizedLabels != null) &&
+                            (entity.DisplayCollectionName.LocalizedLabels.length > 0)) {
+                            edm.DisplayCollectionName = entity.DisplayCollectionName.LocalizedLabels[0].Label;
+                            if (LCID != null) {
+                                entity.DisplayCollectionName.LocalizedLabels.forEach(label => {
+                                    if (label.LanguageCode === LCID) {
+                                        edm.DisplayCollectionName = label.Label;
+                                    }
+                                });
+                            }
+                        } else {
+                            edm.DisplayCollectionName = entity.LogicalCollectionName;
+                            edm.LogicalDisplayName = edm.DisplayName + "(" + edm.LogicalName + ")";
+                            edm.LogicalDisplayCollectionName = edm.DisplayCollectionName + "(" + edm.LogicalCollectionName + ")";
+                            list.push(edm);
+                        }
+                    });
+                    resolve(list);
+                },
+                function (e) {
+                    console.log(e);
+                    reject(e);
+                });
+        });
     }
 }
