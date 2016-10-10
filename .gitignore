@@ -21,3 +21,4 @@ node_modules
 *.iml
 nodejs/test.js
 nodejs/node_modules
+**/typings
