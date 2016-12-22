@@ -273,8 +273,12 @@ var CRMWebAPI = (function () {
 				if (err != false) {
 					reject(res);
 				} else {
-					var data = JSON.parse(res.response, CRMWebAPI.prototype._DateReviver)
-					resolve(data);
+					if (res.response == "") {
+						resolve(null);
+					} else {
+						var data = JSON.parse(res.response, CRMWebAPI.prototype._DateReviver)
+						resolve(data);
+					}
 				}
 			});
 		});
