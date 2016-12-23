@@ -113,6 +113,12 @@ var CRMWebAPI = (function () {
 		});
 	};
 	CRMWebAPI.prototype.Get = function (entityCollection, entityID, QueryOptions) {
+        /// <summary>
+        /// Get a collection or an instance of given entity type
+        /// </summary>
+        /// <param name="entityCollection" type="type">Entity logical name to retrieve including plural suffix</param>
+        /// <param name="entityID" type="type">ID of requested record, or null for collection based on QueryOptions.Filter</param>
+        /// <param name="QueryOptions" type="type"></param>
 		var self = this;
 		return new Promise(function (resolve, reject) {
 			var url = null;
@@ -149,6 +155,11 @@ var CRMWebAPI = (function () {
 		});
 	};
 	CRMWebAPI.prototype.Create = function (entityCollection, data) {
+        /// <summary>
+        /// Create a record
+        /// </summary>
+        /// <param name="entityCollection" type="type">Plural name of entity to create</param>
+        /// <param name="data" type="type">JSON object with attributes for the record to create</param>
 		var self = this;
 		return new Promise(function (resolve, reject) {
 			var url = self.config.APIUrl + entityCollection;
@@ -164,6 +175,13 @@ var CRMWebAPI = (function () {
 		});
 	};
 	CRMWebAPI.prototype.Update = function (entityCollection, key, data, Upsert) {
+        /// <summary>
+        /// Update an existing record or create a new if record does not exist (Upsert)
+        /// </summary>
+        /// <param name="entityCollection" type="type">Plural name of entity to update</param>
+        /// <param name="key" type="type">Key to locate existing record</param>
+        /// <param name="data" type="type">JSON object with attributes for the record to upddate</param>
+        /// <param name="Upsert" type="type">Set to true to enable upsert functionality, which creates a new record if key is not found</param>	
 		var self = this;
 		return new Promise(function (resolve, reject) {
 			var url = self.config.APIUrl + entityCollection + '(' + key.replace(/[{}]/g, "") + ')';
@@ -185,6 +203,11 @@ var CRMWebAPI = (function () {
 		});
 	};
 	CRMWebAPI.prototype.Delete = function (entityCollection, entityID) {
+        /// <summary>
+        /// Delete an existing record
+        /// </summary>
+        /// <param name="entityCollection" type="type">Plural name of entity to delete</param>
+        /// <param name="entityID" type="type">ID of record to delete</param>
 		var self = this;
 		return new Promise(function (resolve, reject) {
 			var url = self.config.APIUrl + entityCollection + '(' + entityID.replace(/[{}]/g, "") + ')';
@@ -272,9 +295,13 @@ var CRMWebAPI = (function () {
 			}, function (err, res) {
 				if (err != false) {
 					reject(res);
-				} else {
-					var data = JSON.parse(res.response, CRMWebAPI.prototype._DateReviver)
-					resolve(data);
+				} else {					
+					if (res.response == "") {
+						resolve(null);
+					} else {
+						var data = JSON.parse(res.response, CRMWebAPI.prototype._DateReviver)
+						resolve(data);
+					}
 				}
 			});
 		});
