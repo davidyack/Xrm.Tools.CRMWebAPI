@@ -206,15 +206,18 @@ var CRMWebAPI = (function () {
 				"data": JSON.stringify(data),
 				"headers": {}
 			};
-			if (Upsert == true) payload["headers"]["If-None-Match"] = "*";
+			if (Upsert == false) payload["headers"]["If-None-Match"] = "*";
 			self._GetHttpRequest(self.config, "PATCH", url, payload, function (err, res) {
 				if (err != false) {
 					self._log('Errors','Update Error',res);
 					reject(res);
 				} else {
-					var response = {
-						EntityID: /\(([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\)/g.exec(res.headers["odata-entityid"])[1]
-					};
+					var response = {};
+					var parseEntityID = /\(([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\)/g.exec(res.headers["odata-entityid"]);
+					
+					if (parseEntityID != null)
+						response.EntityID = parseEntityID[1];
+						
 					resolve(response);
 				}
 			});
