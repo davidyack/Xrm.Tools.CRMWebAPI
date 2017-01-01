@@ -13,6 +13,16 @@ var CRMWebAPI = (function () {
 		}
 		return this;
 	}
+	CRMWebAPI.prototype._log = function (category, message,data) {
+		
+		var logger = function(category,message,data) { console.log(category +':' + message)};
+		if ((this.config.Log != null) && (this.config.Log.Logger))
+		   logger = this.config.Log.Logger;
+		
+		if ((this.config.Log != null) && (this.config.Log[category] == true))
+			logger(category,message,data);	
+
+	};
 	CRMWebAPI.prototype._restParam = function (func, startIndex) {
 		startIndex = startIndex == null ? func.length - 1 : +startIndex;
 		return function () {
@@ -48,11 +58,12 @@ var CRMWebAPI = (function () {
 	CRMWebAPI.prototype.GetList = function (uri, QueryOptions) {
 		var self = this;
 		return new Promise(function (resolve, reject) {
-			var url = CRMWebAPI.prototype._BuildQueryURL(uri, QueryOptions, self.config);
+			var url = self._BuildQueryURL(uri, QueryOptions, self.config);
 			self._GetHttpRequest(self.config, "GET", url, {
 				'headers': self._BuildQueryHeaders(QueryOptions, self.config)
 			}, function (err, res) {
 				if (err != false) {
+					self._log('Errors','GetList Error:',res);
 					reject(res);
 				} else {
 					var data = JSON.parse(res.response, CRMWebAPI.prototype._DateReviver);
@@ -101,6 +112,7 @@ var CRMWebAPI = (function () {
 									}						
 									callback(null, response.List.length);
 								} else {
+									self._log('Errors','GetList Error2',res);
 									callback('err', 0);
 								}
 							});
@@ -123,13 +135,14 @@ var CRMWebAPI = (function () {
 		return new Promise(function (resolve, reject) {
 			var url = null;
 			if (entityID == null)
-				url = CRMWebAPI.prototype._BuildQueryURL(entityCollection , QueryOptions, self.config);
+				url = self._BuildQueryURL(entityCollection , QueryOptions, self.config);
 			else
-			 	url  = CRMWebAPI.prototype._BuildQueryURL(entityCollection + "(" + entityID.toString().replace(/[{}]/g, "") + ")", QueryOptions, self.config);
+			 	url  = self._BuildQueryURL(entityCollection + "(" + entityID.toString().replace(/[{}]/g, "") + ")", QueryOptions, self.config);
 			self._GetHttpRequest(self.config, "GET", url, {
 				'headers': self._BuildQueryHeaders(QueryOptions, self.config)
 			}, function (err, res) {
 				if (err != false) {
+					self._log('Errors','Get Error',res);
 					reject(res);
 				} else {
 					var data = JSON.parse(res.response, CRMWebAPI.prototype._DateReviver)
@@ -141,11 +154,12 @@ var CRMWebAPI = (function () {
 	CRMWebAPI.prototype.GetCount = function (uri, QueryOptions) {
 		var self = this;
 		return new Promise(function (resolve, reject) {
-			var url = CRMWebAPI.prototype._BuildQueryURL(uri + "/$count", QueryOptions, self.config);
+			var url = self._BuildQueryURL(uri + "/$count", QueryOptions, self.config);
 			self._GetHttpRequest(self.config, "GET", url, {
 				'headers': self._BuildQueryHeaders(QueryOptions, self.config)
 			}, function (err, res) {
 				if (err != false) {
+					self._log('Errors','GetCount Error',res);
 					reject(res);
 				} else {
 					var data = parseInt(res.response);
@@ -163,10 +177,12 @@ var CRMWebAPI = (function () {
 		var self = this;
 		return new Promise(function (resolve, reject) {
 			var url = self.config.APIUrl + entityCollection;
+			self._log('ODataUrl',url);
 			self._GetHttpRequest(self.config, "POST", url, {
 				'data': JSON.stringify(data)
 			}, function (err, res) {
 				if (err != false) {
+					self._log('Errors','Create Error',res);
 					reject(res);
 				} else {
 					resolve(/\(([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\)/g.exec(res.headers["odata-entityid"])[1]);
@@ -185,6 +201,7 @@ var CRMWebAPI = (function () {
 		var self = this;
 		return new Promise(function (resolve, reject) {
 			var url = self.config.APIUrl + entityCollection + '(' + key.replace(/[{}]/g, "") + ')';
+			self._log('ODataUrl',url);
 			var payload = {
 				"data": JSON.stringify(data),
 				"headers": {}
@@ -192,6 +209,7 @@ var CRMWebAPI = (function () {
 			if (Upsert == true) payload["headers"]["If-None-Match"] = "*";
 			self._GetHttpRequest(self.config, "PATCH", url, payload, function (err, res) {
 				if (err != false) {
+					self._log('Errors','Update Error',res);
 					reject(res);
 				} else {
 					var response = {
@@ -211,8 +229,10 @@ var CRMWebAPI = (function () {
 		var self = this;
 		return new Promise(function (resolve, reject) {
 			var url = self.config.APIUrl + entityCollection + '(' + entityID.replace(/[{}]/g, "") + ')';
+			self._log('ODataUrl',url);
 			self._GetHttpRequest(self.config, "DELETE", url, {}, function (err, res) {
 				if (err != false) {
+					self._log('Errors','Delete Error',res);
 					reject(res);
 				} else {
 					resolve(true);
@@ -224,6 +244,7 @@ var CRMWebAPI = (function () {
 		var self = this;
 		return new Promise(function (resolve, reject) {
 			var url = self.config.APIUrl + fromEntitycollection + '(' + fromEntityID.replace(/[{}]/g, "") + ')/' + navProperty + '/$ref';
+			self._log('ODataUrl',url);
 			var payload = {
 				'data': JSON.stringify({
 					'@odata.id': self.config.APIUrl + toEntityCollection + '(' + toEntityID.replace(/[{}]/g, "") + ')'
@@ -231,6 +252,7 @@ var CRMWebAPI = (function () {
 			};
 			self._GetHttpRequest(self.config, 'POST', url, payload, function (err, res) {
 				if (err != false) {
+					self._log('Errors','Associate Error',res);
 					reject(res);
 				} else {
 					resolve(true);
@@ -243,8 +265,10 @@ var CRMWebAPI = (function () {
 		return new Promise(function (resolve, reject) {
 			var url = self.config.APIUrl + fromEntitycollection + '(' + fromEntityID.replace(/[{}]/g, "") +
 			   ')/' + navProperty + '/$ref?$id=' + self.config.APIUrl + toEntityCollection + '(' + toEntityID.replace(/[{}]/g, "") + ')';
+			self._log('ODataUrl',url);
 			self._GetHttpRequest(self.config, 'DELETE', url, {}, function (err, res) {
 				if (err != false) {
+					self._log('Errors','DeleteAssociation Error',res);
 					reject(res);
 				} else {
 					resolve(true);
@@ -275,8 +299,10 @@ var CRMWebAPI = (function () {
 				url = self.config.APIUrl + functionName + "()";
 				if (entityCollection != null) url = self.config.APIUrl + entityCollection + "(" + entityID.toString().replace(/[{}]/g, "") + ")" + functionName + "()";
 			}
+			self._log('ODataUrl',url);
 			self._GetHttpRequest(self.config, "GET", url, {}, function (err, res) {
 				if (err != false) {
+					self._log('Errors','ExecuteFunction Error',res);
 					reject(res);
 				} else {
 					var data = JSON.parse(res.response, CRMWebAPI.prototype._DateReviver)
@@ -290,10 +316,12 @@ var CRMWebAPI = (function () {
 		return new Promise(function (resolve, reject) {
 			var url = self.config.APIUrl + actionName;
 			if (entityCollection != null) url = self.config.APIUrl + entityCollection + "(" + entityID.toString().replace(/[{}]/g, "") + ")" + actionName;
+			self._log('ODataUrl',url);
 			self._GetHttpRequest(self.config, "POST", url, {
 				"data": JSON.stringify(data)
 			}, function (err, res) {
 				if (err != false) {
+					self._log('Errors','ExecuteAction Error',res);
 					reject(res);
 				} else {					
 					if (res.response == "") {
@@ -339,6 +367,7 @@ var CRMWebAPI = (function () {
 			if (queryOptions.FetchXml != null) qs.push("fetchXml=" + encodeURI(queryOptions.FetchXml));
 		}
 		if (qs.length > 0) fullurl += "?" + qs.join("&")
+		this._log('ODataUrl',fullurl);
 		return fullurl;
 	};
 	CRMWebAPI.prototype._BuildQueryHeaders = function (queryOptions, config) {
