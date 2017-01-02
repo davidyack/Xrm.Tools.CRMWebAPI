@@ -11,6 +11,7 @@ dotnet/Xrm.Tools.WebAPI.Portable/packages
 dotnet/Xrm.Tools.SeverCommonTest/obj
 dotnet/Xrm.Tools.WebAPI.NuGet/bin
 dotnet/Xrm.Tools.WebAPI.NuGet/obj
+dotnet/Xrm.Tools.WebAPI.NuGet/obj/debug/
 .vs
 .nuget
 node_modules
