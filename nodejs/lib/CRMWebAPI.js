@@ -318,7 +318,7 @@ var CRMWebAPI = (function () {
 		var self = this;
 		return new Promise(function (resolve, reject) {
 			var url = self.config.APIUrl + actionName;
-			if (entityCollection != null) url = self.config.APIUrl + entityCollection + "(" + entityID.toString().replace(/[{}]/g, "") + ")" + actionName;
+			if (entityCollection != null) url = self.config.APIUrl + entityCollection + "(" + entityID.toString().replace(/[{}]/g, "") + ")/" + actionName;
 			self._log('ODataUrl',url);
 			self._GetHttpRequest(self.config, "POST", url, {
 				"data": JSON.stringify(data)
