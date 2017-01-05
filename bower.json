@@ -18,7 +18,7 @@
     "python",
     "php",
     "nodejs",  
-    "js/Releases",
+    "js/lib/Releases",
     "node_modules",
     "bower_components",
     "test",
