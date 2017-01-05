@@ -4,7 +4,7 @@
   "authors": [
     "XRM.Tools"
   ],
-  "description": "Helper wrapper to interact with Dynamics CRM API",
+  "description": "Helper wrapper to interact with Dynamics 365 API",
    "main": [
     "js/lib/CRMWebAPI.js",
     "js/lib/CRMWebAPIMetadata.js"
@@ -18,7 +18,8 @@
     "dotnet",
     "python",
     "php",
-    "nodejs",    
+    "nodejs",  
+    "js/Releases",
     "node_modules",
     "bower_components",
     "test",
