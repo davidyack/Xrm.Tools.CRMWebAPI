@@ -2,12 +2,12 @@
 <package >
   <metadata>
     <id>Xrm.Tools.CRMWebAPI</id>
-    <version>1.0.11</version>
+    <version>1.0.12</version>
     <title>Xrm.Tools.CRMWebAPI</title>
     <authors>DavidYack</authors>
     <owners></owners>
     <description>
-      This is an API helper for working with CRM 2016 Web API
+      This is an API helper for working with Dynamics 365 Web API
      
     </description>
     <releaseNotes>
@@ -23,9 +23,10 @@
       1.0.9 added dependency for System.Net.Http.Formatting
       1.0.10 Fixed issue if Select and Orderby were both used
       1.0.11 Improved contents of exception messages
+      1.0.12 Fixed issue with Upsert with alternate key
     </releaseNotes>
     <summary>
-      This is an API helper for working with Dynamics CRM 2016 Web API
+      This is an API helper for working with Dynamics 365 Web API
     </summary>
     <language>en-US</language>
     <projectUrl>https://github.com/davidyack/Xrm.Tools.CRMWebAPI</projectUrl>

@@ -787,8 +787,11 @@ namespace Xrm.Tools.WebAPI
 
             idString = idString.Replace(fullUrl, "").Replace("(", "").Replace(")", "");
 
-            var idGuid = Guid.Parse(idString);
-
+            var idGuid = Guid.Empty;
+            //if alternate key was used to perform an upsert, guid not currently returned
+            //the call returns the alternate key which is not in guid format
+            Guid.TryParse(idString, out idGuid);
+           
             return idGuid;
         }
         /// <summary>

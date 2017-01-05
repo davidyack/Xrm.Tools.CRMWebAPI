@@ -117,6 +117,7 @@ namespace Xrm.Tools.WebAPI.Test
             }).Wait();
         }
 
+
         [TestMethod]
         public void TestExpandQuery()
         {
@@ -158,6 +159,24 @@ namespace Xrm.Tools.WebAPI.Test
 
                 System.Diagnostics.Trace.WriteLine("finished");
 
+
+            }).Wait();
+        }
+
+        [TestMethod]
+        public void TestAltKeyUpdate()
+        {
+
+            Task.Run(async () =>
+            {
+                var api = GetAPI();
+                string statid = "2bf3c48a-de2d-e511-80f8-c4346bac7da8";
+                dynamic data = new ExpandoObject();
+                data.tt_name = "test";
+                data.tt_blocks = 1;
+                data.tt_externalstatid = statid;
+                var result = await api.Update("test_entity", "test_externalstatid='" + statid + "'", data, Upsert: true);
+            
 
             }).Wait();
         }

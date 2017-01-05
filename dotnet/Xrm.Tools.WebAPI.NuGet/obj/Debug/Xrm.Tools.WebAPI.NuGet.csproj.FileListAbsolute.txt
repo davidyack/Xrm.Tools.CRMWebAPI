@@ -1,10 +1,3 @@
-C:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\bin\Debug\Xrm.Tools.WebAPI.NuGet.dll
-C:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\bin\Debug\Xrm.Tools.WebAPI.NuGet.pdb
-C:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\bin\Debug\Newtonsoft.Json.dll
-C:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\bin\Debug\Newtonsoft.Json.xml
-C:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\obj\Debug\Xrm.Tools.WebAPI.NuGet.csprojResolveAssemblyReference.cache
-C:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\obj\Debug\Xrm.Tools.WebAPI.NuGet.dll
-C:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\obj\Debug\Xrm.Tools.WebAPI.NuGet.pdb
 D:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\bin\Debug\Xrm.Tools.WebAPI.NuGet.dll
 D:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\bin\Debug\Xrm.Tools.WebAPI.NuGet.pdb
 D:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\bin\Debug\Newtonsoft.Json.dll
@@ -12,3 +5,10 @@ D:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\bin\Debug\Newtonsoft
 D:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\obj\Debug\Xrm.Tools.WebAPI.NuGet.csprojResolveAssemblyReference.cache
 D:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\obj\Debug\Xrm.Tools.WebAPI.NuGet.dll
 D:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\obj\Debug\Xrm.Tools.WebAPI.NuGet.pdb
+C:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\bin\Debug\Xrm.Tools.WebAPI.NuGet.dll
+C:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\bin\Debug\Xrm.Tools.WebAPI.NuGet.pdb
+C:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\bin\Debug\Newtonsoft.Json.dll
+C:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\bin\Debug\Newtonsoft.Json.xml
+C:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\obj\Debug\Xrm.Tools.WebAPI.NuGet.csprojResolveAssemblyReference.cache
+C:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\obj\Debug\Xrm.Tools.WebAPI.NuGet.dll
+C:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.NuGet\obj\Debug\Xrm.Tools.WebAPI.NuGet.pdb

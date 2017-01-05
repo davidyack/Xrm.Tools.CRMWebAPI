@@ -54,6 +54,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Requests\CRMGetListOptions.cs" />
     <Compile Include="Requests\CRMExpandOptions.cs" />
+    <Compile Include="Requests\CRMWebAPIConfig.cs" />
+    <Compile Include="Requests\CRMWebAPILoggingOptions.cs" />
     <Compile Include="Results\CRMAttributeDisplayName.cs" />
     <Compile Include="Results\CRMBatchResult.cs" />
     <Compile Include="Results\CRMEntityDisplayName.cs" />
