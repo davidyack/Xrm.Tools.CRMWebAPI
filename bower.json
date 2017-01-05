@@ -1,4 +1,4 @@
-{
+,{
   "name": "Xrm.Tools.CRMWebAPI",
   "homepage": "https://github.com/davidyack/Xrm.Tools.CRMWebAPI",
   "authors": [
@@ -23,6 +23,7 @@
     "node_modules",
     "bower_components",
     "test",
-    "tests"
+    "tests",
+    "archive"
   ]
 }
