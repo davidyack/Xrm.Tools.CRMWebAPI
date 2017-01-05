@@ -1,13 +1,12 @@
 {
-  "name": "Xrm.Tools.CRMWebAPI",
+  "name": "xrm.tools.crmwebapi",
   "homepage": "https://github.com/davidyack/Xrm.Tools.CRMWebAPI",
   "authors": [
     "XRM.Tools"
   ],
   "description": "Helper wrapper to interact with Dynamics 365 API",
    "main": [
-    "js/lib/CRMWebAPI.js",
-    "js/lib/CRMWebAPIMetadata.js"
+    "js/lib/CRMWebAPI.js"    
   ],
   "moduleType": [
     "es6"
