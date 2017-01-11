@@ -1,18 +1,31 @@
 'use strict';
-var CRMWebAPI = (function () {
-	function CRMWebAPI(config) {
-		this.config = config;
-		if (typeof module !== 'undefined' && module.exports) {
-			this.node = true;
-			this.https = require('https');
-			this.urllib = require('url');
-			this._GetHttpRequest = this._GetHttpRequestHTTPS;
-		} else {
-			this.node = false;
-			this._GetHttpRequest = this._GetHttpRequestXMLHTTPRequest;
-		}
-		return this;
-	}
+
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD
+        define(['CRMWebAPI'], factory);
+    } else if (typeof exports === 'object') {
+        // Node, CommonJS-like
+        module.exports = factory(require('https'), require('url'));
+    } else {        
+        // Browser globals (root is window)        
+        root.CRMWebAPI = factory(root.CRMWebAPI);        
+    }
+}(this, function (https, url) {
+    return (function () {
+        function CRMWebAPI(config) {
+            this.config = config;
+            if (typeof module !== 'undefined' && module.exports) {
+                this.node = true;
+                this.https = https;
+                this.urllib = url;
+                this._GetHttpRequest = this._GetHttpRequestHTTPS;
+            } else {
+                this.node = false;
+                this._GetHttpRequest = this._GetHttpRequestXMLHTTPRequest;
+            }
+            return this;
+        }
 	CRMWebAPI.prototype._log = function (category, message,data) {
 		
 		var logger = function(category,message,data) { console.log(category +':' + message)};
@@ -408,7 +421,8 @@ var CRMWebAPI = (function () {
 		req.setRequestHeader("Accept", "application/json");
 		req.setRequestHeader("OData-MaxVersion", "4.0");
 		req.setRequestHeader("OData-Version", "4.0");
-		if (config.callerId) req.setRequestHeader("MSCRMCallerID", config.callerId);
+		if (config.callerId) req.setRequestHeader("MSCRMCallerID", config.callerId);		
+		if (config.CallerID) req.setRequestHeader("MSCRMCallerID", config.CallerID);		
 		if (['POST', 'PUT', 'PATCH'].indexOf(method) >= 0) {
 			req.setRequestHeader("Content-Length", payload.data.length);
 			req.setRequestHeader("Content-Type", "application/json");
@@ -501,9 +515,4 @@ var CRMWebAPI = (function () {
 	};
 	return CRMWebAPI;
 })();
-if (typeof module !== 'undefined' && module.exports) {
-	module.exports = CRMWebAPI;
-	this.CRMWebAPI = CRMWebAPI;
-} else {
-	this.CRMWebAPI = CRMWebAPI;
-}
+}));
