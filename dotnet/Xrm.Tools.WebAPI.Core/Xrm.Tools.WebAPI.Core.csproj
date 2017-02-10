@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Xrm.Tools.WebAPI\Metadata\CRMWebAPIMetadata.cs" Link="CRMWebAPIMetadata.cs" />
+    <Compile Include="..\Xrm.Tools.WebAPI\Requests\CRMExpandOptions.cs" Link="CRMExpandOptions.cs" />
+    <Compile Include="..\Xrm.Tools.WebAPI\Requests\CRMGetListOptions.cs" Link="CRMGetListOptions.cs" />
+    <Compile Include="..\Xrm.Tools.WebAPI\Requests\CRMWebAPIConfig.cs" Link="CRMWebAPIConfig.cs" />
+    <Compile Include="..\Xrm.Tools.WebAPI\Requests\CRMWebAPILoggingOptions.cs" Link="CRMWebAPILoggingOptions.cs" />
+    <Compile Include="..\Xrm.Tools.WebAPI\Results\CRMAttributeDisplayName.cs" Link="CRMAttributeDisplayName.cs" />
+    <Compile Include="..\Xrm.Tools.WebAPI\Results\CRMBatchResult.cs" Link="CRMBatchResult.cs" />
+    <Compile Include="..\Xrm.Tools.WebAPI\Results\CRMEntityDisplayName.cs" Link="CRMEntityDisplayName.cs" />
+    <Compile Include="..\Xrm.Tools.WebAPI\Results\CRMGetListResult.cs" Link="CRMGetListResult.cs" />
+    <Compile Include="..\Xrm.Tools.WebAPI\Results\CRMMultipleOperationResultItem.cs" Link="CRMMultipleOperationResultItem.cs" />
+    <Compile Include="..\Xrm.Tools.WebAPI\Results\CRMOptionDisplayValue.cs" Link="CRMOptionDisplayValue.cs" />
+    <Compile Include="..\Xrm.Tools.WebAPI\Results\CRMUpdateResult.cs" Link="CRMUpdateResult.cs" />
+    <Compile Include="..\Xrm.Tools.WebAPI\Results\CRMWebAPIException.cs" Link="CRMWebAPIException.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+  </ItemGroup>
+
+</Project>

@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Xrm.Tools.CRMWebAPI</id>
-    <version>1.0.12</version>
+    <version>1.0.15</version>
     <title>Xrm.Tools.CRMWebAPI</title>
     <authors>DavidYack</authors>
     <owners></owners>
@@ -24,6 +24,9 @@
       1.0.10 Fixed issue if Select and Orderby were both used
       1.0.11 Improved contents of exception messages
       1.0.12 Fixed issue with Upsert with alternate key
+      1.0.13 Added .net core assembly support
+      1.0.14 fixed target file for netcore in nuget spec
+      1.0.15 fixed target file for netcore in nuget spec
     </releaseNotes>
     <summary>
       This is an API helper for working with Dynamics 365 Web API
@@ -33,7 +36,7 @@
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <licenseUrl>https://github.com/davidyack/Xrm.Tools.CRMWebAPI/blob/master/LICENSE</licenseUrl>
-    <copyright>Copyright  2016</copyright>
+    <copyright>Copyright  2017</copyright>
     <dependencies>
         <group targetFramework="net40">
           <dependency id="Newtonsoft.Json" version="8.0.2" />
@@ -42,6 +45,10 @@
       <group targetFramework="uap10.0">
         <dependency id="Newtonsoft.Json" version="8.0.2" />
       </group>
+      <group targetFramework=".NETCoreApp1.0">
+        <dependency id="Microsoft.NETCore.App" version="1.1.0" exclude="Build,Analyzers" />
+        <dependency id="Newtonsoft.Json" version="9.0.1" exclude="Build,Analyzers" />
+      </group>
     </dependencies>
     <references></references>
     <tags></tags>
@@ -49,5 +56,7 @@
   <files>
     <file src="..\Xrm.Tools.WebAPI\bin\debug\Xrm.Tools.WebAPI.dll" target="lib\net46" />
     <file src="..\Xrm.Tools.WebAPI.Portable\bin\debug\Xrm.Tools.WebAPI.Portable.dll" target="lib\uap10.0" />
+    <file src="..\Xrm.Tools.WebAPI.Core\bin\Debug\netcoreapp1.0\Xrm.Tools.WebAPI.core.dll" target="lib\netcore" />
+    <file src="..\Xrm.Tools.WebAPI.Core\bin\Debug\netcoreapp1.0\Xrm.Tools.WebAPI.core.dll" target="lib\netcoreapp" />
   </files>
 </package>
