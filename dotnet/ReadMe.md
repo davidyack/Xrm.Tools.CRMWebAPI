@@ -1,6 +1,8 @@
 
 Install via NuGet (https://www.nuget.org/packages/Xrm.Tools.CRMWebAPI/)
 
+Support for full .NET, .NET Core and .NET Standard projects
+
 Install-Package Xrm.Tools.CRMWebAPI 
 Here is how to get an instance of CRMWebAPI passing an AccessToken
 ````
