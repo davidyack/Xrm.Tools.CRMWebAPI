@@ -264,6 +264,10 @@ namespace Xrm.Tools.WebAPI
 
 #if WINDOWS_APP
      throw new NotImplementedException();
+#elif NETCOREAPP1_0
+            throw new NotImplementedException();
+#elif NETSTANDARD1_4
+            throw new NotImplementedException();
 #else
 
             var httpClient = new HttpClient();
@@ -785,7 +789,7 @@ namespace Xrm.Tools.WebAPI
             if (string.IsNullOrEmpty(idString))
                 return Guid.Empty;
 
-            idString = idString.Replace(fullUrl, "").Replace("(", "").Replace(")", "");
+            idString = idString.Replace(fullUrl.ToLower(), "").Replace("(", "").Replace(")", "");
 
             var idGuid = Guid.Empty;
             //if alternate key was used to perform an upsert, guid not currently returned

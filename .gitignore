@@ -8,10 +8,13 @@ dotnet/Xrm.Tools.WebAPI.Test/obj
 dotnet/Xrm.Tools.WebAPI.Portable/bin
 dotnet/Xrm.Tools.WebAPI.Portable/obj
 dotnet/Xrm.Tools.WebAPI.Portable/packages
+dotnet/Xrm.Tools.WebAPI.Standard/bin
+dotnet/Xrm.Tools.WebAPI.Standard/obj
+dotnet/Xrm.Tools.WebAPI.Standard/packages
 dotnet/Xrm.Tools.SeverCommonTest/obj
 dotnet/Xrm.Tools.WebAPI.NuGet/bin
 dotnet/Xrm.Tools.WebAPI.NuGet/obj
-dotnet/Xrm.Tools.WebAPI.NuGet/obj/debug/
+dotnet/Xrm.Tools.WebAPI.NuGet/obj/Debug/**
 .vs
 .nuget
 node_modules

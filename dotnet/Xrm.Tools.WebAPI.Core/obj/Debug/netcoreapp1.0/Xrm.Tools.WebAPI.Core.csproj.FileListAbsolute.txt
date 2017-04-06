@@ -4,3 +4,4 @@ D:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.Core\obj\Debug\netcoreapp1
 D:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.Core\bin\Debug\netcoreapp1.0\Xrm.Tools.WebAPI.Core.pdb
 D:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.Core\obj\Debug\netcoreapp1.0\Xrm.Tools.WebAPI.Core.dll
 D:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.Core\obj\Debug\netcoreapp1.0\Xrm.Tools.WebAPI.Core.pdb
+D:\GitHub\Xrm.Tools.CRMWebAPI\dotnet\Xrm.Tools.WebAPI.Core\obj\Debug\netcoreapp1.0\Xrm.Tools.WebAPI.Core.csprojResolveAssemblyReference.cache
