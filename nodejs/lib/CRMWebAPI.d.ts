@@ -39,8 +39,10 @@ declare class CRMWebAPI {
     Delete(entityCollection: string, entityID: string): Promise<any>;
     Associate(fromEntitycollection: string, fromEntityId: string, navProperty: string, toEntityCollection: string, toEntityId: string): Promise<any>;
     Disassociate(fromEntitycollection: string, fromEntityId: string, navProperty: string, toEntityCollection: string, toEntityId: string): Promise<any>;
-    ExecuteFunction(functionName: string, parameters: any, entityCollection: string, entityId: string): Promise<any>;
-    ExecuteAction(actionName: string, data: any, entityCollection: string, entityId: string): Promise<any>;
+    ExecuteFunction<TRequest, TResponse>(functionName: string, parameters: TRequest): Promise<TResponse>;
+    ExecuteFunction<TRequest, TResponse>(functionName: string, parameters: TRequest, entityCollection: string, entityId: string): Promise<TResponse>;
+    ExecuteAction<TRequest, TResponse>(actionName: string, data: TRequest): Promise<TResponse>;
+    ExecuteAction<TRequest, TResponse>(actionName: string, data: TRequest, entityCollection: string, entityId: string): Promise<TResponse>;
 }
 
 /*~ If you want to expose types from your module as well, you can
