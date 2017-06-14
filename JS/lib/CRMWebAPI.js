@@ -219,7 +219,7 @@
 				"data": JSON.stringify(data),
 				"headers": {}
 			};
-			if (Upsert == false) payload["headers"]["If-None-Match"] = "*";
+			if (Upsert == false) payload["headers"]["If-Match"] = "*";
 			self._GetHttpRequest(self.config, "PATCH", url, payload, function (err, res) {
 				if (err != false) {
 					self._log('Errors','Update Error',res);
