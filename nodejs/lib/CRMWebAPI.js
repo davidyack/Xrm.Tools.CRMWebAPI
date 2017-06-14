@@ -280,7 +280,11 @@
 		var self = this;
 		return new Promise(function (resolve, reject) {
 			var url = self.config.APIUrl + fromEntitycollection + '(' + fromEntityID.replace(/[{}]/g, "") +
-			   ')/' + navProperty + '/$ref?$id=' + self.config.APIUrl + toEntityCollection + '(' + toEntityID.replace(/[{}]/g, "") + ')';
+			   ')/' + navProperty + '/$ref';
+			   
+			if (toEntityCollection != null && toEntityID != null) 
+			   url + '/$ref?$id=' + self.config.APIUrl + toEntityCollection + '(' + toEntityID.replace(/[{}]/g, "") + ')';
+
 			self._log('ODataUrl',url);
 			self._GetHttpRequest(self.config, 'DELETE', url, {}, function (err, res) {
 				if (err != false) {

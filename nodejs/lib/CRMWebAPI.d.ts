@@ -38,7 +38,7 @@ declare class CRMWebAPI {
     Update(entityCollection: string, key: string, data: any, upsert?: boolean): Promise<any>;
     Delete(entityCollection: string, entityID: string): Promise<any>;
     Associate(fromEntitycollection: string, fromEntityId: string, navProperty: string, toEntityCollection: string, toEntityId: string): Promise<any>;
-    Disassociate(fromEntitycollection: string, fromEntityId: string, navProperty: string, toEntityCollection: string, toEntityId: string): Promise<any>;
+    DeleteAssociation(fromEntitycollection: string, fromEntityId: string, navProperty: string, toEntityCollection?: string, toEntityId?: string): Promise<any>;
     ExecuteFunction<TRequest, TResponse>(functionName: string, parameters: TRequest): Promise<TResponse>;
     ExecuteFunction<TRequest, TResponse>(functionName: string, parameters: TRequest, entityCollection: string, entityId: string): Promise<TResponse>;
     ExecuteAction<TRequest, TResponse>(actionName: string, data: TRequest): Promise<TResponse>;
