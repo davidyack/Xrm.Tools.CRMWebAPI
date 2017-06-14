@@ -283,10 +283,10 @@
 			   ')/' + navProperty + '/$ref';
 			   
 			if (toEntityCollection != null && toEntityID != null) 
-			   url + '/$ref?$id=' + self.config.APIUrl + toEntityCollection + '(' + toEntityID.replace(/[{}]/g, "") + ')';
+			   url += '?$id=' + self.config.APIUrl + toEntityCollection + '(' + toEntityID.replace(/[{}]/g, "") + ')';
 
 			self._log('ODataUrl',url);
-			self._GetHttpRequest(self.config, 'DELETE', url, {}, function (err, res) {
+			self._GetHtpRequest(self.config, 'DELETE', url, {}, function (err, res) {
 				if (err != false) {
 					self._log('Errors','DeleteAssociation Error',res);
 					reject(res);
