@@ -134,7 +134,14 @@ namespace Xrm.Tools.WebAPI
             await CheckAuthToken();
 
             string fullUrl = BuildGetUrl(uri, QueryOptions);
-            var results = await _httpClient.GetAsync(fullUrl);
+
+            HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("GET"), fullUrl);
+
+            if ((QueryOptions != null) && (QueryOptions.FormattedValues))
+                request.Headers.Add("Prefer", "odata.include-annotations=\"OData.Community.Display.V1.FormattedValue\"");
+
+            var results = await _httpClient.SendAsync(request);
+            
             EnsureSuccessStatusCode(results);
             var data = await results.Content.ReadAsStringAsync();
             var values = JObject.Parse(data);
@@ -581,9 +588,13 @@ namespace Xrm.Tools.WebAPI
                     {
                         valueList.Add(string.Format("@p{0}='{1}'", paramCount, parm.Value));
                     }
-                    else
+                    else if (parm.Value.GetType().GetTypeInfo().IsPrimitive)
                     {
                         valueList.Add(string.Format("@p{0}={1}", paramCount, parm.Value));
+                    }
+                    else
+                    {
+                        valueList.Add(string.Format("@p{0}={1}", paramCount, JsonConvert.SerializeObject(parm.Value)));
                     }
                     paramList.Add(string.Format("{0}=@p{1}", parm.Key, paramCount));
                     paramCount++;

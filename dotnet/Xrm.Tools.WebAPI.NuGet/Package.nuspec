@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Xrm.Tools.CRMWebAPI</id>
-    <version>1.0.16</version>
+    <version>1.0.17</version>
     <title>Xrm.Tools.CRMWebAPI</title>
     <authors>DavidYack</authors>
     <owners></owners>
@@ -28,6 +28,8 @@
       1.0.14 fixed target file for netcore in nuget spec
       1.0.15 fixed target file for netcore in nuget spec
       1.0.16 added .net standard support, fixed return of ID with non lower service url
+      1.0.17 fixed ExecuteFunction serialization of object parameters, 
+             GetList by type honor formatted values option
     </releaseNotes>
     <summary>
       This is an API helper for working with Dynamics 365 Web API

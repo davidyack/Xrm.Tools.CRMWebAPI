@@ -12,9 +12,11 @@ dotnet/Xrm.Tools.WebAPI.Standard/bin
 dotnet/Xrm.Tools.WebAPI.Standard/obj
 dotnet/Xrm.Tools.WebAPI.Standard/packages
 dotnet/Xrm.Tools.SeverCommonTest/obj
-dotnet/Xrm.Tools.WebAPI.NuGet/bin
+dotnet/Xrm.Tools.WebAPI.NuGet/bin/
 dotnet/Xrm.Tools.WebAPI.NuGet/obj
 dotnet/Xrm.Tools.WebAPI.NuGet/obj/Debug/**
+dotnet/Xrm.Tools.WebAPI.Core/obj/
+
 .vs
 .nuget
 node_modules

@@ -85,5 +85,28 @@ namespace Xrm.Tools.WebAPI.Test
 
             }).Wait();
         }
+
+        [TestMethod]
+        public void TestCalculateRollup()
+        {
+
+            Task.Run(async () =>
+            {
+                var api = GetAPI();
+
+                dynamic voteCountUpdate = new ExpandoObject();
+                voteCountUpdate.Target = new ExpandoObject();
+                var ivote = voteCountUpdate.Target as IDictionary<string, Object>;
+
+                ivote["@odata.id"] = "ctccrm_ideas(19dc848b-1c5e-e711-8112-e0071b66aea1)";
+                voteCountUpdate.FieldName = "ctccrm_votes";
+                await api.ExecuteFunction("CalculateRollupField", voteCountUpdate);
+
+
+                System.Diagnostics.Trace.WriteLine("finished");
+
+
+            }).Wait();
+        }
     }
 }
