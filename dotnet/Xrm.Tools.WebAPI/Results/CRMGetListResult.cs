@@ -12,5 +12,8 @@ namespace Xrm.Tools.WebAPI.Results
         public List<ListType> List { get; set; }
 
         public int Count { get; set; }
+
+        public string TrackChangesLink { get; set; }
+
     }
 }

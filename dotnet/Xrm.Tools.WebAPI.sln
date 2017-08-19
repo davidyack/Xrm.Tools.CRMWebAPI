@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xrm.Tools.WebAPI", "Xrm.Tools.WebAPI\Xrm.Tools.WebAPI.csproj", "{8D1C4066-5DEF-4CC9-B84F-58944BBE86F0}"
 EndProject
@@ -9,7 +9,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xrm.Tools.WebAPI.Test", "Xr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xrm.Tools.WebAPI.NuGet", "Xrm.Tools.WebAPI.NuGet\Xrm.Tools.WebAPI.NuGet.csproj", "{0451BAEF-DF2E-4B98-8644-94EE9415E389}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xrm.Tools.WebAPI.Portable", "Xrm.Tools.WebAPI.Portable\Xrm.Tools.WebAPI.Portable.csproj", "{2E161345-1A64-45A9-A31B-FDC7054BBEFB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xrm.Tools.WebAPI.Core", "Xrm.Tools.WebAPI.Core\Xrm.Tools.WebAPI.Core.csproj", "{96734240-AB11-44F0-B47D-9169F4334403}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xrm.Tools.WebAPI.Standard", "Xrm.Tools.WebAPI.Standard\Xrm.Tools.WebAPI.Standard.csproj", "{94F41AEC-9406-44E1-BE56-2E786C51CCA7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,12 +31,19 @@ Global
 		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2E161345-1A64-45A9-A31B-FDC7054BBEFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2E161345-1A64-45A9-A31B-FDC7054BBEFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2E161345-1A64-45A9-A31B-FDC7054BBEFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2E161345-1A64-45A9-A31B-FDC7054BBEFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96734240-AB11-44F0-B47D-9169F4334403}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96734240-AB11-44F0-B47D-9169F4334403}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96734240-AB11-44F0-B47D-9169F4334403}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96734240-AB11-44F0-B47D-9169F4334403}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94F41AEC-9406-44E1-BE56-2E786C51CCA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94F41AEC-9406-44E1-BE56-2E786C51CCA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94F41AEC-9406-44E1-BE56-2E786C51CCA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94F41AEC-9406-44E1-BE56-2E786C51CCA7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9BE9241F-12DA-4E8E-9656-FD2A4AD05809}
 	EndGlobalSection
 EndGlobal

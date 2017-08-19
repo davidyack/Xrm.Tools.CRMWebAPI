@@ -89,8 +89,16 @@ namespace Xrm.Tools.WebAPI
             string fullUrl = BuildGetUrl(uri, QueryOptions);
             HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("GET"), fullUrl);
 
+            var preferList = new List<string>();
+
             if ((QueryOptions != null) && (QueryOptions.FormattedValues))
-                request.Headers.Add("Prefer", "odata.include-annotations=\"OData.Community.Display.V1.FormattedValue\"");
+                preferList.Add("odata.include-annotations=\"OData.Community.Display.V1.FormattedValue\"");
+
+            if ((QueryOptions != null) && (QueryOptions.TrackChanges))
+                preferList.Add("odata.track-changes");
+
+            if (preferList.Count > 0)
+                request.Headers.Add("Prefer", string.Join(",",preferList));
 
             var results = await _httpClient.SendAsync(request);
                         
@@ -103,10 +111,14 @@ namespace Xrm.Tools.WebAPI
             var valueList = values["value"].ToList();
             foreach (var value in valueList)
                 resultList.List.Add(value.ToObject<ExpandoObject>());            
-            var nextLink = values["@odata.nextLink"];
+            
+            var deltaLink = values["@odata.deltaLink"];
+            if (deltaLink != null)
+                resultList.TrackChangesLink = deltaLink.ToString();
             var recordCount = values["@odata.count"];
             if (recordCount != null)
                 resultList.Count = int.Parse(recordCount.ToString());
+            var nextLink = values["@odata.nextLink"];
             while (nextLink != null)
             {
                 var nextResults = await _httpClient.GetAsync(nextLink.ToString());
@@ -619,6 +631,10 @@ namespace Xrm.Tools.WebAPI
         private string BuildGetUrl(string uri, CRMGetListOptions queryOptions)
         {
             var fullurl = _apiUrl + uri;
+
+            if ((queryOptions != null) && (!string.IsNullOrEmpty(queryOptions.TrackChangesLink)))
+                fullurl = queryOptions.TrackChangesLink;
+
             bool firstParam = true;
             if (queryOptions != null)
             {

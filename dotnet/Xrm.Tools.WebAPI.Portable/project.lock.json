@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "targets": {
     ".NETFramework,Version=v4.6": {
       "Microsoft.CSharp/4.0.0": {
@@ -2426,13 +2426,7 @@
         }
       },
       "Newtonsoft.Json/8.0.2": {
-        "type": "package",
-        "compile": {
-          "lib/portable-net45+wp80+win8+wpa81+dnxcore50/Newtonsoft.Json.dll": {}
-        },
-        "runtime": {
-          "lib/portable-net45+wp80+win8+wpa81+dnxcore50/Newtonsoft.Json.dll": {}
-        }
+        "type": "package"
       },
       "System.AppContext/4.0.0": {
         "type": "package",
@@ -14695,7 +14689,17 @@
       "projectName": "Xrm.Tools.WebAPI.Portable",
       "projectPath": "D:\\Github\\Xrm.Tools.CRMWebAPI\\dotnet\\Xrm.Tools.WebAPI.Portable\\Xrm.Tools.WebAPI.Portable.csproj",
       "projectJsonPath": "D:\\Github\\Xrm.Tools.CRMWebAPI\\dotnet\\Xrm.Tools.WebAPI.Portable\\project.json",
-      "projectStyle": "ProjectJson"
+      "packagesPath": "C:\\Users\\evadr\\.nuget\\packages\\",
+      "outputPath": "D:\\Github\\Xrm.Tools.CRMWebAPI\\dotnet\\Xrm.Tools.WebAPI.Portable\\obj\\",
+      "projectStyle": "ProjectJson",
+      "configFilePaths": [
+        "C:\\Users\\evadr\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "https://api.nuget.org/v3/index.json": {}
+      }
     },
     "dependencies": {
       "Microsoft.NETCore": "5.0.0",
@@ -14703,15 +14707,22 @@
       "Newtonsoft.Json": "8.0.2"
     },
     "frameworks": {
-      "dotnet5.0": {
-        "imports": [
-          "portable-net452+win81"
-        ]
-      }
+      "dotnet": {}
     },
     "supports": {
       "net46.app": {},
       "uwp.10.0.app": {}
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1202",
+      "level": "Error",
+      "message": "Package Newtonsoft.Json 8.0.2 is not compatible with dotnet (.NETPlatform,Version=v5.0). Package Newtonsoft.Json 8.0.2 supports:\r\n  - net20 (.NETFramework,Version=v2.0)\r\n  - net35 (.NETFramework,Version=v3.5)\r\n  - net40 (.NETFramework,Version=v4.0)\r\n  - net45 (.NETFramework,Version=v4.5)\r\n  - portable-dnxcore50+net45+win8+wp8+wpa81 (.NETPortable,Version=v0.0,Profile=net45+wp80+win8+wpa81+dnxcore50)\r\n  - portable-net40+sl5+win8+wp8+wpa81 (.NETPortable,Version=v0.0,Profile=Profile328)",
+      "libraryId": "Newtonsoft.Json",
+      "targetGraphs": [
+        ".NETPlatform,Version=v5.0"
+      ]
+    }
+  ]
 }

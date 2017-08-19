@@ -25,5 +25,10 @@ namespace Xrm.Tools.WebAPI.Requests
 
         public CRMExpandOptions[] Expand { get; set; }
 
+        public bool TrackChanges { get; set; }
+
+        public string TrackChangesLink { get; set; }
+
+
     }
 }
