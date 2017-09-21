@@ -394,6 +394,7 @@
 		var headers = {};
 		if (queryOptions != null) {
 			if (queryOptions.FormattedValues == true) headers['Prefer'] = 'odata.include-annotations="OData.Community.Display.V1.FormattedValue"';
+			if (queryOptions.IncludeAnnotations == true) headers['Prefer'] = 'odata.include-annotations="*"';
 		}
 		return headers;
 	};
