@@ -32,8 +32,7 @@ Here is how to get an instance of CRMWebAPI passing an ADAL with a user and pass
   }
 ````
 
-Here is how to get an instance of CRMWebAPI passing an ADAL with a Server-to-server authentication - to understand how to get a client ID visit the walk through here https://msdn.microsoft.com/en-us/library/mt622431.aspx 
-To understand Server-to-server authentication visit
+Here is how to get an instance of CRMWebAPI passing an ADAL with a Server-to-server authentication - to understand Server-to-server authentication visit
 https://msdn.microsoft.com/en-us/library/mt790168.aspx
 ````
   public async static Task<CRMWebAPI> GetAPI()
