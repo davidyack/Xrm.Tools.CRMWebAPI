@@ -32,6 +32,23 @@ Here is how to get an instance of CRMWebAPI passing an ADAL with a user and pass
   }
 ````
 
+Here is how to get an instance of CRMWebAPI passing an ADAL with a Server-to-server authentication - to understand how to get a client ID visit the walk through here https://msdn.microsoft.com/en-us/library/mt622431.aspx 
+````
+  public async static Task<CRMWebAPI> GetAPI()
+  {
+      string authority = "https://login.microsoftonline.com/";
+      string clientId = "<clientid>";
+      string crmBaseUrl = "https://xx.crm.dynamics.com";
+      string clientSecret = "<clientSecret>";
+      string tenantID = "<tenantId>>";     
+      var clientcred = new ClientCredential(clientId, clientSecret);
+      var authContext = new AuthenticationContext(authority + tenantID);
+      var authenticationResult = await authContext.AcquireTokenAsync(crmBaseUrl, clientcred);
+  
+      return new CRMWebAPI(crmBaseUrl + "/api/data/v8.0/", authenticationResult.AccessToken);
+  }
+````
+
 Here are a few simple examples 
 ````
         Task.Run(async () =>
