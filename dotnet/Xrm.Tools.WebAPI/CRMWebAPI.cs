@@ -17,9 +17,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
@@ -39,9 +37,26 @@ namespace Xrm.Tools.WebAPI
     public class CRMWebAPI
     {
         private HttpClient _httpClient = null;
-        private string _apiUrl = string.Empty;
-        private string _AccessToken = string.Empty;
-        private Func<string, Task<string>> _getAccessToken = null;
+        private CRMWebAPIConfig _crmWebAPIConfig;
+
+        /// <summary>
+        /// Instaciate the CRMWebAPI using the CRMWebAPIConfig, if NetworkCredentials are present it is assumed a on-premisse connection type.
+        /// </summary>
+        /// <param name="crmWebAPIConfig"> Api Config Object, it contais the  </param>
+        public CRMWebAPI(CRMWebAPIConfig crmWebAPIConfig)
+        {
+            _crmWebAPIConfig = crmWebAPIConfig;
+
+            if (_crmWebAPIConfig.NetworkCredential != null)
+                _httpClient = new HttpClient(new HttpClientHandler {Credentials = _crmWebAPIConfig.NetworkCredential});
+            else
+            {
+                _httpClient = new HttpClient();
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _crmWebAPIConfig.AccessToken);
+            }
+
+            SetHttpClientDefaults(_crmWebAPIConfig.CallerID);
+        }
 
         /// <summary>
         /// 
@@ -52,12 +67,16 @@ namespace Xrm.Tools.WebAPI
         /// <param name="getAccessToken">method to call to refresh access token, called before each use of token</param>
         public CRMWebAPI(string apiUrl, string accessToken, Guid callerID = default(Guid), Func<string, Task<string>> getAccessToken = null)
         {
-            _apiUrl = apiUrl;
+            _crmWebAPIConfig = new CRMWebAPIConfig
+            {
+                APIUrl =  apiUrl,
+                AccessToken = accessToken,
+                CallerID = callerID,
+                GetAccessToken = getAccessToken
+            };
+
             _httpClient = new HttpClient();
-            _AccessToken = accessToken;
-            _getAccessToken = getAccessToken;
-            _httpClient.DefaultRequestHeaders.Authorization =
-               new AuthenticationHeaderValue("Bearer", accessToken);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _crmWebAPIConfig.AccessToken);
             SetHttpClientDefaults(callerID);
         }
 
@@ -68,15 +87,21 @@ namespace Xrm.Tools.WebAPI
         /// <param name="networkCredential"></param>
         public CRMWebAPI(string apiUrl, NetworkCredential networkCredential = null, Guid callerID = default(Guid))
         {
-            _apiUrl = apiUrl;
+            _crmWebAPIConfig = new CRMWebAPIConfig
+            {
+                APIUrl = apiUrl,
+                NetworkCredential = networkCredential,
+                CallerID = callerID
+            };
 
-            if (networkCredential != null)
-                _httpClient = new HttpClient(new HttpClientHandler() { Credentials = networkCredential });
+            if (_crmWebAPIConfig.NetworkCredential != null)
+                _httpClient = new HttpClient(new HttpClientHandler { Credentials = networkCredential });
             else
                 _httpClient = new HttpClient();
 
             SetHttpClientDefaults(callerID);
         }
+
         /// <summary>
         /// Retrieve a list of records based on query options
         /// </summary>
@@ -112,7 +137,8 @@ namespace Xrm.Tools.WebAPI
             var valueList = values["value"].ToList();
             foreach (var value in valueList)
             {
-                FormatResultProperties( (JObject) value);
+                if(_crmWebAPIConfig.ResolveUnicodeNames)
+                    FormatResultProperties( (JObject) value);
                 resultList.List.Add(value.ToObject<ExpandoObject>());
             }
 
@@ -166,7 +192,8 @@ namespace Xrm.Tools.WebAPI
 
             foreach (var value in values["value"].ToList())
             {
-                FormatResultProperties((JObject)value);
+                if(_crmWebAPIConfig.ResolveUnicodeNames)
+                    FormatResultProperties((JObject)value);
                 resultList.List.Add(value.ToObject<ResultType>());
             }
             var nextLink = values["@odata.nextLink"];
@@ -248,7 +275,8 @@ namespace Xrm.Tools.WebAPI
             EnsureSuccessStatusCode(results);
             var data = await results.Content.ReadAsStringAsync();
             var value = JObject.Parse(data);
-            FormatResultProperties(value);
+            if(_crmWebAPIConfig.ResolveUnicodeNames)
+                FormatResultProperties(value);
 
             return value.ToObject<ResultType>();
         }
@@ -263,7 +291,7 @@ namespace Xrm.Tools.WebAPI
         {
             await CheckAuthToken();
 
-            var fullUrl = _apiUrl + entityCollection;
+            var fullUrl = _crmWebAPIConfig.APIUrl + entityCollection;
 
             HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("Post"), fullUrl);
 
@@ -301,7 +329,7 @@ namespace Xrm.Tools.WebAPI
             var httpClient = new HttpClient();
 
             httpClient.DefaultRequestHeaders.Authorization =
-               new AuthenticationHeaderValue("Bearer", _AccessToken);
+               new AuthenticationHeaderValue("Bearer", _crmWebAPIConfig.AccessToken);
             httpClient.DefaultRequestHeaders.Add("OData-MaxVersion", "4.0");
             httpClient.DefaultRequestHeaders.Add("OData-Version", "4.0");
             var batchid = "batch_" + Guid.NewGuid().ToString();
@@ -313,7 +341,7 @@ namespace Xrm.Tools.WebAPI
             int contentID = 1;
             foreach (var data in datalist)
             {
-                HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Post, _apiUrl + entityCollection);
+                HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Post, _crmWebAPIConfig.APIUrl + entityCollection);
 
                 req.Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
                 HttpMessageContent content = new HttpMessageContent(req);
@@ -327,7 +355,7 @@ namespace Xrm.Tools.WebAPI
 
             batchContent.Add(changeSetContent);
 
-            HttpRequestMessage batchRequest = new HttpRequestMessage(HttpMethod.Post, _apiUrl + "$batch");
+            HttpRequestMessage batchRequest = new HttpRequestMessage(HttpMethod.Post, _crmWebAPIConfig.APIUrl + "$batch");
 
             batchRequest.Content = batchContent;
 
@@ -350,7 +378,7 @@ namespace Xrm.Tools.WebAPI
                 var individualResponseString = await fixedREsponseContent.ReadAsStringAsync();
                 var indivdualResponse = await fixedREsponseContent.ReadAsHttpResponseMessageAsync();              
                 var idString = indivdualResponse.Headers.GetValues("OData-EntityId").FirstOrDefault();
-                idString = idString.Replace(_apiUrl + entityCollection, "").Replace("(", "").Replace(")", "");
+                idString = idString.Replace(_crmWebAPIConfig.APIUrl + entityCollection, "").Replace("(", "").Replace(")", "");
                 CRMBatchResultItem resultItem = new CRMBatchResultItem();
                 resultItem.EntityID = Guid.Parse(idString);
                 finalResult.ResultItems.Add(resultItem);
@@ -372,6 +400,7 @@ namespace Xrm.Tools.WebAPI
             return changesetStream;
             
         }
+
         /// <summary>
         /// currently the change set is missing a new line at the end - this fixes that
         /// </summary>
@@ -426,7 +455,7 @@ namespace Xrm.Tools.WebAPI
         {
             await CheckAuthToken();
             CRMUpdateResult result = new CRMUpdateResult();
-            var fullUrl = _apiUrl + entityCollection;
+            var fullUrl = _crmWebAPIConfig.APIUrl + entityCollection;
 
             HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("PATCH"), fullUrl + "(" + key + ")");
 
@@ -465,7 +494,7 @@ namespace Xrm.Tools.WebAPI
         {
             await CheckAuthToken();
 
-            var response = await _httpClient.DeleteAsync(_apiUrl + entityCollection + "(" + entityID.ToString() + ")");
+            var response = await _httpClient.DeleteAsync(_crmWebAPIConfig.APIUrl + entityCollection + "(" + entityID.ToString() + ")");
 
             EnsureSuccessStatusCode(response);
 
@@ -527,7 +556,7 @@ namespace Xrm.Tools.WebAPI
         {
             await CheckAuthToken();
 
-            var fullUrl = string.Format("{0}{1}", _apiUrl, action);
+            var fullUrl = string.Format("{0}{1}", _crmWebAPIConfig.APIUrl, action);
                         
             HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("Post"), fullUrl);
 
@@ -621,11 +650,11 @@ namespace Xrm.Tools.WebAPI
                     paramCount++;
                 }
 
-                fullUrl = string.Format("{0}{1}({2})?{3}", _apiUrl, function, string.Join(",", paramList), string.Join("&", valueList));
+                fullUrl = string.Format("{0}{1}({2})?{3}", _crmWebAPIConfig.APIUrl, function, string.Join(",", paramList), string.Join("&", valueList));
             }
             else
             {
-                fullUrl = string.Format("{0}{1}()", _apiUrl, function);
+                fullUrl = string.Format("{0}{1}()", _crmWebAPIConfig.APIUrl, function);
             }
 
             return fullUrl;
@@ -639,7 +668,7 @@ namespace Xrm.Tools.WebAPI
         /// <returns></returns>
         private string BuildGetUrl(string uri, CRMGetListOptions queryOptions)
         {
-            var fullurl = _apiUrl + uri;
+            var fullurl = _crmWebAPIConfig.APIUrl + uri;
 
             if ((queryOptions != null) && (!string.IsNullOrEmpty(queryOptions.TrackChangesLink)))
                 fullurl = queryOptions.TrackChangesLink;
@@ -779,17 +808,17 @@ namespace Xrm.Tools.WebAPI
         /// </summary>
         private async Task<string> CheckAuthToken()
         {
-            if (_getAccessToken == null)
-                return _AccessToken;
-            var newToken = await _getAccessToken(_apiUrl);
-            if (newToken != _AccessToken)
+            if (_crmWebAPIConfig.AccessToken == null)
+                return _crmWebAPIConfig.AccessToken;
+            var newToken = await _crmWebAPIConfig.GetAccessToken(_crmWebAPIConfig.APIUrl);
+            if (newToken != _crmWebAPIConfig.AccessToken)
             {
                 _httpClient.DefaultRequestHeaders.Remove("Authorization");
                 _httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", newToken);
-                _AccessToken = newToken;
+                _crmWebAPIConfig.AccessToken = newToken;
             }
-            return _AccessToken;
+            return _crmWebAPIConfig.AccessToken;
         }
         /// <summary>
         /// helper method to setup the httpclient defaults
