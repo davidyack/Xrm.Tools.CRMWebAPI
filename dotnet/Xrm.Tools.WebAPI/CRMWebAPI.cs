@@ -28,6 +28,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Xrm.Tools.WebAPI.Requests;
 using Xrm.Tools.WebAPI.Results;
@@ -110,8 +111,11 @@ namespace Xrm.Tools.WebAPI
             var values = JObject.Parse(data);
             var valueList = values["value"].ToList();
             foreach (var value in valueList)
-                resultList.List.Add(value.ToObject<ExpandoObject>());            
-            
+            {
+                FormatResultProperties( (JObject) value);
+                resultList.List.Add(value.ToObject<ExpandoObject>());
+            }
+
             var deltaLink = values["@odata.deltaLink"];
             if (deltaLink != null)
                 resultList.TrackChangesLink = deltaLink.ToString();
@@ -162,6 +166,7 @@ namespace Xrm.Tools.WebAPI
 
             foreach (var value in values["value"].ToList())
             {
+                FormatResultProperties((JObject)value);
                 resultList.List.Add(value.ToObject<ResultType>());
             }
             var nextLink = values["@odata.nextLink"];
@@ -242,8 +247,12 @@ namespace Xrm.Tools.WebAPI
             
             EnsureSuccessStatusCode(results);
             var data = await results.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<ResultType>(data);
+            var value = JObject.Parse(data);
+            FormatResultProperties(value);
+
+            return value.ToObject<ResultType>();
         }
+
         /// <summary>
         /// create a new record
         /// </summary>
@@ -877,5 +886,32 @@ namespace Xrm.Tools.WebAPI
 
         }
 
+        /// <summary>
+        /// Helper method to relace the '_x002e_', '_x0040_' and '_TEXT_value' for the '.', '@' and 'TEXT'
+        /// If some property is found with the same name no action will be done.
+        /// </summary>
+        /// <param name="response"></param>
+        private static void FormatResultProperties(JObject obj)
+        {
+            var properties = obj.Properties().ToList();
+
+            foreach (var property in properties)
+            {
+                var propName = property.Name;
+                if (!propName.Contains("_value") && !propName.Contains("_x002e_") &&
+                    !propName.Contains("_x0040_"))
+                    continue;
+
+                var matchValue = new Regex("^(_)(.+)(_value)\\b").Match(propName);
+
+                if (matchValue.Success)
+                    propName = matchValue.Groups[2].Value;
+
+                propName = propName.Replace("_x002e_", ".").Replace("_x0040_", "@");
+
+                if (obj[propName] == null)
+                    obj[propName] = property.Value;
+            }
+        }
     }
 }
