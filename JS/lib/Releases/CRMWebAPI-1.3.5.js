@@ -337,8 +337,6 @@
 			var url = self.config.APIUrl + actionName;
 			if (entityCollection != null) url = self.config.APIUrl + entityCollection + "(" + entityID.toString().replace(/[{}]/g, "") + ")/" + actionName;
 			self._log('ODataUrl',url);
-			if (data == null)
-			 	data = {};
 			self._GetHttpRequest(self.config, "POST", url, {
 				"data": JSON.stringify(data)
 			}, function (err, res) {
@@ -430,6 +428,7 @@
 		if (config.callerId) req.setRequestHeader("MSCRMCallerID", config.callerId);		
 		if (config.CallerID) req.setRequestHeader("MSCRMCallerID", config.CallerID);		
 		if (['POST', 'PUT', 'PATCH'].indexOf(method) >= 0) {
+			req.setRequestHeader("Content-Length", payload.data.length);
 			req.setRequestHeader("Content-Type", "application/json");
 		}
 		if (payload.headers !== 'undefined') {
