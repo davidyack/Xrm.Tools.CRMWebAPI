@@ -6,12 +6,12 @@
         define(['CRMWebAPI'], factory);
     } else if (typeof exports === 'object') {
         // Node, CommonJS-like
-        module.exports = factory(require('https'), require('url'));
+        module.exports = factory(require('https'), require('url'), require('request-ntlm-continued'));
     } else {        
         // Browser globals (root is window)        
         root.CRMWebAPI = factory(root.CRMWebAPI);        
     }
-}(this, function (https, url) {
+}(this, function (https, url, ntlm) {
     return (function () {
         function CRMWebAPI(config) {
             this.config = config;
@@ -19,7 +19,8 @@
                 this.node = true;
                 this.https = https;
                 this.urllib = url;
-                this._GetHttpRequest = this._GetHttpRequestHTTPS;
+                this.ntlm = ntlm;
+                this._GetHttpRequest = config.ntlm ? this._GetHttpRequestNTLM : this._GetHttpRequestHTTPS;
             } else {
                 this.node = false;
                 this._GetHttpRequest = this._GetHttpRequestXMLHTTPRequest;
@@ -508,16 +509,57 @@
 		}
 		req.end();
 	};
-	CRMWebAPI.prototype._DateReviver = function (key, value) {
-		var a;
-		if (typeof value === 'string') {
-			a = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/.exec(value);
-			if (a) {
-				return new Date(Date.UTC(+a[1], +a[2] - 1, +a[3], +a[4], +a[5], +a[6]));
-			}
-		}
-		return value;
-	};
-	return CRMWebAPI;
+  CRMWebAPI.prototype._GetHttpRequestNTLM = function (config, method, url, payload, callback) {
+  var { username, password, domain, workstation } = config.ntlm;
+  if (!(username && password && domain && workstation)) { 
+    throw new Error('To use NTLM authentication, you must provide a username, password, domain, and workstation in the config object')
+  }
+  var options = {
+    headers: {
+      "Accept": "application/json",
+      "OData-MaxVersion": "4.0",
+      "OData-Version": "4.0",
+    },
+    username: username,
+    password: password,
+    url: url,
+    ntlm_domain: domain,
+    workstation: workstation,
+  }
+  if (['POST', 'PUT', 'PATCH'].indexOf(method) >= 0) {
+    options.headers['Content-Length'] = payload.data.length;
+    options.headers['Content-Type'] = 'application/json';
+  }
+  if (config.callerId) options.headers["MSCRMCallerID"] = config.callerId;
+  if (payload.headers != undefined) {
+    for (var name in payload.headers) {
+      options.headers[name] = payload.headers[name];
+    }
+  }
+  this.ntlm[method.toLowerCase()](options, payload.data ? JSON.parse(payload.data) : null, function (err, res, body) {
+    if ((res.statusCode >= 200) && (res.statusCode < 300)) {
+        callback(false, {
+          'response': body,
+          'headers': res.headers
+        });
+    } else {
+        callback(true, {
+          'response': body,
+          'headers': res.headers
+        });
+      }
+  });
+};
+  CRMWebAPI.prototype._DateReviver = function (key, value) {
+    var a;
+    if (typeof value === 'string') {
+      a = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/.exec(value);
+      if (a) {
+        return new Date(Date.UTC(+a[1], +a[2] - 1, +a[3], +a[4], +a[5], +a[6]));
+      }
+    }
+    return value;
+  };
+return CRMWebAPI;
 })();
 }));

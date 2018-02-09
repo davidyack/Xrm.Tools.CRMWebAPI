@@ -53,6 +53,12 @@ declare namespace CRMWebAPI {
         APIUrl: string;
         AccessToken?: string;
         callerId?: string;
+        ntlm?: {
+          username: string;
+          password: string;
+          domain: string;
+          workstation: string;
+        };
     }
 
     export interface GetListResponse<T> {

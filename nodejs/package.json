@@ -8,7 +8,9 @@
   },
   "main": "./lib/CRMWebAPI",
   "types": "./lib/CRMWebAPI.d.ts",
-  "dependencies": {},
+  "dependencies": {
+    "request-ntlm-continued": "^0.1.5"
+  },
   "devDependencies": {},
   "optionalDependencies": {},
   "engines": {
