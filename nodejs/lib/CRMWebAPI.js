@@ -539,12 +539,14 @@
   this.ntlm[method.toLowerCase()](options, payload.data ? JSON.parse(payload.data) : null, function (err, res, body) {
     if ((res.statusCode >= 200) && (res.statusCode < 300)) {
         callback(false, {
-          'response': body || '',
+          /* Response is stringifed here as well as below because the rest of the library expects it.
+           The library could be refactored to parse the responses by default.*/
+          'response': body ? JSON.stringify(body) : '',
           'headers': res.headers
         });
     } else {
         callback(true, {
-          'response': body || '',
+          'response': body ? JSON.stringify(body) : '',
           'headers': res.headers
         });
     }
