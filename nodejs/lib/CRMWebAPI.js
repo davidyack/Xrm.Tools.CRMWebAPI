@@ -539,15 +539,15 @@
   this.ntlm[method.toLowerCase()](options, payload.data ? JSON.parse(payload.data) : null, function (err, res, body) {
     if ((res.statusCode >= 200) && (res.statusCode < 300)) {
         callback(false, {
-          'response': body,
+          'response': body || '',
           'headers': res.headers
         });
     } else {
         callback(true, {
-          'response': body,
+          'response': body || '',
           'headers': res.headers
         });
-      }
+    }
   });
 };
   CRMWebAPI.prototype._DateReviver = function (key, value) {
