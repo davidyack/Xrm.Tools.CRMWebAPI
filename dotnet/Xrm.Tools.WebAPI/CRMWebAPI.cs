@@ -816,7 +816,7 @@ namespace Xrm.Tools.WebAPI
             if (string.IsNullOrEmpty(idString))
                 return Guid.Empty;
 
-            idString = idString.Replace(fullUrl.ToLower(), "").Replace("(", "").Replace(")", "");
+            idString = idString.ToLower().Replace(fullUrl.ToLower(), "").Replace("(", "").Replace(")", "");
 
             var idGuid = Guid.Empty;
             //if alternate key was used to perform an upsert, guid not currently returned
