@@ -88,17 +88,7 @@ namespace Xrm.Tools.WebAPI
 
             string fullUrl = BuildGetUrl(uri, QueryOptions);
             HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("GET"), fullUrl);
-
-            var preferList = new List<string>();
-
-            if ((QueryOptions != null) && (QueryOptions.FormattedValues))
-                preferList.Add("odata.include-annotations=\"OData.Community.Display.V1.FormattedValue\"");
-
-            if ((QueryOptions != null) && (QueryOptions.TrackChanges))
-                preferList.Add("odata.track-changes");
-
-            if (preferList.Count > 0)
-                request.Headers.Add("Prefer", string.Join(",",preferList));
+            FillPreferHeader(request, QueryOptions);
 
             var results = await _httpClient.SendAsync(request);
                         
@@ -148,9 +138,7 @@ namespace Xrm.Tools.WebAPI
             string fullUrl = BuildGetUrl(uri, QueryOptions);
 
             HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("GET"), fullUrl);
-
-            if ((QueryOptions != null) && (QueryOptions.FormattedValues))
-                request.Headers.Add("Prefer", "odata.include-annotations=\"OData.Community.Display.V1.FormattedValue\"");
+            FillPreferHeader(request, QueryOptions);
 
             var results = await _httpClient.SendAsync(request);
             
@@ -164,6 +152,11 @@ namespace Xrm.Tools.WebAPI
             {
                 resultList.List.Add(value.ToObject<ResultType>());
             }
+
+            var deltaLink = values["@odata.deltaLink"];
+            if (deltaLink != null)
+                resultList.TrackChangesLink = deltaLink.ToString();
+
             var nextLink = values["@odata.nextLink"];
             var recordCount = values["@odata.count"];
             if (recordCount != null)
@@ -796,6 +789,27 @@ namespace Xrm.Tools.WebAPI
                 _httpClient.DefaultRequestHeaders.Add("MSCRMCallerID", callerID.ToString());
 
             _httpClient.Timeout = new TimeSpan(0, 2, 0);
+        }
+        /// <summary>
+        ///  helper method to setup the request track-changes header
+        /// </summary>
+        /// <param name="Request"></param>
+        /// <param name="QueryOptions"></param>
+        private void FillPreferHeader(HttpRequestMessage Request, CRMGetListOptions QueryOptions)
+        {
+            if (QueryOptions == null)
+                return;
+
+            var preferList = new List<string>();
+
+            if (QueryOptions.FormattedValues)
+                preferList.Add("odata.include-annotations=\"OData.Community.Display.V1.FormattedValue\"");
+
+            if (QueryOptions.TrackChanges)
+                preferList.Add("odata.track-changes");
+
+            if (preferList.Count > 0)
+                Request.Headers.Add("Prefer", string.Join(",", preferList));
         }
 
         /// <summary>
