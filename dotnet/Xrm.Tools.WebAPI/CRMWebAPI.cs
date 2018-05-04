@@ -625,12 +625,16 @@ namespace Xrm.Tools.WebAPI
         {
             var fullurl = _apiUrl + uri;
 
-            if ((queryOptions != null) && (!string.IsNullOrEmpty(queryOptions.TrackChangesLink)))
-                fullurl = queryOptions.TrackChangesLink;
-
-            bool firstParam = true;
             if (queryOptions != null)
             {
+                bool firstParam = true;
+
+                if (!string.IsNullOrEmpty(queryOptions.TrackChangesLink))
+                {
+                    fullurl = queryOptions.TrackChangesLink;
+                    firstParam = false;
+                }
+
                 if (queryOptions.Select != null)
                 {
 
