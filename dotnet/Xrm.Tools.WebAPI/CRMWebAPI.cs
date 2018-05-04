@@ -287,6 +287,8 @@ namespace Xrm.Tools.WebAPI
             throw new NotImplementedException();
 #elif NETSTANDARD1_4
             throw new NotImplementedException();
+#elif NETSTANDARD2_0
+            throw new NotImplementedException();
 #else
 
             var httpClient = new HttpClient();
