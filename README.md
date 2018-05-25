@@ -1,4 +1,4 @@
-This is  an API helper for working with CRM 2016 and Dynamics 365 Web API
+This is  an API helper for working with the Common Data Service (CDS) and Dynamics 365 Web API
 
 Design goals include
  - Lightweight 
