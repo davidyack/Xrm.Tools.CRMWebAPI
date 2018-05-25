@@ -854,8 +854,10 @@ namespace Xrm.Tools.WebAPI
             if (string.IsNullOrEmpty(idString))
                 return Guid.Empty;
 
-            idString = idString.Replace(fullUrl.ToLower(), "").Replace("(", "").Replace(")", "");
-
+            //Looks like this requires ToLower for idString - otherwise, it does not work when there is an uppercase character
+            //in the original web api url
+            idString = idString.ToLower().Replace(fullUrl.ToLower(), "").Replace("(", "").Replace(")", "");
+            
             var idGuid = Guid.Empty;
             //if alternate key was used to perform an upsert, guid not currently returned
             //the call returns the alternate key which is not in guid format
