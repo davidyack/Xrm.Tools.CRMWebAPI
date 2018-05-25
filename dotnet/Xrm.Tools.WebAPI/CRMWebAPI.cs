@@ -797,7 +797,7 @@ namespace Xrm.Tools.WebAPI
                 if (firstParam)
                     fullurl = fullurl + string.Format("?fetchXml={0}", Uri.EscapeUriString(queryOptions.FetchXml));
                 else
-                    fullurl = fullurl + string.Format("&$fetchXml={0}", Uri.EscapeUriString(queryOptions.FetchXml));
+                    fullurl = fullurl + string.Format("&fetchXml={0}", Uri.EscapeUriString(queryOptions.FetchXml));
                 firstParam = false;
             }
         }
