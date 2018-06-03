@@ -807,7 +807,7 @@ namespace Xrm.Tools.WebAPI
         /// </summary>
         private async Task<string> CheckAuthToken()
         {
-            if (_crmWebAPIConfig.AccessToken == null)
+            if (_crmWebAPIConfig.GetAccessToken == null)
                 return _crmWebAPIConfig.AccessToken;
             var newToken = await _crmWebAPIConfig.GetAccessToken(_crmWebAPIConfig.APIUrl);
             if (newToken != _crmWebAPIConfig.AccessToken)
