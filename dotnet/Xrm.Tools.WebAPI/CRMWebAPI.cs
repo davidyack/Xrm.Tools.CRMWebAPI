@@ -230,45 +230,61 @@ namespace Xrm.Tools.WebAPI
             var data = await results.Content.ReadAsStringAsync();
             
             return int.Parse(data);
-           
+
         }
+
         /// <summary>
-        /// get a single record matching the URI
+        /// get a single record by entityID with the specified return type
         /// </summary>
-        /// <param name="uri"></param>
+        /// <param name="entityCollection"></param>
+        /// <param name="entityID"></param>
         /// <param name="QueryOptions"></param>
-        /// <returns></returns>
+        /// <returns>ExpandoObject</returns>
         public async Task<ExpandoObject> Get(string entityCollection, Guid entityID, CRMGetListOptions QueryOptions = null)
         {
-            return await Get<ExpandoObject>(entityCollection, entityID, QueryOptions);
+            return await Get<ExpandoObject>(entityCollection, entityID.ToString(), QueryOptions);
         }
+
         /// <summary>
-        /// get a single record with the specified return type
+        /// get a single record by entityID with the specified return type
         /// </summary>
-        /// <typeparam name="ResultType"></typeparam>
-        /// <param name="uri"></param>
+        /// <param name="entityCollection"></param>
+        /// <param name="entityID"></param>
         /// <param name="QueryOptions"></param>
         /// <returns></returns>
-        public async Task<ResultType> Get<ResultType>(string entityCollection,Guid entityID, CRMGetListOptions QueryOptions = null)
+        public async Task<ResultType> Get<ResultType>(string entityCollection, Guid entityID, CRMGetListOptions QueryOptions = null)
+        {
+            return await Get<ResultType>(entityCollection, entityID.ToString(), QueryOptions);
+        }
+
+        /// <summary>
+        /// get a single record by alternate or entityID key with the specified return type
+        /// </summary>
+        /// <typeparam name="ResultType"></typeparam>
+        /// <param name="entityCollection"></param>
+        /// <param name="key">Alternate key or entity ID</param>
+        /// <param name="QueryOptions"></param>
+        /// <returns></returns>
+        public async Task<ResultType> Get<ResultType>(string entityCollection, string key, CRMGetListOptions QueryOptions = null)
         {
             await CheckAuthToken();
 
             string fullUrl = string.Empty;
-            if (entityID == Guid.Empty)
-               fullUrl =  BuildGetUrl( entityCollection , QueryOptions);
+            if (key.Equals(Guid.Empty.ToString()) || String.IsNullOrEmpty(key))
+                fullUrl = BuildGetUrl(entityCollection, QueryOptions);
             else
-                fullUrl = BuildGetUrl(entityCollection + "(" + entityID.ToString() + ")", QueryOptions);
+                fullUrl = BuildGetUrl(entityCollection + "(" + key + ")", QueryOptions);
             HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("GET"), fullUrl);
 
             if ((QueryOptions != null) && (QueryOptions.FormattedValues))
                 request.Headers.Add("Prefer", "odata.include-annotations=\"OData.Community.Display.V1.FormattedValue\"");
 
             var results = await _httpClient.SendAsync(request);
-            
+
             EnsureSuccessStatusCode(results);
             var data = await results.Content.ReadAsStringAsync();
             var value = JObject.Parse(data);
-            if(_crmWebAPIConfig.ResolveUnicodeNames)
+            if (_crmWebAPIConfig.ResolveUnicodeNames)
                 FormatResultProperties(value);
 
             return value.ToObject<ResultType>();
