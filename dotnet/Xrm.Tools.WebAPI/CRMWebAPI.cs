@@ -817,7 +817,7 @@ namespace Xrm.Tools.WebAPI
         /// </summary>
         private async Task<string> CheckAuthToken()
         {
-            if (_crmWebAPIConfig.AccessToken == null)
+            if (_crmWebAPIConfig.GetAccessToken == null)
                 return _crmWebAPIConfig.AccessToken;
             var newToken = await _crmWebAPIConfig.GetAccessToken(_crmWebAPIConfig.APIUrl);
             if (newToken != _crmWebAPIConfig.AccessToken)
@@ -904,39 +904,7 @@ namespace Xrm.Tools.WebAPI
             if (response.IsSuccessStatusCode)
                 return;
 
-            string message = String.Empty;            
-
-            string errorData = response.Content.ReadAsStringAsync().Result;
-
-            if (response.Content.Headers.ContentType.MediaType.Equals("text/plain"))
-            {
-                message = errorData;
-            }
-            else if (response.Content.Headers.ContentType.MediaType.Equals("application/json"))
-            {
-                JObject jcontent = (JObject)JsonConvert.DeserializeObject(errorData);
-                IDictionary<string, JToken> d = jcontent;
-                
-                if (d.ContainsKey("error"))
-                {
-                    JObject error = (JObject)jcontent.Property("error").Value;
-                    message = (String)error.Property("message").Value;
-                }
-                else if (d.ContainsKey("Message"))
-                    message = (String)jcontent.Property("Message").Value;
-
-
-            }
-            else if (response.Content.Headers.ContentType.MediaType.Equals("text/html"))
-            {
-                message = "HTML Error Content:";
-                message += "\n\n" + errorData;
-            }
-            else
-            {
-                message = String.Format("Error occurred and no handler is available for content in the {0} format.",
-                    response.Content.Headers.ContentType.MediaType.ToString());
-            }
+            string message = GetErrorMessageText(response);
 
             var exception = new Xrm.Tools.WebAPI.Results.CRMWebAPIException(message);
 
@@ -945,6 +913,44 @@ namespace Xrm.Tools.WebAPI
             
             throw exception;
 
+        }
+
+        private static string GetErrorMessageText(HttpResponseMessage response)
+        {
+            string errorData = response.Content.ReadAsStringAsync().Result;
+            string mediaType = response.Content?.Headers?.ContentType?.MediaType;
+
+            if (string.IsNullOrWhiteSpace(errorData) ||
+                string.IsNullOrWhiteSpace(mediaType) ||
+                mediaType.Equals("text/plain"))
+            {
+                return errorData;
+            }
+
+            if (mediaType.Equals("application/json"))
+            {
+                JObject jcontent = (JObject)JsonConvert.DeserializeObject(errorData);
+                IDictionary<string, JToken> d = jcontent;
+
+                if (d.ContainsKey("error"))
+                {
+                    JObject error = (JObject)jcontent.Property("error").Value;
+                    return (String)error.Property("message")?.Value ?? errorData;
+                }
+
+                if (d.ContainsKey("Message"))
+                    return (String)jcontent.Property("Message").Value;
+            }
+            else if (mediaType.Equals("text/html"))
+            {
+                return "HTML Error Content:\n\n" + errorData;
+            }
+            else
+            {
+                return $"Error occurred and no handler is available for content in the {response.Content.Headers.ContentType.MediaType} format.";
+            }
+
+            return errorData;
         }
 
         /// <summary>
