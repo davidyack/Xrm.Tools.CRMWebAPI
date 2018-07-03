@@ -118,7 +118,7 @@ namespace Xrm.Tools.WebAPI
 
             var results = await _httpClient.SendAsync(request);
                         
-            EnsureSuccessStatusCode(results);
+            await EnsureSuccessStatusCode(results);
             var data = await results.Content.ReadAsStringAsync();
             CRMGetListResult<ExpandoObject> resultList = new CRMGetListResult<ExpandoObject>();
             resultList.List = new List<ExpandoObject>();
@@ -142,7 +142,7 @@ namespace Xrm.Tools.WebAPI
             while (nextLink != null)
             {
                 var nextResults = await _httpClient.GetAsync(nextLink.ToString());
-                EnsureSuccessStatusCode(nextResults);
+                await EnsureSuccessStatusCode(nextResults);
                 var nextData = await nextResults.Content.ReadAsStringAsync();
 
                 var nextValues = JObject.Parse(nextData);
@@ -176,8 +176,8 @@ namespace Xrm.Tools.WebAPI
             FillPreferHeader(request, QueryOptions);
 
             var results = await _httpClient.SendAsync(request);
-            
-            EnsureSuccessStatusCode(results);
+
+            await EnsureSuccessStatusCode(results);
             var data = await results.Content.ReadAsStringAsync();
             var values = JObject.Parse(data);
             CRMGetListResult<ResultType> resultList = new CRMGetListResult<ResultType>();
@@ -202,7 +202,7 @@ namespace Xrm.Tools.WebAPI
             while (nextLink != null)
             {
                 var nextResults = await _httpClient.GetAsync(nextLink.ToString());
-                EnsureSuccessStatusCode(nextResults);
+                await EnsureSuccessStatusCode(nextResults);
                 var nextData = await nextResults.Content.ReadAsStringAsync();
 
                 var nextValues = JObject.Parse(nextData);            
@@ -236,7 +236,7 @@ namespace Xrm.Tools.WebAPI
                 QueryOptions.IncludeCount = false;
             string fullUrl = BuildGetUrl(uri+"/$count", QueryOptions);
             var results = await _httpClient.GetAsync(fullUrl);
-            EnsureSuccessStatusCode(results);
+            await EnsureSuccessStatusCode(results);
             var data = await results.Content.ReadAsStringAsync();
             
             return int.Parse(data);
@@ -274,8 +274,8 @@ namespace Xrm.Tools.WebAPI
                 request.Headers.Add("Prefer", "odata.include-annotations=\"OData.Community.Display.V1.FormattedValue\"");
 
             var results = await _httpClient.SendAsync(request);
-            
-            EnsureSuccessStatusCode(results);
+
+            await EnsureSuccessStatusCode(results);
             var data = await results.Content.ReadAsStringAsync();
             var value = JObject.Parse(data);
             if(_crmWebAPIConfig.ResolveUnicodeNames)
@@ -304,7 +304,7 @@ namespace Xrm.Tools.WebAPI
 
             var response = await _httpClient.SendAsync(request);
 
-            EnsureSuccessStatusCode(response,jsonData:jsonData);
+            await EnsureSuccessStatusCode(response,jsonData:jsonData);
             
             Guid idGuid = GetEntityIDFromResponse(fullUrl, response);
 
@@ -483,7 +483,7 @@ namespace Xrm.Tools.WebAPI
                 {
                     return result;
                 }
-                EnsureSuccessStatusCode(response,jsonData:jsonData);
+                await EnsureSuccessStatusCode(response,jsonData:jsonData);
             }
 
             return result;
@@ -501,7 +501,7 @@ namespace Xrm.Tools.WebAPI
 
             var response = await _httpClient.DeleteAsync(_crmWebAPIConfig.APIUrl + entityCollection + "(" + entityID.ToString() + ")");
 
-            EnsureSuccessStatusCode(response);
+            await EnsureSuccessStatusCode(response);
 
         }
         /// <summary>
@@ -516,7 +516,7 @@ namespace Xrm.Tools.WebAPI
             var fullUrl = string.Empty;
             fullUrl = BuildFunctionActionURI(function, parameters);
             var results = await _httpClient.GetAsync(fullUrl);
-            EnsureSuccessStatusCode(results);
+            await EnsureSuccessStatusCode(results);
             var data = await results.Content.ReadAsStringAsync();
             var values = JsonConvert.DeserializeObject<ExpandoObject>(data);
             return values;
@@ -571,7 +571,7 @@ namespace Xrm.Tools.WebAPI
 
             var results = await _httpClient.SendAsync(request);
 
-            EnsureSuccessStatusCode(results,jsonData:jsonData);
+            await EnsureSuccessStatusCode(results,jsonData:jsonData);
 
             var resultData = await results.Content.ReadAsStringAsync();
             var values = JsonConvert.DeserializeObject<ExpandoObject>(resultData);
@@ -899,12 +899,12 @@ namespace Xrm.Tools.WebAPI
         /// Helper method to check the response status and generate a well formatted error
         /// </summary>
         /// <param name="response"></param>
-        private static void EnsureSuccessStatusCode(HttpResponseMessage response,string jsonData = null)
+        private async Task EnsureSuccessStatusCode(HttpResponseMessage response, string jsonData = null)
         {
             if (response.IsSuccessStatusCode)
                 return;
 
-            string message = GetErrorMessageText(response);
+            string message = await GetErrorMessageText(response);
 
             var exception = new Xrm.Tools.WebAPI.Results.CRMWebAPIException(message);
 
@@ -912,13 +912,17 @@ namespace Xrm.Tools.WebAPI
                 exception.JSON = jsonData;
             
             throw exception;
-
         }
 
-        private static string GetErrorMessageText(HttpResponseMessage response)
+        private async Task<string> GetErrorMessageText(HttpResponseMessage response)
         {
-            string errorData = response.Content.ReadAsStringAsync().Result;
-            string mediaType = response.Content?.Headers?.ContentType?.MediaType;
+            if (response?.Content == null)
+            {
+                return "Error occurred. request responce is empty";
+            }
+
+            string mediaType = response.Content.Headers?.ContentType?.MediaType;
+            string errorData = await response.Content.ReadAsStringAsync();
 
             if (string.IsNullOrWhiteSpace(errorData) ||
                 string.IsNullOrWhiteSpace(mediaType) ||
