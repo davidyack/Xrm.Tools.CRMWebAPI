@@ -141,7 +141,11 @@ namespace Xrm.Tools.WebAPI
             var nextLink = values["@odata.nextLink"];
             while (nextLink != null)
             {
-                var nextResults = await _httpClient.GetAsync(nextLink.ToString());
+                HttpRequestMessage nextrequest = new HttpRequestMessage(new HttpMethod("GET"), nextLink.ToString());
+                FillPreferHeader(nextrequest, QueryOptions);
+
+                var nextResults = await _httpClient.SendAsync(nextrequest);
+                
                 EnsureSuccessStatusCode(nextResults);
                 var nextData = await nextResults.Content.ReadAsStringAsync();
 
@@ -849,7 +853,7 @@ namespace Xrm.Tools.WebAPI
             _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
             _httpClient.DefaultRequestHeaders.Add("OData-MaxVersion", "4.0");
             _httpClient.DefaultRequestHeaders.Add("OData-Version", "4.0");
-            // _httpClient.DefaultRequestHeaders.Add("Prefer", "odata.maxpagesize=3");
+            //_httpClient.DefaultRequestHeaders.Add("Prefer", "odata.maxpagesize=1");
             if (callerID != Guid.Empty)
                 _httpClient.DefaultRequestHeaders.Add("MSCRMCallerID", callerID.ToString());
 
@@ -872,6 +876,8 @@ namespace Xrm.Tools.WebAPI
 
             if (QueryOptions.TrackChanges)
                 preferList.Add("odata.track-changes");
+
+           // preferList.Add("odata.maxpagesize=1");
 
             if (preferList.Count > 0)
                 Request.Headers.Add("Prefer", string.Join(",", preferList));
