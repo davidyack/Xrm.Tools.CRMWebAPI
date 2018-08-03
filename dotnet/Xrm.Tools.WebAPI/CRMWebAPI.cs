@@ -934,6 +934,11 @@ namespace Xrm.Tools.WebAPI
         /// <returns></returns>
         private static string GetErrorMessageText(HttpResponseMessage response)
         {
+            if (response?.Content == null)
+            {
+                return "Error occurred. request response is empty";
+            }
+
             string errorData = response.Content.ReadAsStringAsync().Result;
             string mediaType = response.Content?.Headers?.ContentType?.MediaType;
 
