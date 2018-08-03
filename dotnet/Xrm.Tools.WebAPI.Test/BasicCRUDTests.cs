@@ -117,7 +117,22 @@ namespace Xrm.Tools.WebAPI.Test
             }).Wait();
         }
 
+        [TestMethod]
+        public void TestApply()
+        {
 
+            Task.Run(async () =>
+            {
+                var api = GetAPI();
+
+                var opps = await api.GetList("opportunities", new CRMGetListOptions() { Apply= "aggregate(estimatedvalue with sum as total)" });
+
+
+                System.Diagnostics.Trace.WriteLine("finished");
+
+
+            }).Wait();
+        }
         [TestMethod]
         public void TestExpandQuery()
         {

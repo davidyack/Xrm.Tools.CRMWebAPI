@@ -728,6 +728,14 @@ namespace Xrm.Tools.WebAPI
                         fullurl = fullurl + "&$filter=" + queryOptions.Filter;
                     firstParam = false;
                 }
+                if (queryOptions.Apply != null)
+                {
+                    if (firstParam)
+                        fullurl = fullurl + "?$apply=" + queryOptions.Apply;
+                    else
+                        fullurl = fullurl + "&$apply=" + queryOptions.Apply;
+                    firstParam = false;
+                }
                 if (queryOptions.IncludeCount)
                 {
                     if (firstParam)
