@@ -148,7 +148,12 @@ namespace Xrm.Tools.WebAPI
                 var nextValues = JObject.Parse(nextData);
                 var nextValueList = nextValues["value"].ToList();
                 foreach (var nextvalue in nextValueList)
-                    resultList.List.Add(nextvalue.ToObject<ExpandoObject>());                
+                    resultList.List.Add(nextvalue.ToObject<ExpandoObject>());
+
+                var nextDeltaLink = nextValues["@odata.deltaLink"];
+                if (nextDeltaLink != null)
+                    resultList.TrackChangesLink = nextDeltaLink.ToString();
+
                 nextLink = nextValues["@odata.nextLink"];
             }
 
