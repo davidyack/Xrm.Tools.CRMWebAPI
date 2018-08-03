@@ -873,15 +873,18 @@ namespace Xrm.Tools.WebAPI
             if (string.IsNullOrEmpty(idString))
                 return Guid.Empty;
 
-            var match = Regex.Match(idString, @"(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}");
-            if (match != null && match.Success)
-                idString = match.Value;
+            string[] entityIDseps = { "(", ")" };
+            string[] entityIDParts = idString.Split(entityIDseps, StringSplitOptions.None);
+
+            if (entityIDParts.Length < 2)
+                return Guid.Empty;
 
             var idGuid = Guid.Empty;
+
             //if alternate key was used to perform an upsert, guid not currently returned
             //the call returns the alternate key which is not in guid format
-            Guid.TryParse(idString, out idGuid);
-           
+            Guid.TryParse(entityIDParts[1], out idGuid);
+
             return idGuid;
         }
         /// <summary>
