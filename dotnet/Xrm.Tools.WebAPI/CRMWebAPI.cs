@@ -296,7 +296,7 @@ namespace Xrm.Tools.WebAPI
 
             EnsureSuccessStatusCode(response,jsonData:jsonData);
             
-            Guid idGuid = GetEntityIDFromResponse(fullUrl, response);
+            Guid idGuid = GetEntityIDFromResponse(response);
 
             return idGuid;
         }     
@@ -463,7 +463,7 @@ namespace Xrm.Tools.WebAPI
 
             var response = await _httpClient.SendAsync(request);
 
-            result.EntityID = GetEntityIDFromResponse(fullUrl, response);
+            result.EntityID = GetEntityIDFromResponse(response);
            
           
             if (!response.IsSuccessStatusCode)
@@ -859,10 +859,9 @@ namespace Xrm.Tools.WebAPI
         /// <summary>
         /// Helper method to get ID from response
         /// </summary>
-        /// <param name="fullUrl"></param>
         /// <param name="response"></param>
         /// <returns></returns>
-        private static Guid GetEntityIDFromResponse(string fullUrl, HttpResponseMessage response)
+        private static Guid GetEntityIDFromResponse(HttpResponseMessage response)
         {
             if ((response == null) || (response.Headers == null))
                 return Guid.Empty;
@@ -874,10 +873,10 @@ namespace Xrm.Tools.WebAPI
             if (string.IsNullOrEmpty(idString))
                 return Guid.Empty;
 
-            //Looks like this requires ToLower for idString - otherwise, it does not work when there is an uppercase character
-            //in the original web api url
-            idString = idString.ToLower().Replace(fullUrl.ToLower(), "").Replace("(", "").Replace(")", "");
-            
+            var match = Regex.Match(idString, @"(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}");
+            if (match != null && match.Success)
+                idString = match.Value;
+
             var idGuid = Guid.Empty;
             //if alternate key was used to perform an upsert, guid not currently returned
             //the call returns the alternate key which is not in guid format

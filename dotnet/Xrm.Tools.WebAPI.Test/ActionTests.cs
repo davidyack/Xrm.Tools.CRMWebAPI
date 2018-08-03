@@ -29,7 +29,7 @@ namespace Xrm.Tools.WebAPI.Test
                 dynamic opportunity = new ExpandoObject();
                 var oppIndexer = opportunity as IDictionary<string, Object>;
                 opportunity.name = "Test opportunity " + DateTime.Now.ToString();
-                oppIndexer["customerid_account@odata.bind"] = "/xccounts(" + accountID.ToString() + ")";
+                oppIndexer["customerid_account@odata.bind"] = "/accounts(" + accountID.ToString() + ")";
                 oppIndexer["parentcontactid@odata.bind"] = "/contacts(" + contactID.ToString() + ")";
                 Guid oppID = await api.Create("opportunities", opportunity);
 
