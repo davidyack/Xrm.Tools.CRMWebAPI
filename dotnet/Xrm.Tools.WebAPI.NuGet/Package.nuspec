@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Xrm.Tools.CRMWebAPI</id>
-    <version>1.0.19-alpha2</version>
+    <version>1.0.20-alpha1</version>
     <title>Xrm.Tools.CRMWebAPI</title>
     <authors>DavidYack</authors>
     <owners></owners>
@@ -32,6 +32,7 @@
              GetList by type honor formatted values option
       1.0.18 added support for Entity Change Tracking
       1.0.19 Fixed FetchXML when other params, fix for mixed case org url, Config as a param 
+      1.0.20 Fixed parsing of entityid on create, added aggregate support
     </releaseNotes>
     <summary>
       This is an API helper for working with Dynamics 365 Web API

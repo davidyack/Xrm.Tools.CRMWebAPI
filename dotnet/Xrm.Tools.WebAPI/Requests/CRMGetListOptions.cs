@@ -13,6 +13,8 @@ namespace Xrm.Tools.WebAPI.Requests
         public string[] OrderBy { get; set; }
 
         public string Filter { get; set; }
+
+        public string Apply { get; set; }
         public int Skip { get; set; }
         public int Top  { get; set; }
         public bool IncludeCount { get; set; }
