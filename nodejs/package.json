@@ -2,7 +2,7 @@
   "author": "Xrm.Tools",
   "name": "CRMWebAPI",
   "description": "CRMWebAPI Node.js Wrapper",
-  "version": "1.3.5",
+  "version": "1.3.6",
   "repository": {
     "url": "http://github.com/DavidYack/Xrm.Tools.CRMWebAPI"
   },

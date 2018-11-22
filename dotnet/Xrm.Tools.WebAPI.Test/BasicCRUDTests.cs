@@ -117,7 +117,22 @@ namespace Xrm.Tools.WebAPI.Test
             }).Wait();
         }
 
+        [TestMethod]
+        public void TestApply()
+        {
 
+            Task.Run(async () =>
+            {
+                var api = GetAPI();
+
+                var opps = await api.GetList("opportunities", new CRMGetListOptions() { Apply= "aggregate(estimatedvalue with sum as total)" });
+
+
+                System.Diagnostics.Trace.WriteLine("finished");
+
+
+            }).Wait();
+        }
         [TestMethod]
         public void TestExpandQuery()
         {
@@ -178,6 +193,18 @@ namespace Xrm.Tools.WebAPI.Test
                 var result = await api.Update("test_entity", "test_externalstatid='" + statid + "'", data, Upsert: true);
             
 
+            }).Wait();
+        }
+
+        [TestMethod]
+        public void TestAltKeyGet()
+        {
+            Task.Run(async () =>
+            {
+                var api = GetAPI();
+                string statid = "2bf3c48a-de2d-e511-80f8-c4346bac7da8";
+                
+                var result = await api.Get<ExpandoObject>("test_entity", $"test_externalstatid='{statid}'");
             }).Wait();
         }
     }
