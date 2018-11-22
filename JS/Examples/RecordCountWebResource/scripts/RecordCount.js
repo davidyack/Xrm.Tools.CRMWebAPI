@@ -50,7 +50,7 @@ rcApp.controller('recordCountController', ['$scope', function ($scope) {
 //var apiconfig = { APIUrl: 'https://orgname.crm.dynamics.com/api/data/v8.0/', AccessToken: '' };
 
 //use the following line if you are running this as a web resource in CRM
-var apiconfig = { APIUrl: Xrm.Page.context.getClientUrl() + '/api/data/v8.0/'};
+var apiconfig = { APIUrl: window.parent.Xrm.Page.context.getClientUrl() + '/api/data/v9.0/'};
 
 
 var crmAPI = new CRMWebAPI(apiconfig);
