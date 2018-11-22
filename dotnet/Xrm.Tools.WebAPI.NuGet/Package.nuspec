@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Xrm.Tools.CRMWebAPI</id>
-    <version>1.0.20-alpha1</version>
+    <version>1.0.22-alpha1</version>
     <title>Xrm.Tools.CRMWebAPI</title>
     <authors>DavidYack</authors>
     <owners></owners>
@@ -28,14 +28,16 @@
       1.0.14 fixed target file for netcore in nuget spec
       1.0.15 fixed target file for netcore in nuget spec
       1.0.16 added .net standard support, fixed return of ID with non lower service url
-      1.0.17 fixed ExecuteFunction serialization of object parameters, 
-             GetList by type honor formatted values option
+      1.0.17 fixed ExecuteFunction serialization of object parameters,
+      GetList by type honor formatted values option
       1.0.18 added support for Entity Change Tracking
-      1.0.19 Fixed FetchXML when other params, fix for mixed case org url, Config as a param 
+      1.0.19 Fixed FetchXML when other params, fix for mixed case org url, Config as a param
       1.0.20 Fixed parsing of entityid on create, added aggregate support
+      1.0.21 Removed full framework version of nuget in favor of .net standard
+      1.0.22 Changed assembly name of standard version to just Xrm.Tools.WebAPI
     </releaseNotes>
     <summary>
-      This is an API helper for working with Dynamics 365 Web API
+      This is an API helper for working with the Common Data Service/Dynamics 365 Web API
     </summary>
     <language>en-US</language>
     <projectUrl>https://github.com/davidyack/Xrm.Tools.CRMWebAPI</projectUrl>
@@ -43,11 +45,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <licenseUrl>https://github.com/davidyack/Xrm.Tools.CRMWebAPI/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright  2018</copyright>
-    <dependencies>
-        <group targetFramework="net40">
-          <dependency id="Newtonsoft.Json" version="8.0.2" />
-          <dependency id="Microsoft.AspNet.WebApi.Client" version="5.2.3" />
-        </group>
+    <dependencies>       
       <group targetFramework="uap10.0">
         <dependency id="Newtonsoft.Json" version="8.0.2" />
       </group>
@@ -68,6 +66,6 @@
     <file src="..\Xrm.Tools.WebAPI\bin\debug\Xrm.Tools.WebAPI.dll" target="lib\net46" />
     <file src="..\Xrm.Tools.WebAPI.Core\bin\Debug\netcoreapp1.0\Xrm.Tools.WebAPI.core.dll" target="lib\netcore" />
     <file src="..\Xrm.Tools.WebAPI.Core\bin\Debug\netcoreapp1.0\Xrm.Tools.WebAPI.core.dll" target="lib\netcoreapp" />
-  <file src="..\Xrm.Tools.WebAPI.Standard\bin\Debug\netstandard1.4\Xrm.Tools.WebAPI.Standard.dll" target="lib\netstandard" />
+  <file src="..\Xrm.Tools.WebAPI.Standard\bin\Debug\netstandard1.4\Xrm.Tools.WebAPI.dll" target="lib\netstandard" />
   </files>
 </package>
