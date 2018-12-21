@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Xrm.Tools.CRMWebAPI</id>
-    <version>1.0.22-alpha1</version>
+    <version>1.0.23</version>
     <title>Xrm.Tools.CRMWebAPI</title>
     <authors>DavidYack</authors>
     <owners></owners>
@@ -35,6 +35,7 @@
       1.0.20 Fixed parsing of entityid on create, added aggregate support
       1.0.21 Removed full framework version of nuget in favor of .net standard
       1.0.22 Changed assembly name of standard version to just Xrm.Tools.WebAPI
+      1.0.23 Changed assembly name of core version to just Xrm.Tools.WebAPI
     </releaseNotes>
     <summary>
       This is an API helper for working with the Common Data Service/Dynamics 365 Web API
@@ -64,8 +65,8 @@
   </metadata>
   <files>
     <file src="..\Xrm.Tools.WebAPI\bin\debug\Xrm.Tools.WebAPI.dll" target="lib\net46" />
-    <file src="..\Xrm.Tools.WebAPI.Core\bin\Debug\netcoreapp1.0\Xrm.Tools.WebAPI.core.dll" target="lib\netcore" />
-    <file src="..\Xrm.Tools.WebAPI.Core\bin\Debug\netcoreapp1.0\Xrm.Tools.WebAPI.core.dll" target="lib\netcoreapp" />
+    <file src="..\Xrm.Tools.WebAPI.Core\bin\Debug\netcoreapp1.0\Xrm.Tools.WebAPI.dll" target="lib\netcore" />
+    <file src="..\Xrm.Tools.WebAPI.Core\bin\Debug\netcoreapp1.0\Xrm.Tools.WebAPI.dll" target="lib\netcoreapp" />
   <file src="..\Xrm.Tools.WebAPI.Standard\bin\Debug\netstandard1.4\Xrm.Tools.WebAPI.dll" target="lib\netstandard" />
   </files>
 </package>

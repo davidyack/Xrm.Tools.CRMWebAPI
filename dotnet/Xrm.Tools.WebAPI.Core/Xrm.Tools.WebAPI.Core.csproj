@@ -4,6 +4,8 @@
     <TargetFramework>netcoreapp1.0</TargetFramework>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>xt.snk</AssemblyOriginatorKeyFile>
+    <AssemblyName>Xrm.Tools.WebAPI</AssemblyName>
+    <RootNamespace>Xrm.Tools.WebAPI</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
