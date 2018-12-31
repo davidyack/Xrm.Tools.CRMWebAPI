@@ -101,6 +101,31 @@ namespace Xrm.Tools.WebAPI.Test
             }).Wait();
         }
         [TestMethod]
+        public void TestCreateRelatedRecords2()
+        {
+
+            Task.Run(async () =>
+            {
+                var api = GetAPI();
+
+                dynamic account = new ExpandoObject();
+                account.name = "Test Account " + DateTime.Now.ToString();
+                Guid accountID = await api.Create("accounts", account);
+                dynamic primaryContact = new ExpandoObject();
+                primaryContact.firstname = "John";
+                primaryContact.lastname = "Smith;";
+                Guid contactID = await api.Create("contacts", primaryContact);
+
+                await api.Associate("accounts", accountID, "primarycontactid", "contacts", contactID);
+
+                await api.DeleteAssociation("accounts", accountID, "primarycontactid", "contacts", contactID);
+
+                System.Diagnostics.Trace.WriteLine("finished");
+
+
+            }).Wait();
+        }
+        [TestMethod]
         public void TestOrderBy()
         {
 

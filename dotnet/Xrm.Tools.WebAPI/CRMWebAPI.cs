@@ -40,7 +40,7 @@ namespace Xrm.Tools.WebAPI
         private CRMWebAPIConfig _crmWebAPIConfig;
 
         /// <summary>
-        /// Instaciate the CRMWebAPI using the CRMWebAPIConfig, if NetworkCredentials are present it is assumed a on-premisse connection type.
+        /// Instantiate the CRMWebAPI using the CRMWebAPIConfig, if NetworkCredentials are present it is assumed a on-premisse connection type.
         /// </summary>
         /// <param name="crmWebAPIConfig"> Api Config Object, it contais the  </param>
         public CRMWebAPI(CRMWebAPIConfig crmWebAPIConfig)
@@ -603,7 +603,60 @@ namespace Xrm.Tools.WebAPI
         public async Task<ExpandoObject> ExecuteAction(string action, string entityCollection,Guid entityID,object data)
         {
             return await ExecuteAction(string.Format("{0}({1})/{2}", entityCollection, entityID.ToString(), action), data);            
-        }        
+        }
+
+         /// <summary>
+         /// Associate two entities
+         /// </summary>
+         /// <param name="fromEntityCollection"></param>
+         /// <param name="fromEntityID"></param>
+         /// <param name="navProperty"></param>
+         /// <param name="toEntityCollection"></param>
+         /// <param name="toEntityID"></param>
+         /// <returns></returns>
+        public async Task<bool> Associate(string fromEntityCollection, Guid fromEntityID, string navProperty, string toEntityCollection, Guid toEntityID)
+        {
+            await CheckAuthToken();
+
+            var fullUrl = _crmWebAPIConfig.APIUrl + fromEntityCollection + $"({fromEntityID})/{navProperty}/$ref";            
+
+            HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("Post"), fullUrl);
+
+            var jsonData = $"{{ '@odata.id': '{_crmWebAPIConfig.APIUrl}{toEntityCollection}({toEntityID})' }}";
+
+            request.Content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.SendAsync(request);
+
+            EnsureSuccessStatusCode(response, jsonData: jsonData);            
+
+            return true;
+        }
+
+        /// <summary>
+        /// Delete an association
+        /// </summary>
+        /// <param name="fromEntitycollection"></param>
+        /// <param name="fromEntityID"></param>
+        /// <param name="navProperty"></param>
+        /// <param name="toEntityCollection"></param>
+        /// <param name="toEntityID"></param>
+        /// <returns></returns>
+        public async Task DeleteAssociation(string fromEntitycollection, Guid fromEntityID, string navProperty, string toEntityCollection, Guid toEntityID)
+        {
+            await CheckAuthToken();
+
+            var url = $"{_crmWebAPIConfig.APIUrl}{fromEntitycollection}({fromEntityID})/{navProperty}/$ref";
+
+            if (!string.IsNullOrEmpty(toEntityCollection) && toEntityID != Guid.Empty)
+                url += $"?$id={_crmWebAPIConfig.APIUrl}{toEntityCollection}({toEntityID})";
+
+
+            var response = await _httpClient.DeleteAsync(url);
+
+            EnsureSuccessStatusCode(response);
+
+        }
 
         /// <summary>
         /// Helper function to convert object to KVP

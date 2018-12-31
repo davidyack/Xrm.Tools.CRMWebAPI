@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Xrm.Tools.CRMWebAPI</id>
-    <version>1.0.23</version>
+    <version>1.0.24</version>
     <title>Xrm.Tools.CRMWebAPI</title>
     <authors>DavidYack</authors>
     <owners></owners>
@@ -36,6 +36,7 @@
       1.0.21 Removed full framework version of nuget in favor of .net standard
       1.0.22 Changed assembly name of standard version to just Xrm.Tools.WebAPI
       1.0.23 Changed assembly name of core version to just Xrm.Tools.WebAPI
+      1.0.24 Added Associate and DeleteAssocation methods
     </releaseNotes>
     <summary>
       This is an API helper for working with the Common Data Service/Dynamics 365 Web API
