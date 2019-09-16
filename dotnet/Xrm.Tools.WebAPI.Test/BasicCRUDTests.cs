@@ -126,6 +126,31 @@ namespace Xrm.Tools.WebAPI.Test
             }).Wait();
         }
         [TestMethod]
+        public void TestFetchXml()
+        {
+
+            Task.Run(async () =>
+            {
+                var api = GetAPI();
+
+                CRMGetListOptions qOptions = new CRMGetListOptions()
+                {
+                    FetchXml = @"<fetch no-lock='true'><entity name='account'><attribute name='accountid'/><attribute name='name'/><attribute name='accountnumber'/><filter type='and'></filter><link-entity name='contact' from='contactid' to='primarycontactid' link-type='inner' alias='contact'><attribute name='fullname'/></link-entity></entity></fetch>"
+                };
+                var accounts = await api.GetList("accounts", qOptions);
+                foreach (dynamic account in accounts.List)
+                {
+                    var myAccount = account as IDictionary<string, object>;
+                    
+                    Console.WriteLine(myAccount["contact.fullname"]);
+                }
+
+                System.Diagnostics.Trace.WriteLine("finished");
+
+
+            }).Wait();
+        }
+        [TestMethod]
         public void TestOrderBy()
         {
 
