@@ -64,6 +64,7 @@ declare namespace CRMWebAPI {
     }
 
     export interface QueryOptionBase{
+        IncludeAnnotations?:boolean;
         FormattedValues?:boolean;
         Select?: string[];
         Filter?: string;

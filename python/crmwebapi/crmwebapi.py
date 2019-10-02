@@ -44,6 +44,8 @@ class CRMWebAPI(object):
         if query_options is not None:
             if 'FormattedValues' in query_options:
                 headers['odata.include-annotations'] = 'OData.Community.Display.V1.FormattedValue'
+            if 'IncludeAnnotations' in query_options:
+                headers['odata.include-annotations'] = '*'
         return headers
 
     def _build_query_url(self, uri, query_options=None):

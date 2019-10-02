@@ -19,6 +19,7 @@ namespace Xrm.Tools.WebAPI.Requests
         public int Top  { get; set; }
         public bool IncludeCount { get; set; }
         public bool FormattedValues { get; set; }
+        public bool IncludeAnnotations { get; set; }
 
         public Guid SystemQuery { get; set; }
 
