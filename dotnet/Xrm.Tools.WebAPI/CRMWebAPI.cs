@@ -298,7 +298,7 @@ namespace Xrm.Tools.WebAPI
 
             return value.ToObject<ResultType>();
         }
-
+       
         /// <summary>
         /// create a new record
         /// </summary>
@@ -658,6 +658,93 @@ namespace Xrm.Tools.WebAPI
 
         }
 
+        /// <summary>
+        /// Get Data from File field
+        /// </summary>
+        /// <param name="entityCollection"></param>
+        /// <param name="entityID"></param>
+        /// <param name="fieldName"></param>
+        /// <returns></returns>
+        public async Task<byte[]> GetFileData(string entityCollection, Guid entityID, string fieldName)
+        {
+            await CheckAuthToken();
+
+            var fullUrl = _crmWebAPIConfig.APIUrl + $"{entityCollection}({entityID.ToString()})/{fieldName}/$value?size=full";
+            var increment = 4194304;
+            var from = 0;
+            var fileSize = 0;
+            byte[] downloaded = null;
+            do
+            {
+                using (var request = new HttpRequestMessage(HttpMethod.Get, fullUrl))
+                {
+                    request.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(from, from + increment - 1);
+
+                    using (var response = await _httpClient.SendAsync(request))
+                    {
+                        if (downloaded == null)
+                        {
+                            fileSize = int.Parse(response.Headers.GetValues("x-ms-file-size").First());
+                            downloaded = new byte[fileSize];
+                        }
+
+                        var responseContent = await response.Content.ReadAsByteArrayAsync();
+                        responseContent.CopyTo(downloaded, from);
+                    }
+                }
+
+                from += increment;
+            } while (from < fileSize);
+
+            return downloaded;
+        }
+
+        /// <summary>
+        /// Update the file data on a field
+        /// </summary>
+        /// <param name="entityCollection"></param>
+        /// <param name="entityID"></param>
+        /// <param name="fieldName"></param>
+        /// <param name="fileName"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public async Task UpdateFileData(string entityCollection, Guid entityID, string fieldName,string fileName,byte[] data)
+        {
+            await CheckAuthToken();
+
+            var url = new Uri( _crmWebAPIConfig.APIUrl + $"{entityCollection}({entityID.ToString()})/{fieldName}");
+            var chunkSize = 0;
+            using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), url))
+            {
+                request.Headers.Add("x-ms-transfer-mode", "chunked");
+                request.Headers.Add("x-ms-file-name", fileName);
+                using (var response = await _httpClient.SendAsync(request))
+                {
+                    response.EnsureSuccessStatusCode();
+                    url = response.Headers.Location;
+                    chunkSize = int.Parse(response.Headers.GetValues("x-ms-chunk-size").First());
+                }
+            }
+
+            for (var offset = 0; offset < data.Length; offset += chunkSize)
+            {
+                var count = (offset + chunkSize) > data.Length ? data.Length % chunkSize : chunkSize;
+                using (var content = new ByteArrayContent(data, offset, count))
+                    
+                using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), url))
+                {
+                    content.Headers.Add("Content-Type", "application/octet-stream");
+                    content.Headers.ContentRange = new System.Net.Http.Headers.ContentRangeHeaderValue(offset, offset + (count - 1), data.Length);
+                    request.Headers.Add("x-ms-file-name", fileName);
+                    request.Content = content;
+                    using (var response = await _httpClient.SendAsync(request))
+                    {
+                        response.EnsureSuccessStatusCode();
+                    }
+                }
+            }
+            
+        }
         /// <summary>
         /// Helper function to convert object to KVP
         /// </summary>

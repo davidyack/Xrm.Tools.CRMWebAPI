@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using Xrm.Tools.WebAPI.Requests;
+using System.IO;
 
 namespace Xrm.Tools.WebAPI.Test
 {
@@ -257,5 +258,27 @@ namespace Xrm.Tools.WebAPI.Test
                 var result = await api.Get<ExpandoObject>("test_entity", $"test_externalstatid='{statid}'");
             }).Wait();
         }
+
+        [TestMethod]
+        public void TestFileFields()
+        {
+            Task.Run(async () =>
+            {
+                var api = GetAPI();
+                    
+                dynamic data = new ExpandoObject();
+                data.name = "test " + DateTime.Now.ToString();
+
+                Guid createdID = await api.Create("accounts", data);
+
+                var fileData = File.ReadAllBytes("c:\\test\\logo.jpg");
+                await api.UpdateFileData("accounts", createdID, "cr0e2_logo", "logo.jpg", fileData);
+                var getData = await api.GetFileData("accounts", createdID, "cr0e2_logo");
+                File.WriteAllBytes("c:\\test\\logoGet.jpg",getData);
+
+
+            }).Wait();
+        }
+
     }
 }

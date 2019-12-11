@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v1.0",
-    "signature": "09db60146a5b8a0d40c5ea0fb7485ab3bbdd4a1a"
+    "signature": ""
   },
   "compilationOptions": {},
   "targets": {
@@ -51,7 +51,7 @@
     "System.Runtime.Serialization.Primitives/4.1.1": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-ZyvAQKRjyac8z4vyisd5oUuoNERGVlIulIU3M+zCUyzSC7jxHBM4h3Khk5RPv0NtSllbZ/lGrvxLyWDkXMlbzQ==",
+      "sha512": "sha512-HZ6Du5QrTG8MNJbf4e4qMO3JRAkIboGT5Fk804uZtg3Gq516S7hAqTm2UZKUHa7/6HUGdVy3AqMQKbns06G/cg==",
       "path": "system.runtime.serialization.primitives/4.1.1",
       "hashPath": "system.runtime.serialization.primitives.4.1.1.nupkg.sha512"
     }
