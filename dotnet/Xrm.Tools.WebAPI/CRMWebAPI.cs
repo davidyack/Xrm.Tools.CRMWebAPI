@@ -285,8 +285,17 @@ namespace Xrm.Tools.WebAPI
                 fullUrl = BuildGetUrl(entityCollection + "(" + key + ")", QueryOptions);
             HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("GET"), fullUrl);
 
-            if ((QueryOptions != null) && (QueryOptions.FormattedValues))
-                request.Headers.Add("Prefer", "odata.include-annotations=\"OData.Community.Display.V1.FormattedValue\"");
+            if (QueryOptions != null)
+            {
+                if (QueryOptions.IncludeAnnotations)
+                {
+                    request.Headers.Add("Prefer", "odata.include-annotations=\"*\"");
+                }
+                else if (QueryOptions.FormattedValues)
+                {
+                    request.Headers.Add("Prefer", "odata.include-annotations=\"OData.Community.Display.V1.FormattedValue\"");
+                }
+            }
 
             var results = await _httpClient.SendAsync(request);
 
@@ -1019,8 +1028,14 @@ namespace Xrm.Tools.WebAPI
 
             var preferList = new List<string>();
 
-            if (QueryOptions.FormattedValues)
+            if (QueryOptions.IncludeAnnotations)
+            {
+                preferList.Add("odata.include-annotations=\"*\"");
+            }
+            else if (QueryOptions.FormattedValues)
+            {
                 preferList.Add("odata.include-annotations=\"OData.Community.Display.V1.FormattedValue\"");
+            }
 
             if (QueryOptions.TrackChanges)
                 preferList.Add("odata.track-changes");

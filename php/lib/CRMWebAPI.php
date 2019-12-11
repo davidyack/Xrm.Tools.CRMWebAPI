@@ -64,6 +64,7 @@ class CRMWebAPI {
         $headers = [];
         if($queryOptions != null) {
             if(isset($queryOptions['FormattedValues'])) $headers['odata.include-annotations'] = 'OData.Community.Display.V1.FormattedValue';
+            if(isset($queryOptions['IncludeAnnotations'])) $headers['odata.include-annotations'] = '*';
         }
         return $headers;
     }
