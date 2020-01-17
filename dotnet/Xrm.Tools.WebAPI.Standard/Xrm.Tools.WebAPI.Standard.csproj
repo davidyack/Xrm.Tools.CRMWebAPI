@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.4;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>xt.snk</AssemblyOriginatorKeyFile>
     <AssemblyName>Xrm.Tools.WebAPI</AssemblyName>
@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <Compile Include="..\Xrm.Tools.WebAPI\CRMWebAPI.cs" Link="CRMWebAPI.cs" />
+    <Compile Include="..\Xrm.Tools.WebAPI\ICRMWebAPI.cs" Link="ICRMWebAPI.cs" />
     <Compile Include="..\Xrm.Tools.WebAPI\Metadata\CRMWebAPIMetadata.cs" Link="CRMWebAPIMetadata.cs" />
     <Compile Include="..\Xrm.Tools.WebAPI\Requests\CRMExpandOptions.cs" Link="CRMExpandOptions.cs" />
     <Compile Include="..\Xrm.Tools.WebAPI\Requests\CRMGetListOptions.cs" Link="CRMGetListOptions.cs" />
@@ -26,9 +27,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
     <PackageReference Include="System.Reflection" Version="4.3.0" />
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.7.0" />
   </ItemGroup>
 
 </Project>

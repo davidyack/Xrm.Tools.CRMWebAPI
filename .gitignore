@@ -15,7 +15,8 @@ dotnet/Xrm.Tools.SeverCommonTest/obj
 dotnet/Xrm.Tools.WebAPI.NuGet/bin/
 dotnet/Xrm.Tools.WebAPI.NuGet/obj
 dotnet/Xrm.Tools.WebAPI.NuGet/obj/Debug/**
-dotnet/Xrm.Tools.WebAPI.Core/obj/
+dotnet/Xrm.Tools.WebAPI.Core/bin
+dotnet/Xrm.Tools.WebAPI.Core/obj
 
 .vs
 .nuget
@@ -25,5 +26,9 @@ node_modules
 .idea
 *.bak
 *.iml
+*.log
 nodejs/test.js
 nodejs/node_modules
+/dotnet/XRM.Tools.WebAPI.Core.Test/obj
+*.user
+/dotnet/XRM.Tools.WebAPI.Core.Test/bin

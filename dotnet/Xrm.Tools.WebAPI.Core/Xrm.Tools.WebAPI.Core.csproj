@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>xt.snk</AssemblyOriginatorKeyFile>
     <AssemblyName>Xrm.Tools.WebAPI</AssemblyName>
@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <Compile Include="..\Xrm.Tools.WebAPI\CRMWebAPI.cs" Link="CRMWebAPI.cs" />
+    <Compile Include="..\Xrm.Tools.WebAPI\ICRMWebAPI.cs" Link="ICRMWebAPI.cs" />
     <Compile Include="..\Xrm.Tools.WebAPI\Metadata\CRMWebAPIMetadata.cs" Link="CRMWebAPIMetadata.cs" />
     <Compile Include="..\Xrm.Tools.WebAPI\Requests\CRMExpandOptions.cs" Link="CRMExpandOptions.cs" />
     <Compile Include="..\Xrm.Tools.WebAPI\Requests\CRMGetListOptions.cs" Link="CRMGetListOptions.cs" />
@@ -26,7 +27,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 
 </Project>
