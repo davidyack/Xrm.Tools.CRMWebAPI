@@ -10,103 +10,88 @@ namespace Xrm.Tools.WebAPI.Test
     public class ActionTests : UnitTestBaseClass
     {
         [TestMethod]
-        public void TestWinOpportunity()
+        public async Task TestWinOpportunity()
         {
+            var api = GetAPI();
 
-            Task.Run(async () =>
-            {
-                var api = GetAPI();
+            dynamic account = new ExpandoObject();
+            account.name = "test " + DateTime.Now.ToString();
+            Guid accountID = await api.Create("accounts", account);
 
-                dynamic account = new ExpandoObject();
-                account.name = "test " + DateTime.Now.ToString();
-                Guid accountID = await api.Create("accounts", account);
+            dynamic contact = new ExpandoObject();
+            contact.firstname = "test " + DateTime.Now.ToString();
+            contact.lastname = "test " + DateTime.Now.ToString();
+            Guid contactID = await api.Create("contacts", contact);
 
-                dynamic contact = new ExpandoObject();
-                contact.firstname = "test " + DateTime.Now.ToString();
-                contact.lastname = "test " + DateTime.Now.ToString();
-                Guid contactID = await api.Create("contacts", contact);
+            dynamic opportunity = new ExpandoObject();
+            var oppIndexer = opportunity as IDictionary<string, Object>;
+            opportunity.name = "Test opportunity " + DateTime.Now.ToString();
+            oppIndexer["customerid_account@odata.bind"] = "/accounts(" + accountID.ToString() + ")";
+            oppIndexer["parentcontactid@odata.bind"] = "/contacts(" + contactID.ToString() + ")";
+            Guid oppID = await api.Create("opportunities", opportunity);
 
-                dynamic opportunity = new ExpandoObject();
-                var oppIndexer = opportunity as IDictionary<string, Object>;
-                opportunity.name = "Test opportunity " + DateTime.Now.ToString();
-                oppIndexer["customerid_account@odata.bind"] = "/accounts(" + accountID.ToString() + ")";
-                oppIndexer["parentcontactid@odata.bind"] = "/contacts(" + contactID.ToString() + ")";
-                Guid oppID = await api.Create("opportunities", opportunity);
+            dynamic opportClose = new ExpandoObject();
+            var opportCloseIndexer = opportClose as IDictionary<string, Object>;
+            opportClose.subject = "Won Opportunity";
+            opportCloseIndexer["opportunityid@odata.bind"] = "/opportunities(" + oppID.ToString() + ")";
+            dynamic lostOpportParams = new ExpandoObject();
+            lostOpportParams.Status = 3;
+            lostOpportParams.OpportunityClose = opportClose;
+            await api.ExecuteAction("WinOpportunity", lostOpportParams);
 
-                dynamic opportClose = new ExpandoObject();
-                var opportCloseIndexer = opportClose as IDictionary<string, Object>;
-                opportClose.subject = "Won Opportunity";
-                opportCloseIndexer["opportunityid@odata.bind"] = "/opportunities(" + oppID.ToString() + ")";
-                dynamic lostOpportParams = new ExpandoObject();
-                lostOpportParams.Status = 3;
-                lostOpportParams.OpportunityClose = opportClose;
-                await api.ExecuteAction("WinOpportunity", lostOpportParams);
+            System.Diagnostics.Trace.WriteLine("finished");
 
-                System.Diagnostics.Trace.WriteLine("finished");
-
-
-            }).Wait();
         }
         [TestMethod]
-        public void TestLostOpportunity()
+        public async Task TestLostOpportunity()
         {
 
-            Task.Run(async () =>
-            {
-                var api = GetAPI();
+            var api = GetAPI();
 
-                dynamic account = new ExpandoObject();
-                account.name = "test " + DateTime.Now.ToString();
-                Guid accountID = await api.Create("accounts", account);
-                
-                dynamic contact = new ExpandoObject();
-                contact.firstname = "test " + DateTime.Now.ToString();
-                contact.lastname = "test " + DateTime.Now.ToString();
-                Guid contactID = await api.Create("contacts", contact);
+            dynamic account = new ExpandoObject();
+            account.name = "test " + DateTime.Now.ToString();
+            Guid accountID = await api.Create("accounts", account);
 
-                dynamic opportunity = new ExpandoObject();
-                var oppIndexer = opportunity as IDictionary<string, Object>;
-                opportunity.name = "Test opportunity " + DateTime.Now.ToString();
-                oppIndexer["customerid_account@odata.bind"] = "/accounts(" + accountID.ToString() + ")";
-                oppIndexer["parentcontactid@odata.bind"] = "/contacts(" + contactID.ToString() + ")";
-                Guid oppID = await api.Create("opportunities", opportunity);
+            dynamic contact = new ExpandoObject();
+            contact.firstname = "test " + DateTime.Now.ToString();
+            contact.lastname = "test " + DateTime.Now.ToString();
+            Guid contactID = await api.Create("contacts", contact);
 
-                dynamic opportClose = new ExpandoObject();
-                var opportCloseIndexer = opportClose as IDictionary<string, Object>;
-                opportClose.subject = "Lost Opportunity";
-                opportCloseIndexer["opportunityid@odata.bind"] = "/opportunities(" + oppID.ToString() +")";
-                dynamic lostOpportParams = new ExpandoObject();
-                lostOpportParams.Status = 4;
-                lostOpportParams.OpportunityClose = opportClose;
-                await api.ExecuteAction("LoseOpportunity", lostOpportParams);
+            dynamic opportunity = new ExpandoObject();
+            var oppIndexer = opportunity as IDictionary<string, Object>;
+            opportunity.name = "Test opportunity " + DateTime.Now.ToString();
+            oppIndexer["customerid_account@odata.bind"] = "/accounts(" + accountID.ToString() + ")";
+            oppIndexer["parentcontactid@odata.bind"] = "/contacts(" + contactID.ToString() + ")";
+            Guid oppID = await api.Create("opportunities", opportunity);
 
-                System.Diagnostics.Trace.WriteLine("finished");
+            dynamic opportClose = new ExpandoObject();
+            var opportCloseIndexer = opportClose as IDictionary<string, Object>;
+            opportClose.subject = "Lost Opportunity";
+            opportCloseIndexer["opportunityid@odata.bind"] = "/opportunities(" + oppID.ToString() + ")";
+            dynamic lostOpportParams = new ExpandoObject();
+            lostOpportParams.Status = 4;
+            lostOpportParams.OpportunityClose = opportClose;
+            await api.ExecuteAction("LoseOpportunity", lostOpportParams);
 
+            System.Diagnostics.Trace.WriteLine("finished");
 
-            }).Wait();
         }
 
         [TestMethod]
-        public void TestCalculateRollup()
+        public async Task TestCalculateRollup()
         {
+            var api = GetAPI();
 
-            Task.Run(async () =>
-            {
-                var api = GetAPI();
+            dynamic voteCountUpdate = new ExpandoObject();
+            voteCountUpdate.Target = new ExpandoObject();
+            var ivote = voteCountUpdate.Target as IDictionary<string, Object>;
 
-                dynamic voteCountUpdate = new ExpandoObject();
-                voteCountUpdate.Target = new ExpandoObject();
-                var ivote = voteCountUpdate.Target as IDictionary<string, Object>;
-
-                ivote["@odata.id"] = "ctccrm_ideas(19dc848b-1c5e-e711-8112-e0071b66aea1)";
-                voteCountUpdate.FieldName = "ctccrm_votes";
-                await api.ExecuteFunction("CalculateRollupField", voteCountUpdate);
+            ivote["@odata.id"] = "ctccrm_ideas(19dc848b-1c5e-e711-8112-e0071b66aea1)";
+            voteCountUpdate.FieldName = "ctccrm_votes";
+            await api.ExecuteFunction("CalculateRollupField", voteCountUpdate);
 
 
-                System.Diagnostics.Trace.WriteLine("finished");
-
-
-            }).Wait();
+            System.Diagnostics.Trace.WriteLine("finished");
         }
     }
 }
