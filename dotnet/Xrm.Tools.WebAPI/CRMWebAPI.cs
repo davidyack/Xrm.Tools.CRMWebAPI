@@ -345,16 +345,6 @@ namespace Xrm.Tools.WebAPI
         {
             await CheckAuthToken();
 
-#if WINDOWS_APP
-     throw new NotImplementedException();
-#elif NETCOREAPP1_0
-            throw new NotImplementedException();
-#elif NETSTANDARD1_4
-            throw new NotImplementedException();
-#elif NETSTANDARD2_0
-            throw new NotImplementedException();
-#else
-
             var httpClient = new HttpClient();
 
             httpClient.DefaultRequestHeaders.Authorization =
@@ -371,9 +361,12 @@ namespace Xrm.Tools.WebAPI
             foreach (var data in datalist)
             {
                 HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Post, _crmWebAPIConfig.APIUrl + entityCollection);
+                req.Version = new Version(major: 1, minor: 1);
 
                 req.Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+
                 HttpMessageContent content = new HttpMessageContent(req);
+
                 content.Headers.Remove("Content-Type");                
                 content.Headers.TryAddWithoutValidation("Content-Type", "application/http");
                 content.Headers.TryAddWithoutValidation("Content-Transfer-Encoding", "binary");
@@ -414,7 +407,6 @@ namespace Xrm.Tools.WebAPI
             }
 
             return finalResult;
-#endif
         }
         /// <summary>
         /// currently the content type for individual responses is missing msgtype=response that the API needs to parse it
