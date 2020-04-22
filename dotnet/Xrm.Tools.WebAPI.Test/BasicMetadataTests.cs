@@ -12,73 +12,56 @@ namespace Xrm.Tools.WebAPI.Test
     public class BasicMetadataTests : UnitTestBaseClass
     {
         [TestMethod]
-        public void TestOptionSetNames()
+        public async Task TestOptionSetNames()
         {
-            Task.Run(async () =>
-            {
-                var api = GetAPI();
+            var api = GetAPI();
 
-                var optionSet = await api.GetOptionSetByName("need");
+            var optionSet = await api.GetOptionSetByName("need");
 
-                var optionSetLabels = await api.GetOptionSetUserLabels("need");
+            var optionSetLabels = await api.GetOptionSetUserLabels("need");
+        }
 
-            }).Wait();
+        [TestMethod]
+        public async Task TestEntitySetNames()
+        {
+            var api = GetAPI();
+
+            var entityNameList = await api.GetEntityDisplayNameList();
+
+            var entityNameListWithLCID = await api.GetEntityDisplayNameList(1033);
 
         }
 
         [TestMethod]
-        public void TestEntitySetNames()
+        public async Task TestAttributeNames()
         {
-            Task.Run(async () =>
-            {
-                var api = GetAPI();
+            var api = GetAPI();
 
-                var entityNameList = await api.GetEntityDisplayNameList();
+            var entityNameList = await api.GetEntityDisplayNameList();
 
-                var entityNameListWithLCID = await api.GetEntityDisplayNameList(1033);
+            var firstEntity = entityNameList.Where(e => e.LogicalName == "account").FirstOrDefault();
 
-            }).Wait();
+            var attrNameList = await api.GetAttributeDisplayNameList(firstEntity.MetadataId);
+
+            var attrNameListWithLCID = await api.GetAttributeDisplayNameList(firstEntity.MetadataId, 1033);
 
         }
 
         [TestMethod]
-        public void TestAttributeNames()
+        public async Task TestCopyAttribute()
         {
-            Task.Run(async () =>
-            {
-                var api = GetAPI();
+            var api = GetAPI();
 
-                var entityNameList = await api.GetEntityDisplayNameList();
+            var entityNameList = await api.GetEntityDisplayNameList();
 
-                var firstEntity = entityNameList.Where(e => e.LogicalName == "account").FirstOrDefault();
+            var accountEntity = entityNameList.Where(e => e.LogicalName == "account").FirstOrDefault();
 
-                var attrNameList = await api.GetAttributeDisplayNameList(firstEntity.MetadataId);
+            var attrNameList = await api.GetAttributeDisplayNameList(accountEntity.MetadataId);
 
-                var attrNameListWithLCID = await api.GetAttributeDisplayNameList(firstEntity.MetadataId,1033);
+            var nameAttr = attrNameList.Where(a => a.LogicalName == "name").FirstOrDefault();
 
-            }).Wait();
+            var newAttrib = await api.CopyEntityAttribute(accountEntity.MetadataId, accountEntity.MetadataId, nameAttr.MetadataId, nameAttr.AttributeType, "dy_name123");
 
         }
-
-        [TestMethod]
-        public void TestCopyAttribute()
-        {
-            Task.Run(async () =>
-            {
-                var api = GetAPI();
-
-                var entityNameList = await api.GetEntityDisplayNameList();
-
-                var accountEntity = entityNameList.Where(e => e.LogicalName == "account").FirstOrDefault();
-
-                var attrNameList = await api.GetAttributeDisplayNameList(accountEntity.MetadataId);
-
-                var nameAttr = attrNameList.Where(a => a.LogicalName == "name").FirstOrDefault();
-
-                var newAttrib = await api.CopyEntityAttribute(accountEntity.MetadataId, accountEntity.MetadataId, nameAttr.MetadataId, nameAttr.AttributeType, "dy_name123");
-
-            }).Wait();
-
-        }
-     }
+    }
 }
