@@ -61,7 +61,7 @@ namespace Xrm.Tools.WebAPI
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _crmWebAPIConfig.AccessToken);
             }
 
-            SetHttpClientDefaults(_crmWebAPIConfig.CallerID);
+            SetHttpClientDefaults(_crmWebAPIConfig.CallerID, _crmWebAPIConfig.Timeout);
             InitializePollyRegistry();
         }
 
@@ -72,20 +72,21 @@ namespace Xrm.Tools.WebAPI
         /// <param name="accessToken">allows for hard coded access token for testing</param>
         /// <param name="callerID">user id to impersonate on calls</param>
         /// <param name="getAccessToken">method to call to refresh access token, called before each use of token</param>
-        public CRMWebAPI(string apiUrl, string accessToken, Guid callerID = default(Guid), Func<string, Task<string>> getAccessToken = null)
+        public CRMWebAPI(string apiUrl, string accessToken, Guid callerID = default(Guid), Func<string, Task<string>> getAccessToken = null, TimeSpan? timeout = null)
         {
             _crmWebAPIConfig = new CRMWebAPIConfig
             {
                 APIUrl = apiUrl,
                 AccessToken = accessToken,
                 CallerID = callerID,
-                GetAccessToken = getAccessToken
+                GetAccessToken = getAccessToken,
+                Timeout = timeout.GetValueOrDefault(TimeSpan.FromMinutes(2.0))
             };
 
             _httpClient = new HttpClient();
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _crmWebAPIConfig.AccessToken);
 
-            SetHttpClientDefaults(callerID);
+            SetHttpClientDefaults(callerID, timeout);
             InitializePollyRegistry();
         }
 
@@ -94,13 +95,14 @@ namespace Xrm.Tools.WebAPI
         /// </summary>
         /// <param name="apiUrl"></param>
         /// <param name="networkCredential"></param>
-        public CRMWebAPI(string apiUrl, NetworkCredential networkCredential = null, Guid callerID = default(Guid))
+        public CRMWebAPI(string apiUrl, NetworkCredential networkCredential = null, Guid callerID = default(Guid), TimeSpan? timeout = null)
         {
             _crmWebAPIConfig = new CRMWebAPIConfig
             {
                 APIUrl = apiUrl,
                 NetworkCredential = networkCredential,
-                CallerID = callerID
+                CallerID = callerID,
+                Timeout = timeout.GetValueOrDefault(TimeSpan.FromMinutes(2.0))
             };
 
             if (_crmWebAPIConfig.NetworkCredential != null)
@@ -108,7 +110,7 @@ namespace Xrm.Tools.WebAPI
             else
                 _httpClient = new HttpClient();
 
-            SetHttpClientDefaults(callerID);
+            SetHttpClientDefaults(callerID, timeout);
             InitializePollyRegistry();
         }
 
@@ -1068,7 +1070,7 @@ namespace Xrm.Tools.WebAPI
         /// helper method to setup the httpclient defaults
         /// </summary>
         /// <param name="callerID"></param>
-        private void SetHttpClientDefaults(Guid callerID)
+        private void SetHttpClientDefaults(Guid callerID, TimeSpan? timeout = null)
         {
             _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
             _httpClient.DefaultRequestHeaders.Add("OData-MaxVersion", "4.0");
@@ -1077,7 +1079,7 @@ namespace Xrm.Tools.WebAPI
             if (callerID != Guid.Empty)
                 _httpClient.DefaultRequestHeaders.Add("MSCRMCallerID", callerID.ToString());
 
-            _httpClient.Timeout = new TimeSpan(0, 2, 0);
+            _httpClient.Timeout = timeout.GetValueOrDefault(TimeSpan.FromMinutes(2.0));
         }
 
         /// <summary>

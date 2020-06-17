@@ -13,6 +13,6 @@ namespace Xrm.Tools.WebAPI.Requests
         public Func<string, Task<string>> GetAccessToken { get; set; }
         public NetworkCredential   NetworkCredential { get; set; }
         public CRMWebAPILoggingOptions Logging { get; set; }
-
+        public TimeSpan Timeout { get; set; }
     }
 }
