@@ -4,7 +4,7 @@
     <id>Xrm.Tools.CRMWebAPI</id>
     <version>1.0.24</version>
     <title>Xrm.Tools.CRMWebAPI</title>
-    <authors>DavidYack</authors>
+    <authors>Mohsin on xRM</authors>
     <owners></owners>
     <description>
       This is an API helper for working with the Common Data Service (CDS) and Dynamics 365 Web API
@@ -42,11 +42,11 @@
       This is an API helper for working with the Common Data Service/Dynamics 365 Web API
     </summary>
     <language>en-US</language>
-    <projectUrl>https://github.com/davidyack/Xrm.Tools.CRMWebAPI</projectUrl>
+    <projectUrl>https://github.com/mohsinonxrm/Xrm.Tools.CRMWebAPI</projectUrl>
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <licenseUrl>https://github.com/davidyack/Xrm.Tools.CRMWebAPI/blob/master/LICENSE</licenseUrl>
-    <copyright>Copyright  2018</copyright>
+    <licenseUrl>https://github.com/mohsinonxrm/Xrm.Tools.CRMWebAPI/blob/master/LICENSE</licenseUrl>
+    <copyright>Copyright 2020</copyright>
     <dependencies>       
       <group targetFramework="uap10.0">
         <dependency id="Newtonsoft.Json" version="8.0.2" />
@@ -65,7 +65,7 @@
     <tags></tags>
   </metadata>
   <files>
-    <file src="..\Xrm.Tools.WebAPI\bin\debug\Xrm.Tools.WebAPI.dll" target="lib\net46" />
+    <file src="..\Xrm.Tools.WebAPI\bin\debug\Xrm.Tools.WebAPI.dll" target="lib\net462" />
     <file src="..\Xrm.Tools.WebAPI.Core\bin\Debug\netcoreapp1.0\Xrm.Tools.WebAPI.dll" target="lib\netcore" />
     <file src="..\Xrm.Tools.WebAPI.Core\bin\Debug\netcoreapp1.0\Xrm.Tools.WebAPI.dll" target="lib\netcoreapp" />
   <file src="..\Xrm.Tools.WebAPI.Standard\bin\Debug\netstandard1.4\Xrm.Tools.WebAPI.dll" target="lib\netstandard" />
