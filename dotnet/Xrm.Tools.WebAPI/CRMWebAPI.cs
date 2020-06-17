@@ -165,7 +165,7 @@ namespace Xrm.Tools.WebAPI
             await CheckAuthToken();
 
             string fullUrl = BuildGetUrl(uri, QueryOptions);
-            HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("GET"), fullUrl);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, fullUrl);
             FillPreferHeader(request, QueryOptions);
 
             //var results = await _httpClient.SendAsync(request);
@@ -195,7 +195,7 @@ namespace Xrm.Tools.WebAPI
             var nextLink = values["@odata.nextLink"];
             while (nextLink != null)
             {
-                HttpRequestMessage nextrequest = new HttpRequestMessage(new HttpMethod("GET"), nextLink.ToString());
+                HttpRequestMessage nextrequest = new HttpRequestMessage(HttpMethod.Get, nextLink.ToString());
                 FillPreferHeader(nextrequest, QueryOptions);
 
                 //var nextResults = await _httpClient.SendAsync(nextrequest);
@@ -219,6 +219,7 @@ namespace Xrm.Tools.WebAPI
 
             return resultList;
         }
+
         /// <summary>
         /// Retrieve a list of records based on query options
         /// </summary>
@@ -232,7 +233,7 @@ namespace Xrm.Tools.WebAPI
 
             string fullUrl = BuildGetUrl(uri, QueryOptions);
 
-            HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("GET"), fullUrl);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, fullUrl);
             FillPreferHeader(request, QueryOptions);
 
             //var results = await _httpClient.SendAsync(request);
@@ -348,7 +349,7 @@ namespace Xrm.Tools.WebAPI
                 fullUrl = BuildGetUrl(entityCollection, QueryOptions);
             else
                 fullUrl = BuildGetUrl(entityCollection + "(" + key + ")", QueryOptions);
-            HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("GET"), fullUrl);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, fullUrl);
 
             if (QueryOptions != null)
             {
@@ -387,7 +388,7 @@ namespace Xrm.Tools.WebAPI
 
             var fullUrl = _crmWebAPIConfig.APIUrl + entityCollection;
 
-            HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("Post"), fullUrl);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, fullUrl);
 
             var jsonData = JsonConvert.SerializeObject(data);
 
@@ -472,6 +473,7 @@ namespace Xrm.Tools.WebAPI
 
             return finalResult;
         }
+
         /// <summary>
         /// currently the content type for individual responses is missing msgtype=response that the API needs to parse it
         /// </summary>
@@ -513,7 +515,6 @@ namespace Xrm.Tools.WebAPI
             return changesetFixedContent;
         }
 
-
         /// <summary>
         /// Update or Insert based on a match with the entityID
         /// </summary>
@@ -527,6 +528,7 @@ namespace Xrm.Tools.WebAPI
         {
             return await Update(entityCollection, entityID.ToString(), data, Upsert);
         }
+
         /// <summary>
         /// Update or insert based on match with key provided in form of Field = Value
         /// </summary>
@@ -569,6 +571,7 @@ namespace Xrm.Tools.WebAPI
             return result;
 
         }
+
         /// <summary>
         /// delete record
         /// </summary>
@@ -584,6 +587,7 @@ namespace Xrm.Tools.WebAPI
             EnsureSuccessStatusCode(response);
 
         }
+
         /// <summary>
         /// execute an unbound function
         /// </summary>
@@ -602,8 +606,6 @@ namespace Xrm.Tools.WebAPI
             return values;
         }
 
-
-
         /// <summary>
         /// Execute a bound function using object parameters
         /// </summary>
@@ -618,6 +620,7 @@ namespace Xrm.Tools.WebAPI
 
             return await ExecuteFunction(function, entityCollection, entityID, list.ToArray());
         }
+
         /// <summary>
         /// execute an unbound function using object parameters
         /// </summary>
@@ -643,7 +646,7 @@ namespace Xrm.Tools.WebAPI
 
             var fullUrl = string.Format("{0}{1}", _crmWebAPIConfig.APIUrl, action);
 
-            HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("Post"), fullUrl);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, fullUrl);
 
             var jsonData = JsonConvert.SerializeObject(data);
 
@@ -657,6 +660,7 @@ namespace Xrm.Tools.WebAPI
             var values = JsonConvert.DeserializeObject<ExpandoObject>(resultData);
             return values;
         }
+
         /// <summary>
         /// Execute a bound action
         /// </summary>
@@ -685,7 +689,7 @@ namespace Xrm.Tools.WebAPI
 
             var fullUrl = _crmWebAPIConfig.APIUrl + fromEntityCollection + $"({fromEntityID})/{navProperty}/$ref";
 
-            HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("Post"), fullUrl);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, fullUrl);
 
             var jsonData = $"{{ '@odata.id': '{_crmWebAPIConfig.APIUrl}{toEntityCollection}({toEntityID})' }}";
 
@@ -810,6 +814,7 @@ namespace Xrm.Tools.WebAPI
             }
 
         }
+
         /// <summary>
         /// Helper function to convert object to KVP
         /// </summary>
@@ -843,6 +848,7 @@ namespace Xrm.Tools.WebAPI
 
             else return new List<KeyValuePair<string, object>>();
         }
+
         /// <summary>
         /// Helper function to build the url for functions and actions
         /// </summary>
@@ -1057,6 +1063,7 @@ namespace Xrm.Tools.WebAPI
             }
             return _crmWebAPIConfig.AccessToken;
         }
+
         /// <summary>
         /// helper method to setup the httpclient defaults
         /// </summary>
@@ -1072,6 +1079,7 @@ namespace Xrm.Tools.WebAPI
 
             _httpClient.Timeout = new TimeSpan(0, 2, 0);
         }
+
         /// <summary>
         ///  helper method to setup the request track-changes header
         /// </summary>
@@ -1133,6 +1141,7 @@ namespace Xrm.Tools.WebAPI
 
             return idGuid;
         }
+
         /// <summary>
         /// Helper method to check the response status and generate a well formatted error
         /// </summary>
@@ -1152,6 +1161,7 @@ namespace Xrm.Tools.WebAPI
             throw exception;
 
         }
+
         /// <summary>
         /// Helper method to extract error message text
         /// </summary>
@@ -1199,7 +1209,6 @@ namespace Xrm.Tools.WebAPI
 
             return errorData;
         }
-
 
         /// <summary>
         /// Helper method to relace the '_x002e_', '_x0040_' and '_TEXT_value' for the '.', '@' and 'TEXT'
