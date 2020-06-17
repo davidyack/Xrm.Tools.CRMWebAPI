@@ -48,17 +48,11 @@
     <licenseUrl>https://github.com/mohsinonxrm/Xrm.Tools.CRMWebAPI/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright 2020</copyright>
     <dependencies>       
-      <group targetFramework="uap10.0">
-        <dependency id="Newtonsoft.Json" version="8.0.2" />
+      <group targetFramework="uap10.0.16299">
+        <dependency id="Newtonsoft.Json" version="12.0.3" />
       </group>
-      <group targetFramework=".NETCoreApp1.0">
-        <dependency id="Microsoft.NETCore.App" version="1.1.0" exclude="Build,Analyzers" />
-        <dependency id="Newtonsoft.Json" version="9.0.1" exclude="Build,Analyzers" />
-      </group>
-    <group targetFramework="netstandard1.4">        
-        <dependency id="System.Reflection" version="4.3.0" exclude="Build,Analyzers" />
-        <dependency id="System.Reflection.TypeExtensions" version="4.3.0" exclude="Build,Analyzers" />
-        <dependency id="Newtonsoft.Json" version="10.0.2" exclude="Build,Analyzers" />
+      <group targetFramework=".NETCoreApp3.1">
+        <dependency id="Newtonsoft.Json" version="12.0.3" exclude="Build,Analyzers" />
       </group>
     </dependencies>
     <references></references>
@@ -66,8 +60,8 @@
   </metadata>
   <files>
     <file src="..\Xrm.Tools.WebAPI\bin\debug\Xrm.Tools.WebAPI.dll" target="lib\net462" />
-    <file src="..\Xrm.Tools.WebAPI.Core\bin\Debug\netcoreapp1.0\Xrm.Tools.WebAPI.dll" target="lib\netcore" />
-    <file src="..\Xrm.Tools.WebAPI.Core\bin\Debug\netcoreapp1.0\Xrm.Tools.WebAPI.dll" target="lib\netcoreapp" />
-  <file src="..\Xrm.Tools.WebAPI.Standard\bin\Debug\netstandard1.4\Xrm.Tools.WebAPI.dll" target="lib\netstandard" />
+    <file src="..\Xrm.Tools.WebAPI.Core\bin\Debug\netcoreapp3.1\Xrm.Tools.WebAPI.dll" target="lib\netcore" />
+    <file src="..\Xrm.Tools.WebAPI.Core\bin\Debug\netcoreapp3.1\Xrm.Tools.WebAPI.dll" target="lib\netcoreapp" />
+  <file src="..\Xrm.Tools.WebAPI.Standard\bin\Debug\netstandard2.0\Xrm.Tools.WebAPI.dll" target="lib\netstandard" />
   </files>
 </package>

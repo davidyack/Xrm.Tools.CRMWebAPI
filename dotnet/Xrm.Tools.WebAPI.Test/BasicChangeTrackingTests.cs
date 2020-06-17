@@ -14,7 +14,7 @@ namespace Xrm.Tools.WebAPI.Test
 
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
 
                 var results = await api.GetList("accounts", new Requests.CRMGetListOptions() { TrackChanges=true, FormattedValues = true });
 

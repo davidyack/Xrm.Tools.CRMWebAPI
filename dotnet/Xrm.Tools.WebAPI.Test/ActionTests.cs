@@ -15,7 +15,7 @@ namespace Xrm.Tools.WebAPI.Test
 
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
 
                 dynamic account = new ExpandoObject();
                 account.name = "test " + DateTime.Now.ToString();
@@ -53,7 +53,7 @@ namespace Xrm.Tools.WebAPI.Test
 
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
 
                 dynamic account = new ExpandoObject();
                 account.name = "test " + DateTime.Now.ToString();
@@ -92,7 +92,7 @@ namespace Xrm.Tools.WebAPI.Test
 
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
 
                 dynamic voteCountUpdate = new ExpandoObject();
                 voteCountUpdate.Target = new ExpandoObject();

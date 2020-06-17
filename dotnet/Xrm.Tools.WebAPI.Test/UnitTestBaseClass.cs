@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,11 +10,19 @@ namespace Xrm.Tools.WebAPI.Test
 {
     public class UnitTestBaseClass
     {
-        public CRMWebAPI GetAPI()
+        public async Task<CRMWebAPI> GetAPI()
         {
+            string authority = "https://login.microsoftonline.com/";
+            string clientId = "<clientid>";
+            string crmBaseUrl = "https://xx.crm.dynamics.com";
+            string clientSecret = "<clientSecret>";
+            string tenantID = "<tenantId>";
 
-            CRMWebAPI api = new CRMWebAPI("https://orgname.api.crm.dynamics.com/api/data/v9.0/", "");
-            return api;
+            var clientcred = new ClientCredential(clientId, clientSecret);
+            var authContext = new AuthenticationContext(authority + tenantID);
+            var authenticationResult = await authContext.AcquireTokenAsync(crmBaseUrl, clientcred);
+
+            return new CRMWebAPI(crmBaseUrl + "/api/data/v9.1/", authenticationResult.AccessToken);
 
         }
     }

@@ -21,7 +21,7 @@ namespace Xrm.Tools.WebAPI.Test
 
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
 
                 dynamic data = new ExpandoObject();
                 data.name = "test " + DateTime.Now.ToString();
@@ -78,7 +78,7 @@ namespace Xrm.Tools.WebAPI.Test
 
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
 
                 dynamic account = new ExpandoObject();
                 account.name = "Test Account " + DateTime.Now.ToString();
@@ -107,7 +107,7 @@ namespace Xrm.Tools.WebAPI.Test
 
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
 
                 dynamic account = new ExpandoObject();
                 account.name = "Test Account " + DateTime.Now.ToString();
@@ -132,7 +132,7 @@ namespace Xrm.Tools.WebAPI.Test
 
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
 
                 CRMGetListOptions qOptions = new CRMGetListOptions()
                 {
@@ -157,7 +157,7 @@ namespace Xrm.Tools.WebAPI.Test
 
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
 
                 var accounts = await api.GetList("accounts", new CRMGetListOptions() { Top = 10, FormattedValues = true, Select = new string[] { "name" }, OrderBy = new string[] { "name" } });
 
@@ -174,7 +174,7 @@ namespace Xrm.Tools.WebAPI.Test
 
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
 
                 var opps = await api.GetList("opportunities", new CRMGetListOptions() { Apply= "aggregate(estimatedvalue with sum as total)" });
 
@@ -190,7 +190,7 @@ namespace Xrm.Tools.WebAPI.Test
 
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
 
                 dynamic whoamiResults = await api.ExecuteFunction("WhoAmI");
                 CRMGetListOptions userOptions = new CRMGetListOptions()
@@ -235,7 +235,7 @@ namespace Xrm.Tools.WebAPI.Test
 
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
                 string statid = "2bf3c48a-de2d-e511-80f8-c4346bac7da8";
                 dynamic data = new ExpandoObject();
                 data.tt_name = "test";
@@ -252,7 +252,7 @@ namespace Xrm.Tools.WebAPI.Test
         {
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
                 string statid = "2bf3c48a-de2d-e511-80f8-c4346bac7da8";
                 
                 var result = await api.Get<ExpandoObject>("test_entity", $"test_externalstatid='{statid}'");
@@ -264,7 +264,7 @@ namespace Xrm.Tools.WebAPI.Test
         {
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
                     
                 dynamic data = new ExpandoObject();
                 data.name = "test " + DateTime.Now.ToString();
