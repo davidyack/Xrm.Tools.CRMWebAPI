@@ -14,6 +14,7 @@
 //  for a current copy.
 //
 // =====================================================================
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Polly;
@@ -28,9 +29,11 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
+using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml;
 using Xrm.Tools.WebAPI.Requests;
 using Xrm.Tools.WebAPI.Results;
 
@@ -219,6 +222,32 @@ namespace Xrm.Tools.WebAPI
                 nextLink = nextValues["@odata.nextLink"];
             }
 
+            //Would like to refactor fetch based retrieve into another function overload but to not break existing implementations we'll do it here, ugly indeed.
+            if (!string.IsNullOrEmpty(QueryOptions.FetchXml) && QueryOptions.FetchAllRecords)
+            {
+                QueryOptions.PageNumber++;
+
+                var fetchXMLPagingCookie = values["@Microsoft.Dynamics.CRM.fetchxmlpagingcookie"]?.ToString();
+                
+                if (!string.IsNullOrEmpty(fetchXMLPagingCookie))
+                {
+                    var pageCookie = fetchXMLPagingCookie.ToString().Replace("+", " ");
+                    pageCookie = Uri.UnescapeDataString(Uri.UnescapeDataString(pageCookie));
+                    pageCookie = pageCookie.Substring(pageCookie.IndexOf("pagingcookie"), (pageCookie.IndexOf("/>")));
+                    pageCookie = pageCookie.Substring(pageCookie.IndexOf("=") + 2, (pageCookie.IndexOf(@"/>") - 3));
+
+                    var fetchXML = CreateXml(QueryOptions.FetchXml, pageCookie, QueryOptions.PageNumber, QueryOptions.PageSize);
+                    QueryOptions.FetchXml = fetchXML;
+
+                    //Use recurrsion to get the subsequent pages
+                    var result = await GetList(uri, QueryOptions);
+                    
+                    resultList.Count += result.Count;
+                    resultList.List.AddRange(result.List);
+                    resultList.TrackChangesLink = result.TrackChangesLink;
+                }
+            }
+
             return resultList;
         }
 
@@ -280,6 +309,33 @@ namespace Xrm.Tools.WebAPI
                 }
                 nextLink = nextValues["@odata.nextLink"];
             }
+
+            //Would like to refactor fetch based retrieve into another function overload but to not break existing implementations we'll do it here, ugly indeed.
+            if (!string.IsNullOrEmpty(QueryOptions.FetchXml) && QueryOptions.FetchAllRecords)
+            {
+                QueryOptions.PageNumber++;
+
+                var fetchXMLPagingCookie = values["@Microsoft.Dynamics.CRM.fetchxmlpagingcookie"]?.ToString();
+
+                if (!string.IsNullOrEmpty(fetchXMLPagingCookie))
+                {
+                    var pageCookie = fetchXMLPagingCookie.ToString().Replace("+", " ");
+                    pageCookie = Uri.UnescapeDataString(Uri.UnescapeDataString(pageCookie));
+                    pageCookie = pageCookie.Substring(pageCookie.IndexOf("pagingcookie"), (pageCookie.IndexOf("/>")));
+                    pageCookie = pageCookie.Substring(pageCookie.IndexOf("=") + 2, (pageCookie.IndexOf(@"/>") - 3));
+
+                    var fetchXML = CreateXml(QueryOptions.FetchXml, pageCookie, QueryOptions.PageNumber, QueryOptions.PageSize);
+                    QueryOptions.FetchXml = fetchXML;
+
+                    //Use recurrsion to get the subsequent pages
+                    var result = await GetList<ResultType>(uri, QueryOptions);
+
+                    resultList.Count += result.Count;
+                    resultList.List.AddRange(result.List);
+                    resultList.TrackChangesLink = result.TrackChangesLink;
+                }
+            }
+
             return resultList;
         }
 
@@ -1041,9 +1097,9 @@ namespace Xrm.Tools.WebAPI
             if (!string.IsNullOrEmpty(queryOptions.FetchXml))
             {
                 if (firstParam)
-                    fullurl = fullurl + string.Format("?fetchXml={0}", Uri.EscapeUriString(queryOptions.FetchXml));
+                    fullurl = fullurl + string.Format("?fetchXml={0}", Uri.EscapeDataString(queryOptions.FetchXml));
                 else
-                    fullurl = fullurl + string.Format("&fetchXml={0}", Uri.EscapeUriString(queryOptions.FetchXml));
+                    fullurl = fullurl + string.Format("&fetchXml={0}", Uri.EscapeDataString(queryOptions.FetchXml));
                 firstParam = false;
             }
         }
@@ -1238,6 +1294,47 @@ namespace Xrm.Tools.WebAPI
                 if (obj[propName] == null)
                     obj[propName] = property.Value;
             }
+        }
+
+        private string CreateXml(string xml, string cookie, int page, int count)
+        {
+            StringReader stringReader = new StringReader(xml);
+            var reader = new XmlTextReader(stringReader);
+
+            // Load document
+            XmlDocument doc = new XmlDocument();
+            doc.Load(reader);
+
+            return CreateXml(doc, cookie, page, count);
+        }
+
+        private string CreateXml(XmlDocument doc, string cookie, int page, int count)
+        {
+            XmlAttributeCollection attrs = doc.DocumentElement.Attributes;
+
+            if (cookie != null)
+            {
+                XmlAttribute pagingAttr = doc.CreateAttribute("paging-cookie");
+                pagingAttr.Value = cookie;
+                attrs.Append(pagingAttr);
+            }
+
+            XmlAttribute pageAttr = doc.CreateAttribute("page");
+            pageAttr.Value = System.Convert.ToString(page);
+            attrs.Append(pageAttr);
+
+            XmlAttribute countAttr = doc.CreateAttribute("count");
+            countAttr.Value = System.Convert.ToString(count);
+            attrs.Append(countAttr);
+
+            StringBuilder sb = new StringBuilder(1024);
+            StringWriter stringWriter = new StringWriter(sb);
+
+            XmlTextWriter writer = new XmlTextWriter(stringWriter);
+            doc.WriteTo(writer);
+            writer.Close();
+
+            return sb.ToString();
         }
     }
 }

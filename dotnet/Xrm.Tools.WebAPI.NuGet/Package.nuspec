@@ -2,9 +2,9 @@
 <package >
   <metadata>
     <id>Xrm.Tools.CRMWebAPI</id>
-    <version>1.0.24</version>
+    <version>1.0.25</version>
     <title>Xrm.Tools.CRMWebAPI</title>
-    <authors>Mohsin on xRM</authors>
+    <authors>DavidYack</authors>
     <owners></owners>
     <description>
       This is an API helper for working with the Common Data Service (CDS) and Dynamics 365 Web API
@@ -37,15 +37,16 @@
       1.0.22 Changed assembly name of standard version to just Xrm.Tools.WebAPI
       1.0.23 Changed assembly name of core version to just Xrm.Tools.WebAPI
       1.0.24 Added Associate and DeleteAssocation methods
+      1.0.25 Upgraded projects to .NET Framework 4.6.2, .NET Core 3.1 LTS and .NET Standard 2.0, added Polly for wait and retry for GET requests, added support for fetching all records via FetchXML
     </releaseNotes>
     <summary>
       This is an API helper for working with the Common Data Service/Dynamics 365 Web API
     </summary>
     <language>en-US</language>
-    <projectUrl>https://github.com/mohsinonxrm/Xrm.Tools.CRMWebAPI</projectUrl>
+    <projectUrl>https://github.com/davidyack/Xrm.Tools.CRMWebAPI</projectUrl>
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <licenseUrl>https://github.com/mohsinonxrm/Xrm.Tools.CRMWebAPI/blob/master/LICENSE</licenseUrl>
+    <licenseUrl>https://github.com/davidyack/Xrm.Tools.CRMWebAPI/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright 2020</copyright>
     <dependencies>       
       <group targetFramework="uap10.0.16299">
