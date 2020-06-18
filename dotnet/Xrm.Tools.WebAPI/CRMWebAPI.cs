@@ -14,8 +14,12 @@
 //  for a current copy.
 //
 // =====================================================================
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Polly;
+using Polly.Extensions.Http;
+using Polly.Registry;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -25,9 +29,11 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
+using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml;
 using Xrm.Tools.WebAPI.Requests;
 using Xrm.Tools.WebAPI.Results;
 
@@ -39,6 +45,9 @@ namespace Xrm.Tools.WebAPI
         private HttpClient _httpClient = null;
         private CRMWebAPIConfig _crmWebAPIConfig;
 
+        // Create a policy registry
+        private PolicyRegistry _registry;
+
         /// <summary>
         /// Instantiate the CRMWebAPI using the CRMWebAPIConfig, if NetworkCredentials are present it is assumed a on-premisse connection type.
         /// </summary>
@@ -48,36 +57,40 @@ namespace Xrm.Tools.WebAPI
             _crmWebAPIConfig = crmWebAPIConfig;
 
             if (_crmWebAPIConfig.NetworkCredential != null)
-                _httpClient = new HttpClient(new HttpClientHandler {Credentials = _crmWebAPIConfig.NetworkCredential});
+                _httpClient = new HttpClient(new HttpClientHandler { Credentials = _crmWebAPIConfig.NetworkCredential });
             else
             {
                 _httpClient = new HttpClient();
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _crmWebAPIConfig.AccessToken);
             }
 
-            SetHttpClientDefaults(_crmWebAPIConfig.CallerID);
+            SetHttpClientDefaults(_crmWebAPIConfig.CallerID, _crmWebAPIConfig.Timeout);
+            InitializePollyRegistry();
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="apiUrl">CRM API base URL e.g. https://orgname.api.crm.dynamics.com/api/data/v8.0/ </param>
+        /// <param name="apiUrl">CRM API base URL e.g. https://orgname.api.crm.dynamics.com/api/data/v9.0/ </param>
         /// <param name="accessToken">allows for hard coded access token for testing</param>
         /// <param name="callerID">user id to impersonate on calls</param>
         /// <param name="getAccessToken">method to call to refresh access token, called before each use of token</param>
-        public CRMWebAPI(string apiUrl, string accessToken, Guid callerID = default(Guid), Func<string, Task<string>> getAccessToken = null)
+        public CRMWebAPI(string apiUrl, string accessToken, Guid callerID = default(Guid), Func<string, Task<string>> getAccessToken = null, TimeSpan? timeout = null)
         {
             _crmWebAPIConfig = new CRMWebAPIConfig
             {
-                APIUrl =  apiUrl,
+                APIUrl = apiUrl,
                 AccessToken = accessToken,
                 CallerID = callerID,
-                GetAccessToken = getAccessToken
+                GetAccessToken = getAccessToken,
+                Timeout = timeout.GetValueOrDefault(TimeSpan.FromMinutes(2.0))
             };
 
             _httpClient = new HttpClient();
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _crmWebAPIConfig.AccessToken);
-            SetHttpClientDefaults(callerID);
+
+            SetHttpClientDefaults(callerID, timeout);
+            InitializePollyRegistry();
         }
 
         /// <summary>
@@ -85,13 +98,14 @@ namespace Xrm.Tools.WebAPI
         /// </summary>
         /// <param name="apiUrl"></param>
         /// <param name="networkCredential"></param>
-        public CRMWebAPI(string apiUrl, NetworkCredential networkCredential = null, Guid callerID = default(Guid))
+        public CRMWebAPI(string apiUrl, NetworkCredential networkCredential = null, Guid callerID = default(Guid), TimeSpan? timeout = null)
         {
             _crmWebAPIConfig = new CRMWebAPIConfig
             {
                 APIUrl = apiUrl,
                 NetworkCredential = networkCredential,
-                CallerID = callerID
+                CallerID = callerID,
+                Timeout = timeout.GetValueOrDefault(TimeSpan.FromMinutes(2.0))
             };
 
             if (_crmWebAPIConfig.NetworkCredential != null)
@@ -99,7 +113,50 @@ namespace Xrm.Tools.WebAPI
             else
                 _httpClient = new HttpClient();
 
-            SetHttpClientDefaults(callerID);
+            SetHttpClientDefaults(callerID, timeout);
+            InitializePollyRegistry();
+        }
+
+        /// <summary>
+        /// Adds wait and retry async Polly policies to the registry
+        /// </summary>
+        private void InitializePollyRegistry()
+        {
+            // Create wait and retry policy that will retry up to 3 times and use exponential backoff as default.
+            // However, if Retry-After is provided then that will be used instead
+            IAsyncPolicy<HttpResponseMessage> waitAndRetryPolicy = HttpPolicyExtensions
+                          .HandleTransientHttpError() // HttpRequestException, 5XX and 408
+                          .OrResult(response => (int)response.StatusCode == 429) // Retry-After
+                          .WaitAndRetryAsync(
+                            retryCount: 3,
+                            sleepDurationProvider: (retryAttempt, context) =>
+                            {
+                                var retryAfter = TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)); //default exponential backoff
+
+                                if (context == null || !context.ContainsKey("Retry-After"))
+                                {
+                                    return retryAfter;
+                                }
+                                else
+                                {
+                                    return TimeSpan.FromSeconds(Convert.ToInt32(context["Retry-After"]));
+                                }
+                            },
+                            onRetryAsync: (exception, timespan, retryAttempt, context) =>
+                            {
+                                Console.WriteLine($"Retry Attempt No: {retryAttempt}");
+                                return Task.CompletedTask;
+                            });
+
+            // Create a noOp policy, so that can be used for idempotent requests
+            IAsyncPolicy<HttpResponseMessage> noOpPolicy = Policy.NoOpAsync().AsAsyncPolicy<HttpResponseMessage>();
+
+            // Create policy registry and add the policies to it
+            _registry = new PolicyRegistry()
+                            {
+                                { "WaitAndRetryPolicy", waitAndRetryPolicy },
+                                { "NoOpPolicy", noOpPolicy },
+                            };
         }
 
         /// <summary>
@@ -113,22 +170,24 @@ namespace Xrm.Tools.WebAPI
             await CheckAuthToken();
 
             string fullUrl = BuildGetUrl(uri, QueryOptions);
-            HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("GET"), fullUrl);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, fullUrl);
             FillPreferHeader(request, QueryOptions);
 
-            var results = await _httpClient.SendAsync(request);
-                        
+            //var results = await _httpClient.SendAsync(request);
+            var results = await _registry.Get<IAsyncPolicy<HttpResponseMessage>>("WaitAndRetryPolicy")
+                                            .ExecuteAsync(() => _httpClient.SendAsync(request));
+
             EnsureSuccessStatusCode(results);
             var data = await results.Content.ReadAsStringAsync();
             CRMGetListResult<ExpandoObject> resultList = new CRMGetListResult<ExpandoObject>();
             resultList.List = new List<ExpandoObject>();
-            
+
             var values = JObject.Parse(data);
             var valueList = values["value"].ToList();
             foreach (var value in valueList)
             {
-                if(_crmWebAPIConfig.ResolveUnicodeNames)
-                    FormatResultProperties( (JObject) value);
+                if (_crmWebAPIConfig.ResolveUnicodeNames)
+                    FormatResultProperties((JObject)value);
                 resultList.List.Add(value.ToObject<ExpandoObject>());
             }
 
@@ -141,11 +200,13 @@ namespace Xrm.Tools.WebAPI
             var nextLink = values["@odata.nextLink"];
             while (nextLink != null)
             {
-                HttpRequestMessage nextrequest = new HttpRequestMessage(new HttpMethod("GET"), nextLink.ToString());
+                HttpRequestMessage nextrequest = new HttpRequestMessage(HttpMethod.Get, nextLink.ToString());
                 FillPreferHeader(nextrequest, QueryOptions);
 
-                var nextResults = await _httpClient.SendAsync(nextrequest);
-                
+                //var nextResults = await _httpClient.SendAsync(nextrequest);
+                var nextResults = await _registry.Get<IAsyncPolicy<HttpResponseMessage>>("WaitAndRetryPolicy")
+                                            .ExecuteAsync(() => _httpClient.SendAsync(nextrequest));
+
                 EnsureSuccessStatusCode(nextResults);
                 var nextData = await nextResults.Content.ReadAsStringAsync();
 
@@ -161,8 +222,35 @@ namespace Xrm.Tools.WebAPI
                 nextLink = nextValues["@odata.nextLink"];
             }
 
+            //Would like to refactor fetch based retrieve into another function overload but to not break existing implementations we'll do it here, ugly indeed.
+            if (!string.IsNullOrEmpty(QueryOptions.FetchXml) && QueryOptions.FetchAllRecords)
+            {
+                QueryOptions.PageNumber++;
+
+                var fetchXMLPagingCookie = values["@Microsoft.Dynamics.CRM.fetchxmlpagingcookie"]?.ToString();
+                
+                if (!string.IsNullOrEmpty(fetchXMLPagingCookie))
+                {
+                    var pageCookie = fetchXMLPagingCookie.ToString().Replace("+", " ");
+                    pageCookie = Uri.UnescapeDataString(Uri.UnescapeDataString(pageCookie));
+                    pageCookie = pageCookie.Substring(pageCookie.IndexOf("pagingcookie"), (pageCookie.IndexOf("/>")));
+                    pageCookie = pageCookie.Substring(pageCookie.IndexOf("=") + 2, (pageCookie.IndexOf(@"/>") - 3));
+
+                    var fetchXML = CreateXml(QueryOptions.FetchXml, pageCookie, QueryOptions.PageNumber, QueryOptions.PageSize);
+                    QueryOptions.FetchXml = fetchXML;
+
+                    //Use recurrsion to get the subsequent pages
+                    var result = await GetList(uri, QueryOptions);
+                    
+                    resultList.Count += result.Count;
+                    resultList.List.AddRange(result.List);
+                    resultList.TrackChangesLink = result.TrackChangesLink;
+                }
+            }
+
             return resultList;
         }
+
         /// <summary>
         /// Retrieve a list of records based on query options
         /// </summary>
@@ -176,11 +264,13 @@ namespace Xrm.Tools.WebAPI
 
             string fullUrl = BuildGetUrl(uri, QueryOptions);
 
-            HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("GET"), fullUrl);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, fullUrl);
             FillPreferHeader(request, QueryOptions);
 
-            var results = await _httpClient.SendAsync(request);
-            
+            //var results = await _httpClient.SendAsync(request);
+            var results = await _registry.Get<IAsyncPolicy<HttpResponseMessage>>("WaitAndRetryPolicy")
+                                            .ExecuteAsync(() => _httpClient.SendAsync(request));
+
             EnsureSuccessStatusCode(results);
             var data = await results.Content.ReadAsStringAsync();
             var values = JObject.Parse(data);
@@ -189,7 +279,7 @@ namespace Xrm.Tools.WebAPI
 
             foreach (var value in values["value"].ToList())
             {
-                if(_crmWebAPIConfig.ResolveUnicodeNames)
+                if (_crmWebAPIConfig.ResolveUnicodeNames)
                     FormatResultProperties((JObject)value);
                 resultList.List.Add(value.ToObject<ResultType>());
             }
@@ -205,17 +295,47 @@ namespace Xrm.Tools.WebAPI
 
             while (nextLink != null)
             {
-                var nextResults = await _httpClient.GetAsync(nextLink.ToString());
+                //var nextResults = await _httpClient.GetAsync(nextLink.ToString());
+                var nextResults = await _registry.Get<IAsyncPolicy<HttpResponseMessage>>("WaitAndRetryPolicy")
+                                            .ExecuteAsync(() => _httpClient.GetAsync(nextLink.ToString()));
+
                 EnsureSuccessStatusCode(nextResults);
                 var nextData = await nextResults.Content.ReadAsStringAsync();
 
-                var nextValues = JObject.Parse(nextData);            
+                var nextValues = JObject.Parse(nextData);
                 foreach (var value in nextValues["value"].ToList())
                 {
                     resultList.List.Add(value.ToObject<ResultType>());
                 }
                 nextLink = nextValues["@odata.nextLink"];
             }
+
+            //Would like to refactor fetch based retrieve into another function overload but to not break existing implementations we'll do it here, ugly indeed.
+            if (!string.IsNullOrEmpty(QueryOptions.FetchXml) && QueryOptions.FetchAllRecords)
+            {
+                QueryOptions.PageNumber++;
+
+                var fetchXMLPagingCookie = values["@Microsoft.Dynamics.CRM.fetchxmlpagingcookie"]?.ToString();
+
+                if (!string.IsNullOrEmpty(fetchXMLPagingCookie))
+                {
+                    var pageCookie = fetchXMLPagingCookie.ToString().Replace("+", " ");
+                    pageCookie = Uri.UnescapeDataString(Uri.UnescapeDataString(pageCookie));
+                    pageCookie = pageCookie.Substring(pageCookie.IndexOf("pagingcookie"), (pageCookie.IndexOf("/>")));
+                    pageCookie = pageCookie.Substring(pageCookie.IndexOf("=") + 2, (pageCookie.IndexOf(@"/>") - 3));
+
+                    var fetchXML = CreateXml(QueryOptions.FetchXml, pageCookie, QueryOptions.PageNumber, QueryOptions.PageSize);
+                    QueryOptions.FetchXml = fetchXML;
+
+                    //Use recurrsion to get the subsequent pages
+                    var result = await GetList<ResultType>(uri, QueryOptions);
+
+                    resultList.Count += result.Count;
+                    resultList.List.AddRange(result.List);
+                    resultList.TrackChangesLink = result.TrackChangesLink;
+                }
+            }
+
             return resultList;
         }
 
@@ -233,11 +353,15 @@ namespace Xrm.Tools.WebAPI
             await CheckAuthToken();
             if (QueryOptions != null)
                 QueryOptions.IncludeCount = false;
-            string fullUrl = BuildGetUrl(uri+"/$count", QueryOptions);
-            var results = await _httpClient.GetAsync(fullUrl);
+            string fullUrl = BuildGetUrl(uri + "/$count", QueryOptions);
+
+            //var results = await _httpClient.GetAsync(fullUrl);
+            var results = await _registry.Get<IAsyncPolicy<HttpResponseMessage>>("WaitAndRetryPolicy")
+                                            .ExecuteAsync(() => _httpClient.GetAsync(fullUrl));
+
             EnsureSuccessStatusCode(results);
             var data = await results.Content.ReadAsStringAsync();
-            
+
             return int.Parse(data);
 
         }
@@ -283,7 +407,7 @@ namespace Xrm.Tools.WebAPI
                 fullUrl = BuildGetUrl(entityCollection, QueryOptions);
             else
                 fullUrl = BuildGetUrl(entityCollection + "(" + key + ")", QueryOptions);
-            HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("GET"), fullUrl);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, fullUrl);
 
             if (QueryOptions != null)
             {
@@ -297,7 +421,9 @@ namespace Xrm.Tools.WebAPI
                 }
             }
 
-            var results = await _httpClient.SendAsync(request);
+            //var results = await _httpClient.SendAsync(request);
+            var results = await _registry.Get<IAsyncPolicy<HttpResponseMessage>>("WaitAndRetryPolicy")
+                                            .ExecuteAsync(() => _httpClient.SendAsync(request));
 
             EnsureSuccessStatusCode(results);
             var data = await results.Content.ReadAsStringAsync();
@@ -307,7 +433,7 @@ namespace Xrm.Tools.WebAPI
 
             return value.ToObject<ResultType>();
         }
-       
+
         /// <summary>
         /// create a new record
         /// </summary>
@@ -320,7 +446,7 @@ namespace Xrm.Tools.WebAPI
 
             var fullUrl = _crmWebAPIConfig.APIUrl + entityCollection;
 
-            HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("Post"), fullUrl);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, fullUrl);
 
             var jsonData = JsonConvert.SerializeObject(data);
 
@@ -328,12 +454,12 @@ namespace Xrm.Tools.WebAPI
 
             var response = await _httpClient.SendAsync(request);
 
-            EnsureSuccessStatusCode(response,jsonData:jsonData);
-            
+            EnsureSuccessStatusCode(response, jsonData: jsonData);
+
             Guid idGuid = GetEntityIDFromResponse(response);
 
             return idGuid;
-        }     
+        }
 
         /// <summary>
         /// create multiple records at once using a batch
@@ -344,16 +470,6 @@ namespace Xrm.Tools.WebAPI
         public async Task<CRMBatchResult> Create(string entityCollection, object[] datalist)
         {
             await CheckAuthToken();
-
-#if WINDOWS_APP
-     throw new NotImplementedException();
-#elif NETCOREAPP1_0
-            throw new NotImplementedException();
-#elif NETSTANDARD1_4
-            throw new NotImplementedException();
-#elif NETSTANDARD2_0
-            throw new NotImplementedException();
-#else
 
             var httpClient = new HttpClient();
 
@@ -374,7 +490,7 @@ namespace Xrm.Tools.WebAPI
 
                 req.Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
                 HttpMessageContent content = new HttpMessageContent(req);
-                content.Headers.Remove("Content-Type");                
+                content.Headers.Remove("Content-Type");
                 content.Headers.TryAddWithoutValidation("Content-Type", "application/http");
                 content.Headers.TryAddWithoutValidation("Content-Transfer-Encoding", "binary");
                 content.Headers.TryAddWithoutValidation("Content-ID", contentID.ToString());
@@ -394,7 +510,7 @@ namespace Xrm.Tools.WebAPI
             var responseString = response.Content.ReadAsStringAsync();
             MultipartMemoryStreamProvider batchStream = await response.Content.ReadAsMultipartAsync(); ;
             var changesetStream = batchStream.Contents.FirstOrDefault();
-            
+
             StreamContent changesetFixedContent = FixupChangeStreamDueToBug(changesetStream);
 
             var changesetFixedStream = await changesetFixedContent.ReadAsMultipartAsync();
@@ -402,10 +518,10 @@ namespace Xrm.Tools.WebAPI
             finalResult.ResultItems = new List<CRMBatchResultItem>();
 
             foreach (var responseContent in changesetFixedStream.Contents)
-            {               
+            {
                 var fixedREsponseContent = FixupToAddCorrectHttpContentType(responseContent);
                 var individualResponseString = await fixedREsponseContent.ReadAsStringAsync();
-                var indivdualResponse = await fixedREsponseContent.ReadAsHttpResponseMessageAsync();              
+                var indivdualResponse = await fixedREsponseContent.ReadAsHttpResponseMessageAsync();
                 var idString = indivdualResponse.Headers.GetValues("OData-EntityId").FirstOrDefault();
                 idString = idString.Replace(_crmWebAPIConfig.APIUrl + entityCollection, "").Replace("(", "").Replace(")", "");
                 CRMBatchResultItem resultItem = new CRMBatchResultItem();
@@ -414,8 +530,8 @@ namespace Xrm.Tools.WebAPI
             }
 
             return finalResult;
-#endif
         }
+
         /// <summary>
         /// currently the content type for individual responses is missing msgtype=response that the API needs to parse it
         /// </summary>
@@ -427,7 +543,7 @@ namespace Xrm.Tools.WebAPI
             changesetStream.Headers.Add("Content-Type", "application/http; msgtype=response");
 
             return changesetStream;
-            
+
         }
 
         /// <summary>
@@ -457,7 +573,6 @@ namespace Xrm.Tools.WebAPI
             return changesetFixedContent;
         }
 
-    
         /// <summary>
         /// Update or Insert based on a match with the entityID
         /// </summary>
@@ -471,6 +586,7 @@ namespace Xrm.Tools.WebAPI
         {
             return await Update(entityCollection, entityID.ToString(), data, Upsert);
         }
+
         /// <summary>
         /// Update or insert based on match with key provided in form of Field = Value
         /// </summary>
@@ -493,13 +609,13 @@ namespace Xrm.Tools.WebAPI
             request.Content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
             if (!Upsert)
-                request.Headers.Add("If-Match", "*");          
+                request.Headers.Add("If-Match", "*");
 
             var response = await _httpClient.SendAsync(request);
 
             result.EntityID = GetEntityIDFromResponse(response);
-           
-          
+
+
             if (!response.IsSuccessStatusCode)
             {
                 if ((response.StatusCode == HttpStatusCode.PreconditionFailed) &&
@@ -507,12 +623,13 @@ namespace Xrm.Tools.WebAPI
                 {
                     return result;
                 }
-                EnsureSuccessStatusCode(response,jsonData:jsonData);
+                EnsureSuccessStatusCode(response, jsonData: jsonData);
             }
 
             return result;
 
         }
+
         /// <summary>
         /// delete record
         /// </summary>
@@ -528,6 +645,7 @@ namespace Xrm.Tools.WebAPI
             EnsureSuccessStatusCode(response);
 
         }
+
         /// <summary>
         /// execute an unbound function
         /// </summary>
@@ -545,8 +663,6 @@ namespace Xrm.Tools.WebAPI
             var values = JsonConvert.DeserializeObject<ExpandoObject>(data);
             return values;
         }
-        
-        
 
         /// <summary>
         /// Execute a bound function using object parameters
@@ -562,13 +678,14 @@ namespace Xrm.Tools.WebAPI
 
             return await ExecuteFunction(function, entityCollection, entityID, list.ToArray());
         }
+
         /// <summary>
         /// execute an unbound function using object parameters
         /// </summary>
         /// <param name="function"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public async Task<ExpandoObject> ExecuteFunction(string function, object data=null)
+        public async Task<ExpandoObject> ExecuteFunction(string function, object data = null)
         {
             List<KeyValuePair<string, object>> list = ConvertObjectToKeyValuePair(data);
 
@@ -586,8 +703,8 @@ namespace Xrm.Tools.WebAPI
             await CheckAuthToken();
 
             var fullUrl = string.Format("{0}{1}", _crmWebAPIConfig.APIUrl, action);
-                        
-            HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("Post"), fullUrl);
+
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, fullUrl);
 
             var jsonData = JsonConvert.SerializeObject(data);
 
@@ -595,12 +712,13 @@ namespace Xrm.Tools.WebAPI
 
             var results = await _httpClient.SendAsync(request);
 
-            EnsureSuccessStatusCode(results,jsonData:jsonData);
+            EnsureSuccessStatusCode(results, jsonData: jsonData);
 
             var resultData = await results.Content.ReadAsStringAsync();
             var values = JsonConvert.DeserializeObject<ExpandoObject>(resultData);
             return values;
         }
+
         /// <summary>
         /// Execute a bound action
         /// </summary>
@@ -609,27 +727,27 @@ namespace Xrm.Tools.WebAPI
         /// <param name="entityID"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public async Task<ExpandoObject> ExecuteAction(string action, string entityCollection,Guid entityID,object data)
+        public async Task<ExpandoObject> ExecuteAction(string action, string entityCollection, Guid entityID, object data)
         {
-            return await ExecuteAction(string.Format("{0}({1})/{2}", entityCollection, entityID.ToString(), action), data);            
+            return await ExecuteAction(string.Format("{0}({1})/{2}", entityCollection, entityID.ToString(), action), data);
         }
 
-         /// <summary>
-         /// Associate two entities
-         /// </summary>
-         /// <param name="fromEntityCollection"></param>
-         /// <param name="fromEntityID"></param>
-         /// <param name="navProperty"></param>
-         /// <param name="toEntityCollection"></param>
-         /// <param name="toEntityID"></param>
-         /// <returns></returns>
+        /// <summary>
+        /// Associate two entities
+        /// </summary>
+        /// <param name="fromEntityCollection"></param>
+        /// <param name="fromEntityID"></param>
+        /// <param name="navProperty"></param>
+        /// <param name="toEntityCollection"></param>
+        /// <param name="toEntityID"></param>
+        /// <returns></returns>
         public async Task<bool> Associate(string fromEntityCollection, Guid fromEntityID, string navProperty, string toEntityCollection, Guid toEntityID)
         {
             await CheckAuthToken();
 
-            var fullUrl = _crmWebAPIConfig.APIUrl + fromEntityCollection + $"({fromEntityID})/{navProperty}/$ref";            
+            var fullUrl = _crmWebAPIConfig.APIUrl + fromEntityCollection + $"({fromEntityID})/{navProperty}/$ref";
 
-            HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("Post"), fullUrl);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, fullUrl);
 
             var jsonData = $"{{ '@odata.id': '{_crmWebAPIConfig.APIUrl}{toEntityCollection}({toEntityID})' }}";
 
@@ -637,7 +755,7 @@ namespace Xrm.Tools.WebAPI
 
             var response = await _httpClient.SendAsync(request);
 
-            EnsureSuccessStatusCode(response, jsonData: jsonData);            
+            EnsureSuccessStatusCode(response, jsonData: jsonData);
 
             return true;
         }
@@ -717,11 +835,11 @@ namespace Xrm.Tools.WebAPI
         /// <param name="fileName"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public async Task UpdateFileData(string entityCollection, Guid entityID, string fieldName,string fileName,byte[] data)
+        public async Task UpdateFileData(string entityCollection, Guid entityID, string fieldName, string fileName, byte[] data)
         {
             await CheckAuthToken();
 
-            var url = new Uri( _crmWebAPIConfig.APIUrl + $"{entityCollection}({entityID.ToString()})/{fieldName}");
+            var url = new Uri(_crmWebAPIConfig.APIUrl + $"{entityCollection}({entityID.ToString()})/{fieldName}");
             var chunkSize = 0;
             using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), url))
             {
@@ -739,7 +857,7 @@ namespace Xrm.Tools.WebAPI
             {
                 var count = (offset + chunkSize) > data.Length ? data.Length % chunkSize : chunkSize;
                 using (var content = new ByteArrayContent(data, offset, count))
-                    
+
                 using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), url))
                 {
                     content.Headers.Add("Content-Type", "application/octet-stream");
@@ -752,8 +870,9 @@ namespace Xrm.Tools.WebAPI
                     }
                 }
             }
-            
+
         }
+
         /// <summary>
         /// Helper function to convert object to KVP
         /// </summary>
@@ -787,6 +906,7 @@ namespace Xrm.Tools.WebAPI
 
             else return new List<KeyValuePair<string, object>>();
         }
+
         /// <summary>
         /// Helper function to build the url for functions and actions
         /// </summary>
@@ -914,7 +1034,7 @@ namespace Xrm.Tools.WebAPI
                     BuildExpandQueryURLOptions(queryOptions, ref fullurl, ref firstParam);
 
                 BuildAdvancedQueryURLOptions(queryOptions, ref fullurl, ref firstParam);
-            }            
+            }
 
             return fullurl;
         }
@@ -943,17 +1063,17 @@ namespace Xrm.Tools.WebAPI
                     expands.Add(string.Format("{0}({1})", expand.Property, string.Join(";", expandOptions)));
                 else
                     expands.Add(string.Format("{0}", expand.Property));
-                
+
             }
             if (expands.Count > 0)
             {
                 if (firstParam)
-                    fullurl = fullurl + string.Format("?$expand={0}", String.Join(",",expands));
+                    fullurl = fullurl + string.Format("?$expand={0}", String.Join(",", expands));
                 else
                     fullurl = fullurl + string.Format("&$expand={0}", String.Join(",", expands));
                 firstParam = false;
             }
-                
+
         }
 
         private static void BuildAdvancedQueryURLOptions(CRMGetListOptions queryOptions, ref string fullurl, ref bool firstParam)
@@ -977,9 +1097,9 @@ namespace Xrm.Tools.WebAPI
             if (!string.IsNullOrEmpty(queryOptions.FetchXml))
             {
                 if (firstParam)
-                    fullurl = fullurl + string.Format("?fetchXml={0}", Uri.EscapeUriString(queryOptions.FetchXml));
+                    fullurl = fullurl + string.Format("?fetchXml={0}", Uri.EscapeDataString(queryOptions.FetchXml));
                 else
-                    fullurl = fullurl + string.Format("&fetchXml={0}", Uri.EscapeUriString(queryOptions.FetchXml));
+                    fullurl = fullurl + string.Format("&fetchXml={0}", Uri.EscapeDataString(queryOptions.FetchXml));
                 firstParam = false;
             }
         }
@@ -1001,11 +1121,12 @@ namespace Xrm.Tools.WebAPI
             }
             return _crmWebAPIConfig.AccessToken;
         }
+
         /// <summary>
         /// helper method to setup the httpclient defaults
         /// </summary>
         /// <param name="callerID"></param>
-        private void SetHttpClientDefaults(Guid callerID)
+        private void SetHttpClientDefaults(Guid callerID, TimeSpan? timeout = null)
         {
             _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
             _httpClient.DefaultRequestHeaders.Add("OData-MaxVersion", "4.0");
@@ -1014,8 +1135,9 @@ namespace Xrm.Tools.WebAPI
             if (callerID != Guid.Empty)
                 _httpClient.DefaultRequestHeaders.Add("MSCRMCallerID", callerID.ToString());
 
-            _httpClient.Timeout = new TimeSpan(0, 2, 0);
+            _httpClient.Timeout = timeout.GetValueOrDefault(TimeSpan.FromMinutes(2.0));
         }
+
         /// <summary>
         ///  helper method to setup the request track-changes header
         /// </summary>
@@ -1040,7 +1162,7 @@ namespace Xrm.Tools.WebAPI
             if (QueryOptions.TrackChanges)
                 preferList.Add("odata.track-changes");
 
-           // preferList.Add("odata.maxpagesize=1");
+            // preferList.Add("odata.maxpagesize=1");
 
             if (preferList.Count > 0)
                 Request.Headers.Add("Prefer", string.Join(",", preferList));
@@ -1077,11 +1199,12 @@ namespace Xrm.Tools.WebAPI
 
             return idGuid;
         }
+
         /// <summary>
         /// Helper method to check the response status and generate a well formatted error
         /// </summary>
         /// <param name="response"></param>
-        private static void EnsureSuccessStatusCode(HttpResponseMessage response,string jsonData = null)
+        private static void EnsureSuccessStatusCode(HttpResponseMessage response, string jsonData = null)
         {
             if (response.IsSuccessStatusCode)
                 return;
@@ -1096,6 +1219,7 @@ namespace Xrm.Tools.WebAPI
             throw exception;
 
         }
+
         /// <summary>
         /// Helper method to extract error message text
         /// </summary>
@@ -1144,7 +1268,6 @@ namespace Xrm.Tools.WebAPI
             return errorData;
         }
 
-
         /// <summary>
         /// Helper method to relace the '_x002e_', '_x0040_' and '_TEXT_value' for the '.', '@' and 'TEXT'
         /// If some property is found with the same name no action will be done.
@@ -1171,6 +1294,47 @@ namespace Xrm.Tools.WebAPI
                 if (obj[propName] == null)
                     obj[propName] = property.Value;
             }
+        }
+
+        private string CreateXml(string xml, string cookie, int page, int count)
+        {
+            StringReader stringReader = new StringReader(xml);
+            var reader = new XmlTextReader(stringReader);
+
+            // Load document
+            XmlDocument doc = new XmlDocument();
+            doc.Load(reader);
+
+            return CreateXml(doc, cookie, page, count);
+        }
+
+        private string CreateXml(XmlDocument doc, string cookie, int page, int count)
+        {
+            XmlAttributeCollection attrs = doc.DocumentElement.Attributes;
+
+            if (cookie != null)
+            {
+                XmlAttribute pagingAttr = doc.CreateAttribute("paging-cookie");
+                pagingAttr.Value = cookie;
+                attrs.Append(pagingAttr);
+            }
+
+            XmlAttribute pageAttr = doc.CreateAttribute("page");
+            pageAttr.Value = System.Convert.ToString(page);
+            attrs.Append(pageAttr);
+
+            XmlAttribute countAttr = doc.CreateAttribute("count");
+            countAttr.Value = System.Convert.ToString(count);
+            attrs.Append(countAttr);
+
+            StringBuilder sb = new StringBuilder(1024);
+            StringWriter stringWriter = new StringWriter(sb);
+
+            XmlTextWriter writer = new XmlTextWriter(stringWriter);
+            doc.WriteTo(writer);
+            writer.Close();
+
+            return sb.ToString();
         }
     }
 }

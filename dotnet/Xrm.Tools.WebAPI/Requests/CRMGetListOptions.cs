@@ -32,6 +32,15 @@ namespace Xrm.Tools.WebAPI.Requests
 
         public string TrackChangesLink { get; set; }
 
+        public bool FetchAllRecords { get; set; }
 
+        /// <summary>
+        /// Used for FetchXML Paging
+        /// </summary>
+        public int PageSize { get; set; } = 5000;
+        /// <summary>
+        /// Used for FetchXML Paging
+        /// </summary>
+        public int PageNumber { get; set; } = 1;
     }
 }

@@ -16,7 +16,7 @@ namespace Xrm.Tools.WebAPI.Test
         {
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
 
                 var optionSet = await api.GetOptionSetByName("need");
 
@@ -31,7 +31,7 @@ namespace Xrm.Tools.WebAPI.Test
         {
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
 
                 var entityNameList = await api.GetEntityDisplayNameList();
 
@@ -46,7 +46,7 @@ namespace Xrm.Tools.WebAPI.Test
         {
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
 
                 var entityNameList = await api.GetEntityDisplayNameList();
 
@@ -65,7 +65,7 @@ namespace Xrm.Tools.WebAPI.Test
         {
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
 
                 var entityNameList = await api.GetEntityDisplayNameList();
 

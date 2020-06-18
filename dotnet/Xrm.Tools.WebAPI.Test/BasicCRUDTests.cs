@@ -13,7 +13,7 @@ namespace Xrm.Tools.WebAPI.Test
     [TestClass]
     public class BasicCRUDTests : UnitTestBaseClass
     {
-        
+
 
         [TestMethod]
         public void TestMethod1()
@@ -21,12 +21,12 @@ namespace Xrm.Tools.WebAPI.Test
 
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
 
                 dynamic data = new ExpandoObject();
                 data.name = "test " + DateTime.Now.ToString();
 
-                Guid createdID = await api.Create("accounts", data);                
+                Guid createdID = await api.Create("accounts", data);
 
                 var retrievedObject = await api.Get("accounts", createdID, new CRMGetListOptions() { FormattedValues = true });
 
@@ -41,16 +41,16 @@ namespace Xrm.Tools.WebAPI.Test
 
                 await api.Delete("accounts", upsertResult.EntityID);
 
-                var results = await api.GetList("accounts", new Requests.CRMGetListOptions() { Top = 5, FormattedValues=true });
+                var results = await api.GetList("accounts", new Requests.CRMGetListOptions() { Top = 5, FormattedValues = true });
 
-                string fetchXml = "<fetch mapping='logical'><entity name='account'><attribute name='accountid'/><attribute name='name'/></entity></fetch>";
+                string fetchXml = "<fetch version='1.0' mapping='logical' output-format='xml-platform' no-lock='true'><entity name='account'><attribute name='accountid'/><attribute name='name'/></entity></fetch>";
 
-                var fetchResults = await api.GetList("accounts", QueryOptions: new CRMGetListOptions() { FetchXml = fetchXml });
+                var fetchResults = await api.GetList("accounts", QueryOptions: new CRMGetListOptions() { FetchXml = fetchXml, FetchAllRecords = true });
 
                 var count = await api.GetCount("accounts");
 
                 List<object> batchList = new List<object>();
-                for (int i=0;i<5;i++)
+                for (int i = 0; i < 5; i++)
                 {
                     dynamic batchCreateData = new ExpandoObject();
                     batchCreateData.name = "test " + DateTime.Now.ToString();
@@ -62,7 +62,7 @@ namespace Xrm.Tools.WebAPI.Test
                 gettimeoptions.LocalizedStandardName = "Pacific Standard Time";
                 gettimeoptions.LocaleId = 1033;
 
-                var gettimeResults  = await api.ExecuteFunction("GetTimeZoneCodeByLocalizedName",gettimeoptions);
+                var gettimeResults = await api.ExecuteFunction("GetTimeZoneCodeByLocalizedName", gettimeoptions);
 
                 var whoamiResults = await api.ExecuteFunction("WhoAmI");
 
@@ -78,7 +78,7 @@ namespace Xrm.Tools.WebAPI.Test
 
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
 
                 dynamic account = new ExpandoObject();
                 account.name = "Test Account " + DateTime.Now.ToString();
@@ -107,7 +107,7 @@ namespace Xrm.Tools.WebAPI.Test
 
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
 
                 dynamic account = new ExpandoObject();
                 account.name = "Test Account " + DateTime.Now.ToString();
@@ -132,7 +132,7 @@ namespace Xrm.Tools.WebAPI.Test
 
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
 
                 CRMGetListOptions qOptions = new CRMGetListOptions()
                 {
@@ -142,7 +142,7 @@ namespace Xrm.Tools.WebAPI.Test
                 foreach (dynamic account in accounts.List)
                 {
                     var myAccount = account as IDictionary<string, object>;
-                    
+
                     Console.WriteLine(myAccount["contact.fullname"]);
                 }
 
@@ -157,7 +157,7 @@ namespace Xrm.Tools.WebAPI.Test
 
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
 
                 var accounts = await api.GetList("accounts", new CRMGetListOptions() { Top = 10, FormattedValues = true, Select = new string[] { "name" }, OrderBy = new string[] { "name" } });
 
@@ -174,9 +174,9 @@ namespace Xrm.Tools.WebAPI.Test
 
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
 
-                var opps = await api.GetList("opportunities", new CRMGetListOptions() { Apply= "aggregate(estimatedvalue with sum as total)" });
+                var opps = await api.GetList("opportunities", new CRMGetListOptions() { Apply = "aggregate(estimatedvalue with sum as total)" });
 
 
                 System.Diagnostics.Trace.WriteLine("finished");
@@ -190,20 +190,20 @@ namespace Xrm.Tools.WebAPI.Test
 
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
 
                 dynamic whoamiResults = await api.ExecuteFunction("WhoAmI");
                 CRMGetListOptions userOptions = new CRMGetListOptions()
                 {
-                     Expand = new CRMExpandOptions[]
+                    Expand = new CRMExpandOptions[]
                         { new CRMExpandOptions()
                             { Property="businessunitid",
                               Select = new string[] { "businessunitid","name","websiteurl" }
                             }
                         }
                 };
-                
-                var userResults = await api.Get("systemusers",Guid.Parse(whoamiResults.UserId),QueryOptions:userOptions);
+
+                var userResults = await api.Get("systemusers", Guid.Parse(whoamiResults.UserId), QueryOptions: userOptions);
 
                 CRMGetListOptions buOptions = new CRMGetListOptions()
                 {
@@ -235,14 +235,14 @@ namespace Xrm.Tools.WebAPI.Test
 
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
                 string statid = "2bf3c48a-de2d-e511-80f8-c4346bac7da8";
                 dynamic data = new ExpandoObject();
                 data.tt_name = "test";
                 data.tt_blocks = 1;
                 data.tt_externalstatid = statid;
                 var result = await api.Update("test_entity", "test_externalstatid='" + statid + "'", data, Upsert: true);
-            
+
 
             }).Wait();
         }
@@ -252,9 +252,9 @@ namespace Xrm.Tools.WebAPI.Test
         {
             Task.Run(async () =>
             {
-                var api = GetAPI();
+                var api = await GetAPI();
                 string statid = "2bf3c48a-de2d-e511-80f8-c4346bac7da8";
-                
+
                 var result = await api.Get<ExpandoObject>("test_entity", $"test_externalstatid='{statid}'");
             }).Wait();
         }
@@ -264,8 +264,8 @@ namespace Xrm.Tools.WebAPI.Test
         {
             Task.Run(async () =>
             {
-                var api = GetAPI();
-                    
+                var api = await GetAPI();
+
                 dynamic data = new ExpandoObject();
                 data.name = "test " + DateTime.Now.ToString();
 
@@ -274,7 +274,7 @@ namespace Xrm.Tools.WebAPI.Test
                 var fileData = File.ReadAllBytes("c:\\test\\logo.jpg");
                 await api.UpdateFileData("accounts", createdID, "cr0e2_logo", "logo.jpg", fileData);
                 var getData = await api.GetFileData("accounts", createdID, "cr0e2_logo");
-                File.WriteAllBytes("c:\\test\\logoGet.jpg",getData);
+                File.WriteAllBytes("c:\\test\\logoGet.jpg", getData);
 
 
             }).Wait();
